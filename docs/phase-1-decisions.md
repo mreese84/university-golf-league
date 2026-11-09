@@ -7,7 +7,7 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
 | Area | Decision |
 | --- | --- |
 | App | Installable web app first (add to Home Screen, offline, push). Decide on the App Store later. One codebase. |
-| Chapters | UGL becomes a league of chapters. Today's group is **The Founding Chapter**. |
+| Chapters | UGL becomes a league of chapters. Today's group is **The Founder's Chapter**. |
 | New chapters | Any signed-in member can request one. Once an admin approves, the requester becomes its Chapter Organizer. |
 | Who sees what | Members see only the chapters they belong to. Admins see every chapter. |
 | Signed-out visitors | A landing page: UGL logo and tagline, sign-in, and a way to request a chapter. Nothing else. |
@@ -21,7 +21,7 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
 | Guests | Their results count like anyone's: records, superlatives and team points. |
 | Teams | Set per trip: name, color and an uploaded logo. Player pages and superlatives show no team logos. |
 | Handicaps | One pre-trip index per player per trip, entered by hand, with the player's GHIN number stored and linked to the official lookup. Used for team drafting and history. |
-| Numbering | Per chapter: this year stays UGL2 in The Founding Chapter, and a new chapter starts at 1. |
+| Numbering | Per chapter: this year stays UGL2 in The Founder's Chapter, and a new chapter starts at 1. |
 | Editing | Everything is edited in the app. No more JSON uploads; Export stays as a backup. |
 
 ## Name and address
@@ -66,7 +66,7 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
   - inside each trip: the guide, teams, handicaps, RSVPs, the pairings draft, matches and Fireball counts
 - **Security rules:** chapter membership and roles enforced by the database, not just the app.
 - **Admin editors:** for every part of the guide that's file-only today (trip details, flights, houses, rounds and tee times, format and rules, football), for trips, people and chapters, and for results.
-- **Move today's data into The Founding Chapter:**
+- **Move today's data into The Founder's Chapter:**
   - members and trips (including UGL1, 2025 Lubbock, as a trip with no competition)
   - the 2026 guide and draft
   - Fireball counts, bios and colleges

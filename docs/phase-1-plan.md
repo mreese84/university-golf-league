@@ -6,8 +6,8 @@ Each numbered step below is one pull request. The live site keeps working after 
 
 ## In short
 
-1. **Groundwork:** hosting, tests, the new database layout and its rules, and a tool that moves today's data into The Founding Chapter. Members see no change.
-2. **The Founding Chapter goes live:** today's features, rebuilt on the new database at chapter addresses, then one switch moves everyone over.
+1. **Groundwork:** hosting, tests, the new database layout and its rules, and a tool that moves today's data into The Founder's Chapter. Members see no change.
+2. **The Founder's Chapter goes live:** today's features, rebuilt on the new database at chapter addresses, then one switch moves everyone over.
 3. **Edit everything in the app:** guide editors, handicaps, invites and RSVPs, results, chapter requests, and the installable app.
 
 UGL2 is done and the next trip is a year off, so the switch can happen whenever it's ready, with nobody mid-trip.
@@ -58,10 +58,10 @@ chapters/{chapterId}              { name, createdAt }
     matches/{matchId}             { session, match, sides, result, totals, scores }   today's match files
 ```
 
-- **IDs are readable and permanent.** People keep today's history IDs (`mark-reese`); new people get one from their name. A trip's ID is its address (`2026-columbia`). The Founding Chapter is `founding`.
+- **IDs are readable and permanent.** People keep today's history IDs (`mark-reese`); new people get one from their name. A trip's ID is its address (`2026-columbia`). The Founder's Chapter is `founders`.
 - **One person record each.** It replaces today's two lists ("Mark R" on the Members page and "mark-reese" in the history), which are matched by name.
 - **Guide and history share one model.** A trip's teams, rounds and sessions serve both. Rounds gain par and stroke index, and sessions gain how they're scored, as in today's `event.json`. The history pages assemble the same shape they read today, so the records and superlatives code stays as it is.
-- **Numbering:** `number` is per chapter: UGL1 (2025 Lubbock, `competition: false`) and UGL2 (2026 Columbia) in The Founding Chapter. A new chapter starts at 1.
+- **Numbering:** `number` is per chapter: UGL1 (2025 Lubbock, `competition: false`) and UGL2 (2026 Columbia) in The Founder's Chapter. A new chapter starts at 1.
 - **Emails live only in `logins`**, so members don't see each other's addresses. Organizers see the emails their chapter invited.
 - **`chapterIds` and `organizerOf`** on a person mirror the rosters, so the rules can check "shares a chapter with" in one lookup. They're saved together with the roster, and the rules reject a save where they'd disagree.
 - **Handicaps are their own records** so a player can enter their own. Members of the chapter can see them.
@@ -95,26 +95,26 @@ How the database enforces it:
 
 ```
 /                                     signed out: the landing page; signed in: your chapter, or a picker if you're in several
-/founding                             Trips, Selection, Members
-/founding/2026-columbia/guide         a trip's Player's Guide
-/founding/history                     events; /founding/history/2026-columbia; /founding/history/2026-columbia/singles-1
-/founding/players                     the Players list; /founding/players/mark-reese
-/founding/superlatives
+/founders                             Trips, Selection, Members
+/founders/2026-columbia/guide         a trip's Player's Guide
+/founders/history                     events; /founders/history/2026-columbia; /founders/history/2026-columbia/singles-1
+/founders/players                     the Players list; /founders/players/mark-reese
+/founders/superlatives
 /me                                   your profile
 /admin                                chapters, requests and co-admins (admins only)
 ```
 
-Old addresses (`/2026-columbia/guide`, `/history/…`, `/players/…`, `/superlatives`) go to the same page in The Founding Chapter. Chapter IDs can't be words the app uses (`history`, `players`, `admin`, `me` and so on).
+Old addresses (`/2026-columbia/guide`, `/history/…`, `/players/…`, `/superlatives`) go to the same page in The Founder's Chapter. Chapter IDs can't be words the app uses (`history`, `players`, `admin`, `me` and so on).
 
-## Moving today's data into The Founding Chapter
+## Moving today's data into The Founder's Chapter
 
 | Today | Moves to |
 | --- | --- |
-| Members list (`app/data`: "Mark R", college) | people (full name, college) and the Founding roster |
+| Members list (`app/data`: "Mark R", college) | people (full name, college) and the Founder's Chapter roster |
 | Guide-access emails (`access/members`) | logins |
 | `history/players.json` | people (same IDs and photos) |
 | Bios (`profiles`) | people |
-| Trips (`app/data`) | Founding trips: UGL1 2025 Lubbock (no competition) and UGL2 2026 Columbia |
+| Trips (`app/data`) | The Founder's Chapter's trips: UGL1 2025 Lubbock (no competition) and UGL2 2026 Columbia |
 | Guides (`guides`) | the trip and its guide |
 | Pairings drafts (`guideDrafts`) | the trip's draft and handicaps |
 | Fireball counts (`fireball`) | the trip's Fireball counts |
@@ -125,7 +125,7 @@ How it runs:
 - **In the app, by Mark.** An admin-only Move-over page does it while Mark is signed in, so there are no keys or scripts to set up.
 - **Backup first.** It downloads a copy of everything it reads before writing anything.
 - **Mark confirms the people.** It shows each member matched to a person (today's matching, "Mark R" → Mark Reese) and asks for full names of members who aren't in the history yet, and each member's status.
-- **Rerunnable.** It rebuilds The Founding Chapter from today's data each time, so it can run again right before the switch. It never changes today's data.
+- **Rerunnable.** It rebuilds The Founder's Chapter from today's data each time, so it can run again right before the switch. It never changes today's data.
 - **UGL2 pre-trip handicaps** become Mark 16.6, Justin 4.0, Jason 18.0, Patrick 15.6; everyone else keeps their `event.json` number. Scorecard strokes and results don't change.
 - **Checked against today's site.** A test computes UGL2's standings, records and superlatives from the moved data and compares them with today's history files. They must match, apart from those four handicaps.
 - **The draw.** Today's code leaves "Adam C" out of the draw by name. The new draw uses active members, so the name check goes away and Adam's status decides it.
@@ -148,11 +148,11 @@ Types and data hooks for the new layout, and rules for it, with a test for every
 
 **4. Move-over.**
 The move as plain code with the UGL2 comparison test, then the admin-only Move-over page.
-Done when The Founding Chapter is in the database and the test passes.
+Done when The Founder's Chapter is in the database and the test passes.
 
-### B. The Founding Chapter goes live
+### B. The Founder's Chapter goes live
 
-Steps 5 to 8 build the new pages at `/founding/…`, linked for admins only, while everyone else keeps using today's pages.
+Steps 5 to 8 build the new pages at `/founders/…`, linked for admins only, while everyone else keeps using today's pages.
 
 **5. Sign-in and landing page.**
 Email-link sign-in next to Google; the signed-out landing page (logo, tagline, sign-in); a sign-in finds its person; a "you're not in a chapter yet" page.
@@ -167,7 +167,7 @@ The guide, pairings, Fireball (it knows who's signed in, so no more "pick yourse
 History pages read the database, per chapter, members only. Player pages, the Players list and superlatives drop team logos; event and match pages keep that year's teams.
 
 **9. The switch.**
-Today's data goes read-only; a final move-over; old addresses redirect; everyone lands in The Founding Chapter; Export downloads the whole chapter as a backup. Then the old code, old rules, history build step and `-dev` collections go.
+Today's data goes read-only; a final move-over; old addresses redirect; everyone lands in The Founder's Chapter; Export downloads the whole chapter as a backup. Then the old code, old rules, history build step and `-dev` collections go.
 History is members-only now, so the history files leave the public repo (they stay in its git history unless the repo goes private). Profile photos stay in the repo until Phase 2 moves them to uploaded storage.
 
 ### C. Edit everything in the app
