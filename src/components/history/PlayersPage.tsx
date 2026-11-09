@@ -2,7 +2,7 @@ import { history, nameOf, stats } from '../../history/data';
 import { eventLabel, formatPoints, formatRecord } from '../../history/format';
 import { playerPath } from '../../routes';
 import { Card } from '../guide/parts';
-import { Link, TeamMark } from './parts';
+import { Link, PlayerAvatar } from './parts';
 
 export default function PlayersPage() {
   const players = history.players
@@ -31,7 +31,7 @@ export default function PlayersPage() {
                 to={playerPath(s.id)}
                 className="flex items-center gap-3 py-3 -mx-5 px-5 hover:bg-gray-50 transition-colors"
               >
-                {latest && <TeamMark team={latest.team} className="w-7 h-7" />}
+                <PlayerAvatar id={s.id} team={latest?.team} />
                 <span className="flex-1 min-w-0">
                   <span className="block text-sm font-semibold text-gray-800 truncate">{nameOf(s.id)}</span>
                   <span className="block text-xs text-gray-500 truncate">

@@ -1,6 +1,6 @@
 import { Fragment, type ReactNode } from 'react';
 import { followLink, matchPath, playerPath } from '../../routes';
-import { nameOf, shortName } from '../../history/data';
+import { nameOf, photoOf, shortName } from '../../history/data';
 import { formatPoints } from '../../history/format';
 import type { MatchInfo, Outcome, Standings } from '../../history/stats';
 import type { EventTeam, HistoryEvent } from '../../history/types';
@@ -37,6 +37,21 @@ export function TeamMark({ team, className = 'w-6 h-6' }: { team: EventTeam; cla
       title={team.name}
     >
       {team.emblem ? <Emblem name={team.emblem} className="w-[70%] h-[70%]" /> : team.name.replace(/^Team /, '')[0]}
+    </span>
+  );
+}
+
+// A player's profile photo in a circle, with their team's emblem as a small badge so teams stay
+// easy to tell apart; just the team emblem for anyone without a photo yet
+export function PlayerAvatar({ id, team, className = 'w-11 h-11' }: { id: string; team?: EventTeam; className?: string }) {
+  const photo = photoOf(id);
+  if (!photo) return team ? <TeamMark team={team} className={className} /> : <span className={`${className} shrink-0`} />;
+  return (
+    <span className={`${className} relative shrink-0`}>
+      <img src={photo} alt="" loading="lazy" className="w-full h-full rounded-full object-cover object-[50%_20%] bg-gray-100" />
+      {team && (
+        <TeamMark team={team} className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] ring-2 ring-white" />
+      )}
     </span>
   );
 }
