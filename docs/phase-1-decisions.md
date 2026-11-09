@@ -9,7 +9,7 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
 | App | Installable web app first (add to Home Screen, offline, push). Decide on the App Store later. One codebase. |
 | Chapters | UGL becomes a league of chapters. Today's group is **The Founder's Chapter**. |
 | New chapters | Any signed-in member can request one. Once an admin approves, the requester becomes its Chapter Organizer. |
-| Who sees what | Members see only the chapters they belong to. Admins see every chapter. |
+| Who sees what | Members see only the chapters they belong to, and in each one only the people who have joined. Admins see every chapter. |
 | Signed-out visitors | A landing page: UGL logo and tagline, sign-in, and a way to request a chapter. Nothing else. |
 | Roles | Commissioner (Mark), co-admins (everything, every chapter), Chapter Organizers (everything in their chapter), members. |
 | Membership | A person can belong to several chapters, with one profile that follows them. |
@@ -38,15 +38,16 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
 - **App Store or TestFlight later:** that would mean wrapping this same codebase with Capacitor. There's no plan for a second codebase.
 
 ### Chapters and roles
-- **Commissioner:** Mark. Everything, including managing admins.
+- **Commissioner:** Mark. Everything, and the only one who can add or remove co-admins.
 - **Co-admins:** everything in every chapter, including approving chapter requests.
-- **Chapter Organizer:** admin rights for their own chapter's trips, guides, results and people. The person whose request was approved becomes the chapter's first organizer.
+- **Chapter Organizer:** admin rights for their own chapter's trips, guides, results and people. The person whose request was approved becomes the chapter's first organizer. A chapter can have more than one organizer.
 - **Members:** see their own chapters; edit their own profile; log their own Fireball shots.
 
 ### People
 - **One person record each:** name, email(s), photo, bio, college and GHIN number. It replaces today's two lists: members (for example "Mark R") and history players ("mark-reese"), which are currently matched by name.
 - **Chapter status:** in each chapter, a person is an active member, alumni, a guest or an invitee. The selection draw uses active members.
 - **Invites and RSVPs:** these replace the planning spreadsheet's Invites tab.
+- **Invitees stay hidden until they join.** Members see only people who have joined: active members, alumni and guests, with their RSVPs. Organizers and admins see everyone invited. An invitee joins the first time they sign in with the email they were invited with.
 
 ### History
 - **Members only, per chapter.** Today's public history pages become sign-in only, so shared links will ask people to sign in and link previews will be generic.
@@ -73,11 +74,11 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
   - the history files, mapping today's member IDs to person records
 - **Squabbit import and photo upload in the app** are Phase 2. Until then, results keep coming in through the converter.
 
-## Assumptions to confirm
+## Assumptions, confirmed with Mark on 2026-11-09
 
 1. A chapter can have more than one organizer.
 2. Only Mark can add or remove co-admins.
-3. Members of a chapter can see that chapter's invite and RSVP list.
+3. Members of a chapter see only confirmed, registered members and guests. They can't see anyone who has been invited until that person officially joins. (Changed: the first draft let members see the invite list.)
 4. Players can enter their own pre-trip index, and the organizer can change it.
 
 ## Technical questions for the Phase 1 plan

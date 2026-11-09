@@ -63,6 +63,7 @@ chapters/{chapterId}              { name, createdAt }
 - **Guide and history share one model.** A trip's teams, rounds and sessions serve both. Rounds gain par and stroke index, and sessions gain how they're scored, as in today's `event.json`. The history pages assemble the same shape they read today, so the records and superlatives code stays as it is.
 - **Numbering:** `number` is per chapter: UGL1 (2025 Lubbock, `competition: false`) and UGL2 (2026 Columbia) in The Founder's Chapter. A new chapter starts at 1.
 - **Emails live only in `logins`**, so members don't see each other's addresses. Organizers see the emails their chapter invited.
+- **Invitees are hidden from members.** Until someone joins, their roster entry, person record and RSVPs are visible only to organizers and admins. Their first sign-in with the invited email completes the join: their status changes to what the organizer invited them as (active member or guest), and members can see them from then on.
 - **`chapterIds` and `organizerOf`** on a person mirror the rosters, so the rules can check "shares a chapter with" in one lookup. They're saved together with the roster, and the rules reject a save where they'd disagree.
 - **Handicaps are their own records** so a player can enter their own. Members of the chapter can see them.
 - **Offline:** the app keeps a local copy of what it has read, so the guide opens with no signal and Fireball shots save when the phone reconnects (today that only works while the page stays open).
@@ -71,7 +72,8 @@ chapters/{chapterId}              { name, createdAt }
 
 |  | Commissioner | Co-admin | Organizer | Member | Signed in, no chapter | Signed out |
 | --- | --- | --- | --- | --- | --- | --- |
-| See a chapter: trips, guides, people, history, RSVPs | every chapter | every chapter | own chapters | own chapters | | |
+| See a chapter: trips, guides, history, and people who've joined, with their RSVPs | every chapter | every chapter | own chapters | own chapters | | |
+| Invite people; see invitees and their RSVPs | every chapter | every chapter | own chapters | | | |
 | Edit trips, guides, teams, results, roster | every chapter | every chapter | own chapters | | | |
 | See and edit the pairings draft | every chapter | every chapter | own chapters | | | |
 | Own profile (bio, college, GHIN), handicap, RSVP, Fireball | ✓ | ✓ | ✓ | ✓ | | |
@@ -81,7 +83,7 @@ chapters/{chapterId}              { name, createdAt }
 | Add or remove co-admins | ✓ | | | | | |
 | Landing page only | | | | | | ✓ |
 
-Everyone on a chapter's roster can see that chapter, whatever their status: active members, alumni, guests and invitees (who need it to RSVP). Status decides other things, such as who's in the selection draw (active members).
+Everyone who has joined a chapter can see it: active members, alumni and guests. Invitees can't see the chapter, and members can't see them, until they join. Status also decides who's in the selection draw (active members).
 
 How the database enforces it:
 
@@ -155,10 +157,10 @@ Done when The Founder's Chapter is in the database and the test passes.
 Steps 5 to 8 build the new pages at `/founders/…`, linked for admins only, while everyone else keeps using today's pages.
 
 **5. Sign-in and landing page.**
-Email-link sign-in next to Google; the signed-out landing page (logo, tagline, sign-in); a sign-in finds its person; a "you're not in a chapter yet" page.
+Email-link sign-in next to Google; the signed-out landing page (logo, tagline, sign-in); a sign-in finds its person, and an invitee's first sign-in completes their join; a "you're not in a chapter yet" page.
 
 **6. Chapter home.**
-Trips, Selection (active members), Members (roster with statuses and roles; invite by email), and My profile (bio, college, GHIN number).
+Trips, Selection (active members), Members (roster with statuses and roles; organizers invite by email and see invitees, members don't), and My profile (bio, college, GHIN number).
 
 **7. Guide in the chapter.**
 The guide, pairings, Fireball (it knows who's signed in, so no more "pick yourself") and player profiles. Importing a guide file stays until step 10.
@@ -176,7 +178,7 @@ History is members-only now, so the history files leave the public repo (they st
 Trip details, flights, houses and teams (name, color, emblem), rounds and tee times (with par and stroke index), format and rules (with how each session is scored), and football. Nightlife already has one. Importing guide files goes away.
 
 **11. Handicaps, invites and RSVPs.**
-One pre-trip index per player, entered by the player or the organizer, next to their GHIN number linked to the official lookup. Pairings use it. Invites and RSVPs replace the planning spreadsheet's Invites tab.
+One pre-trip index per player, entered by the player or the organizer, next to their GHIN number linked to the official lookup. Pairings use it. Invites and RSVPs replace the planning spreadsheet's Invites tab: organizers see everyone invited, and members see RSVPs from people who have joined.
 
 **12. Results.**
 A results editor to add or fix a match. The Squabbit converter writes straight to the database instead of to files.
@@ -196,7 +198,7 @@ Manifest, icons and a service worker: add to Home Screen, opens offline. It's sm
 
 1. **Blaze plan** with a $5 budget alert? Needed by step 5.
 2. **Firebase Hosting** at `university-golf-league.web.app`? Needed for step 1.
-3. **The four assumptions** in the decisions doc: this plan takes all four as yes.
-4. **Invitees:** this plan reads them as people invited to a trip who haven't been on one yet. They can sign in, see the chapter and RSVP. Right?
-5. **Adam C:** today's draw leaves him out by name. Should he be a guest (not in the draw) or an active member?
-6. **Private repo** after the switch, so the old history files aren't public either? Optional.
+3. **Adam C:** today's draw leaves him out by name. Should he be a guest (not in the draw) or an active member?
+4. **Private repo** after the switch, so the old history files aren't public either? Optional.
+
+Settled: the four assumptions in the decisions doc are confirmed, with invitees hidden from members until they join.
