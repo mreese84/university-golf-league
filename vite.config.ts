@@ -132,6 +132,6 @@ function historyData(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/ugl-selector/',
+  base: '/university-golf-league/',
   plugins: [react(), tailwindcss(), guidePages(), historyData()],
 })
