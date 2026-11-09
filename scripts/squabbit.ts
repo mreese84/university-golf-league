@@ -11,6 +11,9 @@
 // history/players.json by full name and to a side by the event's teams. A group is one match when
 // it has one side per team (best ball); singles need --pair for who played whom.
 //
+// An aggregate session (gross basis) takes the same exports and adds up each team's 18-hole gross
+// scores: node scripts/squabbit.ts 2026-columbia aggregate ~/Downloads/November_7_2026*.csv
+//
 // From each export: gross scores, each player's handicap strokes for the round (the playing
 // handicap on the game row), and the course's par and stroke index. The round gets the par and
 // stroke index the first time; after that they're checked. Missing event handicaps are filled
@@ -142,6 +145,52 @@ ${rows.join(',\n')}
 `;
 }
 
+// One match for the whole session: each team's 18-hole gross scores added up, lowest wins
+async function writeAggregate(
+  eventId: string,
+  sessionId: string,
+  points: number,
+  exports: Export[],
+  byName: Map<string, string>,
+  teams: { id: string; name: string; players: string[] }[],
+) {
+  const gross = new Map<string, number>();
+  const problems: string[] = [];
+  for (const ex of exports) {
+    for (const p of ex.players) {
+      const id = byName.get(p.name.toLowerCase());
+      if (!id) problems.push(`${ex.file}: "${p.name}" isn't in history/players.json`);
+      else if (p.gross.some((g) => g === null)) problems.push(`${ex.file}: ${p.name} doesn't have all 18 holes`);
+      else gross.set(id, p.gross.reduce<number>((a, b) => a + b!, 0));
+    }
+  }
+  for (const t of teams) for (const id of t.players) if (!gross.has(id)) problems.push(`No scorecard for ${id} (${t.name})`);
+  if (problems.length) fail(`Nothing written:\n  ${problems.join('\n  ')}`);
+
+  const totals = Object.fromEntries(teams.map((t) => [t.id, t.players.reduce((a, id) => a + gross.get(id)!, 0)]));
+  const [a, b] = teams.map((t) => t.id);
+  const diff = Math.abs(totals[a] - totals[b]);
+  const winner = totals[a] < totals[b] ? a : totals[b] < totals[a] ? b : null;
+  const result = {
+    winner,
+    margin: winner ? `${diff} stroke${diff === 1 ? '' : 's'}` : 'Tied',
+    points: Object.fromEntries(teams.map((t) => [t.id, winner === null ? points / 2 : winner === t.id ? points : 0])),
+  };
+  const list = (ids: string[]) => `[${ids.map((id) => JSON.stringify(id)).join(', ')}]`;
+  const text = `{
+  "session": ${JSON.stringify(sessionId)},
+  "match": 1,
+  "sides": {
+${teams.map((t) => `    ${JSON.stringify(t.id)}: ${list(t.players)}`).join(',\n')}
+  },
+  "totals": { ${teams.map((t) => `${JSON.stringify(t.id)}: ${totals[t.id]}`).join(', ')} },
+  "result": { "winner": ${JSON.stringify(winner)}, "margin": ${JSON.stringify(result.margin)}, "points": { ${teams.map((t) => `${JSON.stringify(t.id)}: ${result.points[t.id]}`).join(', ')} } }
+}
+`;
+  await writeFile(join(HISTORY, eventId, 'matches', `${sessionId}-1.json`), text);
+  console.log(`${sessionId}-1  ${teams.map((t) => `${t.id} ${totals[t.id]}`).join('  vs  ')}  →  ${winner ?? 'tied'} ${result.margin}`);
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const pairs: [string, string][] = [];
@@ -161,7 +210,9 @@ async function main() {
   const { data } = await loadHistory(HISTORY);
   const event = data.events.find((e) => e.id === eventId) ?? fail(`No history/${eventId}/event.json`);
   const session = event.sessions.find((s) => s.id === sessionId) ?? fail(`${eventId} has no session "${sessionId}"`);
-  if (session.scoring !== 'match') fail(`${sessionId} isn't a match-play session`);
+  if (session.scoring === 'aggregate' && session.basis !== 'gross') {
+    fail(`${sessionId} adds up net scores, which need each player's full handicap; Squabbit's singles exports only have strokes off the low player. Only gross aggregates can be made from them.`);
+  }
   const roundIndex = event.rounds.findIndex((r) => r.id === session.round);
   const round = event.rounds[roundIndex];
   const byName = new Map(data.players.map((p) => [p.name.toLowerCase(), p.id]));
@@ -184,6 +235,15 @@ async function main() {
     problems.push(`The exports' par or stroke index don't match round "${round.id}" in event.json`);
   }
   const course = { ...round, par: first.par, strokeIndex: first.strokeIndex };
+
+  if (session.scoring === 'aggregate') {
+    if (problems.length) fail(`Nothing written:\n  ${problems.join('\n  ')}`);
+    await writeAggregate(event.id, sessionId, session.points, exports, byName, event.teams);
+    const { errors } = await loadHistory(HISTORY);
+    if (errors.length) fail(`Written, but the history checks found problems:\n  ${errors.join('\n  ')}`);
+    console.log('All history checks pass.');
+    return;
+  }
 
   // Matches
   const matches: Omit<HistoryMatch, 'id'>[] = [];

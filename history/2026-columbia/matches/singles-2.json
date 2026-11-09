@@ -1,0 +1,13 @@
+{
+  "session": "singles",
+  "match": 2,
+  "sides": {
+    "palmetto": ["justin-thompson"],
+    "crescent": ["ross-gilbert"]
+  },
+  "result": { "winner": null, "margin": "AS", "points": { "palmetto": 0.5, "crescent": 0.5 } },
+  "scores": [
+    { "player": "justin-thompson", "strokes": 0,  "gross": [4, 5, 6, 4, 3, 5, 4, 5, 5, 4, 3, 5, 5, 4, 4, 5, 2, 6] },
+    { "player": "ross-gilbert",    "strokes": 7,  "gross": [6, 4, 7, 5, 4, 4, 4, 3, 5, 4, 5, 7, 4, 4, 6, 4, 3, 4] }
+  ]
+}

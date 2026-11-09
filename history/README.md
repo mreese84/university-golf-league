@@ -58,10 +58,16 @@ count toward the competition.
 - `scoring`:
   - `match` is net match play. Each side's score on a hole is its best net score, so the same rule
     covers singles, 2-man best ball, or 3-man best ball. Players get individual W-L-H credit.
-  - `aggregate` is team total net strokes. It counts for the team score only, not players' records.
+  - `aggregate` is team total strokes: every player's 18 holes added up, net by default or gross
+    with `"basis": "gross"`. It counts for the team score only, not players' records.
 - `points` is points per match. A halved match splits them.
 - `matches` is how many matches the session has, so the site can show "not played yet" and the
   points available before every result is in.
+- `strokes` (optional) says how the scorecards' handicap strokes were given. `"full"` (the default)
+  means each player's whole handicap, so nets are true net scores. `"difference"` means strokes off
+  the low player in each match (one player gets 0), as Squabbit's singles match play gives them.
+  Those strokes decide the match, but the nets aren't true net scores, so those cards don't count
+  toward best net round, net birdies or the aggregate check.
 
 Total points and the number needed to win are computed from the sessions and their matches. In
 2026 that's 3 + 6 + 2 = 11, so 6 wins.

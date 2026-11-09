@@ -1,5 +1,5 @@
 import { findEvent } from '../../history/data';
-import { netTotal } from '../../history/scoring';
+import { grossTotal, netTotal } from '../../history/scoring';
 import { eventLabel, formatHandicap, formatPts } from '../../history/format';
 import { matchInfo, type MatchInfo } from '../../history/stats';
 import { eventPath, historyPath } from '../../routes';
@@ -9,18 +9,20 @@ import { Card } from '../guide/parts';
 import { BackLink, Names, NotFound } from './parts';
 import Scorecard from './Scorecard';
 
-// Each player's full net score that day, from any scorecard in the same round (for aggregate)
-function roundNets(info: MatchInfo) {
-  const nets = new Map<string, number>();
+// Each player's 18-hole score that day (net or gross, as the aggregate counts them), from any
+// scorecard in the same round. Net only comes from cards with full handicaps.
+function roundTotals(info: MatchInfo, basis: 'net' | 'gross') {
+  const totals = new Map<string, number>();
   for (const m of info.event.matches) {
     const session = info.event.sessions.find((s) => s.id === m.session);
     if (session?.round !== info.round.id) continue;
+    if (basis === 'net' && session.strokes === 'difference') continue; // not true nets
     for (const row of m.scores ?? []) {
-      const net = netTotal(row);
-      if (net != null) nets.set(row.player, net);
+      const total = basis === 'gross' ? grossTotal(row) : netTotal(row);
+      if (total != null) totals.set(row.player, total);
     }
   }
-  return nets;
+  return totals;
 }
 
 function ResultBanner({ info }: { info: MatchInfo }) {
@@ -49,7 +51,8 @@ function ResultBanner({ info }: { info: MatchInfo }) {
 
 function Sides({ info }: { info: MatchInfo }) {
   const { match, teams, event, session } = info;
-  const nets = session.scoring === 'aggregate' ? roundNets(info) : null;
+  const basis = session.basis ?? 'net';
+  const totals = session.scoring === 'aggregate' ? roundTotals(info, basis) : null;
   return (
     <div className="grid grid-cols-2 gap-3">
       {teams.map((team) => (
@@ -61,7 +64,7 @@ function Sides({ info }: { info: MatchInfo }) {
           <ul className="mt-2 space-y-2">
             {match.sides[team.id].map((id) => {
               const row = match.scores?.find((r) => r.player === id);
-              const net = nets?.get(id);
+              const total = totals?.get(id);
               return (
                 <li key={id} className="text-sm leading-tight">
                   <span className="font-medium text-gray-800">
@@ -70,7 +73,7 @@ function Sides({ info }: { info: MatchInfo }) {
                   <span className="block text-xs text-gray-500 mt-0.5">
                     {formatHandicap(event.handicaps[id])} index
                     {row && ` · ${row.strokes} stroke${row.strokes === 1 ? '' : 's'}`}
-                    {net !== undefined && ` · ${net} net`}
+                    {total !== undefined && ` · ${total} ${basis}`}
                   </span>
                 </li>
               );
@@ -78,7 +81,7 @@ function Sides({ info }: { info: MatchInfo }) {
           </ul>
           {match.totals && (
             <p className="mt-3 pt-3 border-t border-gray-100 text-sm font-semibold text-gray-800">
-              {match.totals[team.id]} net total
+              {match.totals[team.id]} {basis} total
             </p>
           )}
         </Card>

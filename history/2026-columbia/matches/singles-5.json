@@ -1,0 +1,13 @@
+{
+  "session": "singles",
+  "match": 5,
+  "sides": {
+    "palmetto": ["john-collins"],
+    "crescent": ["nick-smith"]
+  },
+  "result": { "winner": "palmetto", "margin": "8&7", "points": { "palmetto": 1, "crescent": 0 } },
+  "scores": [
+    { "player": "john-collins", "strokes": 10, "gross": [6, 6, 5, 4, 4, 5, 5, 4, 5, 4, 6, 5, 4, 3, 4, 7, 3, 5] },
+    { "player": "nick-smith",   "strokes": 0,  "gross": [6, 6, 7, 6, 5, 5, 5, 5, 5, 6, 5, 6, 5, 5, 5, 6, 3, 5] }
+  ]
+}

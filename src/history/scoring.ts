@@ -25,6 +25,11 @@ export function netTotal(row: ScoreRow) {
   return isComplete(row) ? sum(row.gross) - row.strokes : null;
 }
 
+// Full 18-hole gross score, or null when any hole is missing
+export function grossTotal(row: ScoreRow) {
+  return isComplete(row) ? sum(row.gross) : null;
+}
+
 export interface HoleResult {
   hole: number; // 1–18
   sideScores: Record<string, number | null>; // team id -> best net on the hole

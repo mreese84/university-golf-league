@@ -162,8 +162,10 @@ export default function Scorecard({ info }: { info: MatchInfo }) {
         </table>
       </div>
       <p className="text-xs text-gray-500 mt-2 px-1 leading-relaxed">
-        Big number gross, small number net. Dots mark handicap strokes; shading marks the score that won the hole. Hcp is
-        the hole's stroke index.
+        {info.session.strokes === 'difference'
+          ? 'Big number gross, small number net for the match. Dots mark the strokes given in the match (the difference from the lower handicap); '
+          : 'Big number gross, small number net. Dots mark handicap strokes; '}
+        shading marks the score that won the hole. Hcp is the hole's stroke index.
       </p>
     </div>
   );
