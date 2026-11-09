@@ -23,11 +23,13 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
 | Handicaps | One pre-trip index per player per trip, entered by hand, with the player's GHIN number stored and linked to the official lookup. Used for team drafting and history. |
 | Numbering | Per chapter: this year stays UGL2 in The Founder's Chapter, and a new chapter starts at 1. |
 | Editing | Everything is edited in the app. No more JSON uploads; Export stays as a backup. |
+| Firebase plan | Blaze (pay-as-you-go), with a $5 monthly budget alert. Expected cost at this size: $0. |
+| Hosting | Firebase Hosting at `university-golf-league.web.app`. The repo goes private when the Founder's Chapter switch happens. |
 
 ## Name and address
 
 - **Name:** the project is **University Golf League**. The GitHub repo is `university-golf-league` (renamed from `ugl-selector` on 2026-11-09), and so is the folder on Mark's Mac.
-- **Address:** `https://mreese84.github.io/university-golf-league/` until there's a custom domain.
+- **Address:** `https://university-golf-league.web.app` once hosting moves (Phase 1, step 1), until there's a custom domain. Until then, `https://mreese84.github.io/university-golf-league/`.
 - **Old links:** a small `ugl-selector` repo forwards them to the same page at the new address.
 - **What still says `ugl-selector`:** only the Firebase project ID, which can't be changed and only shows behind the scenes.
 
@@ -45,7 +47,7 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
 
 ### People
 - **One person record each:** name, email(s), photo, bio, college and GHIN number. It replaces today's two lists: members (for example "Mark R") and history players ("mark-reese"), which are currently matched by name.
-- **Chapter status:** in each chapter, a person is an active member, alumni, a guest or an invitee. The selection draw uses active members.
+- **Chapter status:** in each chapter, a person is an active member, alumni, a guest or an invitee. The selection draw uses active members. Adam C is an active member, so he's in the draw (today's code leaves him out by name).
 - **Invites and RSVPs:** these replace the planning spreadsheet's Invites tab.
 - **Invitees stay hidden until they join.** Members see only people who have joined: active members, alumni and guests, with their RSVPs. Organizers and admins see everyone invited. An invitee joins the first time they sign in with the email they were invited with.
 
@@ -81,9 +83,9 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
 3. Members of a chapter see only confirmed, registered members and guests. They can't see anyone who has been invited until that person officially joins. (Changed: the first draft let members see the invite list.)
 4. Players can enter their own pre-trip index, and the organizer can change it.
 
-## Technical questions for the Phase 1 plan
+## Technical questions, decided on 2026-11-09
 
-Recommendations for both are in the [Phase 1 plan](phase-1-plan.md).
+The reasoning is in the [Phase 1 plan](phase-1-plan.md).
 
-- **Where photos and logos live:** Firebase Storage may require the pay-as-you-go (Blaze) plan, which costs pennies at this size. The alternative is storing small, resized images directly in the database.
-- **Hosting:** stay on GitHub Pages, or move to Firebase Hosting. Firebase Hosting gives clean addresses without generating a page copy for every route.
+- **Where photos and logos live:** Cloud Storage for Firebase, on the Blaze plan. Storage stopped working on the free Spark plan in February 2026, and Blaze also lifts Spark's limit of 5 sign-in emails a day.
+- **Hosting:** Firebase Hosting, at `university-golf-league.web.app`. One rewrite rule gives clean addresses without a page copy for every route, and the repo can go private.

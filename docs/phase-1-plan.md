@@ -12,9 +12,9 @@ Each numbered step below is one pull request. The live site keeps working after 
 
 UGL2 is done and the next trip is a year off, so the switch can happen whenever it's ready, with nobody mid-trip.
 
-## Two decisions first
+## Two decisions (approved 2026-11-09)
 
-### 1. Move the Firebase project to the Blaze plan (recommended)
+### 1. Move the Firebase project to the Blaze plan
 
 Blaze is pay-as-you-go with the same free allowances as today's Spark plan. At our size the bill should stay at $0. Set a budget alert at $5 a month (an alert warns; it doesn't cap spending).
 
@@ -24,19 +24,17 @@ Why:
 - **Email-link sign-in.** On Spark, Firebase sends at most 5 sign-in emails a day for the whole project; Blaze's limit is far higher ([Firebase limits](https://firebase.google.com/docs/auth/limits)). A new chapter's organizer inviting a dozen people who don't use Google would hit that on day one.
 - **Push notifications** (after Phase 1) need a small server function to send them, and Cloud Functions need Blaze.
 
-If we stay on Spark: photos and logos get resized in the browser and stored in the database (fine at this size), email sign-in stays capped at 5 a day, and push waits.
+Mark switches the plan before step 5, when email-link sign-in arrives.
 
-Phase 1 doesn't upload photos (that's Phase 2), so this is needed by step 5, when email-link sign-in arrives.
-
-### 2. Move hosting to Firebase Hosting (recommended)
+### 2. Move hosting to Firebase Hosting
 
 - **Address:** a Hosting site named `university-golf-league` gives `https://university-golf-league.web.app` (if the name is free), with no `ugl-selector` in it. A custom domain can be added later.
 - **Clean addresses:** one rewrite rule serves the app at every address. Today the build writes a copy of the page for every guide and history address, and once trips and history are members-only, the build can't read them to write those copies anyway.
 - **Rules deploy with the site** from the repo, instead of being pasted into the Firebase console.
 - **Preview links:** every pull request gets its own address to try on a phone before merging.
 - **Free** on either plan at this size.
-- **The repo could go private** afterwards. GitHub Pages needs a paid GitHub plan for private repos.
-- **Old links keep working:** the GitHub Pages address forwards to the new one, the way `ugl-selector` forwards today.
+- **The repo can go private**, which it will at the switch (step 9). GitHub Pages needs a paid GitHub plan for private repos; Firebase Hosting doesn't care.
+- **Old links keep working:** until the switch, the GitHub Pages address forwards to the new one. When the repo goes private, GitHub Pages stops, so the `ugl-selector` forwarder points straight at the new address instead. The `mreese84.github.io/university-golf-league` address only went up on 2026-11-09, so few links use it.
 
 ## Database layout
 
@@ -130,7 +128,7 @@ How it runs:
 - **Rerunnable.** It rebuilds The Founder's Chapter from today's data each time, so it can run again right before the switch. It never changes today's data.
 - **UGL2 pre-trip handicaps** become Mark 16.6, Justin 4.0, Jason 18.0, Patrick 15.6; everyone else keeps their `event.json` number. Scorecard strokes and results don't change.
 - **Checked against today's site.** A test computes UGL2's standings, records and superlatives from the moved data and compares them with today's history files. They must match, apart from those four handicaps.
-- **The draw.** Today's code leaves "Adam C" out of the draw by name. The new draw uses active members, so the name check goes away and Adam's status decides it.
+- **The draw.** Today's code leaves "Adam C" out of the draw by name. Adam is an active member, so the name check goes away and he's in the draw from now on.
 
 ## Steps
 
@@ -158,6 +156,7 @@ Steps 5 to 8 build the new pages at `/founders/…`, linked for admins only, whi
 
 **5. Sign-in and landing page.**
 Email-link sign-in next to Google; the signed-out landing page (logo, tagline, sign-in); a sign-in finds its person, and an invitee's first sign-in completes their join; a "you're not in a chapter yet" page.
+Mark does, once: upgrade to Blaze and set a $5 budget alert.
 
 **6. Chapter home.**
 Trips, Selection (active members), Members (roster with statuses and roles; organizers invite by email and see invitees, members don't), and My profile (bio, college, GHIN number).
@@ -170,7 +169,7 @@ History pages read the database, per chapter, members only. Player pages, the Pl
 
 **9. The switch.**
 Today's data goes read-only; a final move-over; old addresses redirect; everyone lands in The Founder's Chapter; Export downloads the whole chapter as a backup. Then the old code, old rules, history build step and `-dev` collections go.
-History is members-only now, so the history files leave the public repo (they stay in its git history unless the repo goes private). Profile photos stay in the repo until Phase 2 moves them to uploaded storage.
+History is members-only now, so the repo goes private and the history files leave it. Profile photos stay in the repo until Phase 2 moves them to uploaded storage. The `ugl-selector` forwarder switches to the new address, since GitHub Pages stops with the repo private.
 
 ### C. Edit everything in the app
 
@@ -194,11 +193,10 @@ Manifest, icons and a service worker: add to Home Screen, opens offline. It's sm
 - **Phase 2:** Squabbit import in the app; photo and team logo upload.
 - **Later:** push notifications (Blaze and a server function); App Store or TestFlight by wrapping this codebase with Capacitor.
 
-## Questions for Mark
+## Decided with Mark on 2026-11-09
 
-1. **Blaze plan** with a $5 budget alert? Needed by step 5.
-2. **Firebase Hosting** at `university-golf-league.web.app`? Needed for step 1.
-3. **Adam C:** today's draw leaves him out by name. Should he be a guest (not in the draw) or an active member?
-4. **Private repo** after the switch, so the old history files aren't public either? Optional.
-
-Settled: the four assumptions in the decisions doc are confirmed, with invitees hidden from members until they join.
+1. **Blaze plan** with a $5 budget alert: yes, before step 5.
+2. **Firebase Hosting** at `university-golf-league.web.app`: yes, in step 1.
+3. **Adam C** is an active member, so he's in the selection draw.
+4. **The repo goes private** at the switch.
+5. **The four assumptions** in the decisions doc are confirmed, with invitees hidden from members until they join.
