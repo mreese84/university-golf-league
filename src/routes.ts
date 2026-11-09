@@ -1,4 +1,4 @@
-// Page addresses, all under the site's base path (/ugl-selector/):
+// Page addresses, all under the site's base path (/university-golf-league/):
 //   /                                 trips, selection, and members tabs
 //   /2026-columbia/guide              a trip's Player's Guide
 //   /history                          every event
