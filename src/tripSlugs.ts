@@ -1,6 +1,6 @@
 import type { Trip } from './types';
 
-// Shared by the app (routes.ts) and the build (vite.config.ts), which writes a page per guide address
+// Each trip's guide address (routes.ts)
 
 type SlugTrip = Pick<Trip, 'id' | 'year' | 'month' | 'location'>;
 

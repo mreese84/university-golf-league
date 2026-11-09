@@ -45,7 +45,7 @@ function AppContent() {
     } else if (route.page === 'home' && window.location.pathname !== homePath()) {
       navigate(homePath(), { replace: true });
     } else if (route.page !== 'home' && window.location.pathname.endsWith('/')) {
-      // GitHub Pages redirects /<trip>/guide to /<trip>/guide/ (it's a folder); keep the tidy form
+      // Links from the GitHub Pages days can end in a slash (/<trip>/guide/); keep the tidy form
       navigate(window.location.pathname.replace(/\/+$/, ''), { replace: true });
     }
   }, [route, loading, slugs]);

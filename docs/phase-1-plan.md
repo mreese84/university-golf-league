@@ -31,7 +31,7 @@ Mark switches the plan before step 5, when email-link sign-in arrives.
 - **Address:** a Hosting site named `university-golf-league` gives `https://university-golf-league.web.app` (if the name is free), with no `ugl-selector` in it. A custom domain can be added later.
 - **Clean addresses:** one rewrite rule serves the app at every address. Today the build writes a copy of the page for every guide and history address, and once trips and history are members-only, the build can't read them to write those copies anyway.
 - **Rules deploy with the site** from the repo, instead of being pasted into the Firebase console.
-- **Preview links:** every pull request gets its own address to try on a phone before merging.
+- **Preview link:** pull requests publish to a preview address to try on a phone before merging.
 - **Free** on either plan at this size.
 - **The repo can go private**, which it will at the switch (step 9). GitHub Pages needs a paid GitHub plan for private repos; Firebase Hosting doesn't care.
 - **Old links keep working:** until the switch, the GitHub Pages address forwards to the new one. When the repo goes private, GitHub Pages stops, so the `ugl-selector` forwarder points straight at the new address instead. The `mreese84.github.io/university-golf-league` address only went up on 2026-11-09, so few links use it.
@@ -135,8 +135,8 @@ How it runs:
 ### A. Groundwork (members see no change)
 
 **1. Hosting and deploys.**
-Firebase Hosting with one rewrite rule; `firebase.json`; GitHub Actions deploys the site and the database rules; preview links on pull requests; GitHub Pages forwards to the new address. The build stops writing page copies.
-Mark does, once: create the Hosting site, run `firebase init hosting:github`, allow the deploy account to publish rules, and add the new address to Google sign-in's allowed origins and Firebase's authorized domains. Before the first deploy, check that the rules in the console match `firestore.rules`.
+Firebase Hosting with one rewrite rule; `firebase.json`; GitHub Actions deploys the site and the database rules; pull requests publish to a preview address; GitHub Pages forwards to the new address. The build stops writing page copies.
+Mark does, once ([setup steps](firebase-hosting-setup.md)): create the Hosting site, create the deploy account, allow sign-in on the new address, and check that the rules in the console match `firestore.rules`.
 Done when the site serves from the new address, old links forward, and a pull request shows a preview link.
 
 **2. Tests and a local database.**
