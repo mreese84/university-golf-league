@@ -82,5 +82,7 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
 
 ## Technical questions for the Phase 1 plan
 
+Recommendations for both are in the [Phase 1 plan](phase-1-plan.md).
+
 - **Where photos and logos live:** Firebase Storage may require the pay-as-you-go (Blaze) plan, which costs pennies at this size. The alternative is storing small, resized images directly in the database.
 - **Hosting:** stay on GitHub Pages, or move to Firebase Hosting. Firebase Hosting gives clean addresses without generating a page copy for every route.
