@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { nameOf, stats } from '../../history/data';
+import { nameOf, photoOf, stats } from '../../history/data';
 import { eventLabel, formatHandicap, formatPoints, formatRecord } from '../../history/format';
 import type { PlayerMatch, WinLoss } from '../../history/stats';
 import { matchPath, playersPath } from '../../routes';
@@ -89,8 +89,18 @@ export default function PlayerPage({ playerId }: { playerId: string }) {
     <div className="space-y-6">
       <BackLink to={playersPath()}>All players</BackLink>
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{nameOf(s.id)}</h2>
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex items-center gap-4">
+          {/* The whole portrait: the frame matches the photos' 3:4 shape */}
+          {photoOf(s.id) && (
+            <img
+              src={photoOf(s.id)!}
+              alt={nameOf(s.id)}
+              className="w-24 aspect-[3/4] shrink-0 rounded-2xl object-cover bg-gray-100 shadow-sm"
+            />
+          )}
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{nameOf(s.id)}</h2>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-3">
           {s.events.map((e) => (
             <span
               key={e.event.id}
