@@ -1,7 +1,7 @@
 // Checks the history files agree with each other. Runs in the build (and dev server), which
 // stops with these messages, so a typo can't publish wrong records.
 
-import { isComplete, netTotal, parseMargin, playMatch } from './scoring.ts';
+import { grossTotal, isComplete, netTotal, parseMargin, playMatch } from './scoring.ts';
 import type { HistoryData, HistoryEvent, HistoryMatch } from './types.ts';
 
 const ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -117,6 +117,12 @@ function checkEvent(event: HistoryEvent, known: Set<string>, errors: string[]) {
     if (!rounds.some((r) => r.id === s.round)) err(`${where} is in round "${s.round}", which doesn't exist`);
     if (typeof s.name !== 'string' || typeof s.format !== 'string' || !s.format) err(`${where} needs a name and a format`);
     if (s.scoring !== 'match' && s.scoring !== 'aggregate') err(`${where} scoring should be "match" or "aggregate"`);
+    if (s.strokes !== undefined && s.strokes !== 'full' && s.strokes !== 'difference') {
+      err(`${where} strokes should be "full" or "difference"`);
+    }
+    if (s.basis !== undefined && (s.scoring !== 'aggregate' || (s.basis !== 'net' && s.basis !== 'gross'))) {
+      err(`${where} basis is for aggregate sessions, and should be "net" or "gross"`);
+    }
     if (!isNum(s.points) || s.points <= 0 || !isHalfStep(s.points)) err(`${where} points should be a positive number`);
     if (!Number.isInteger(s.matches) || s.matches < 1) err(`${where} needs the number of matches it has`);
   }
@@ -185,7 +191,7 @@ function checkMatch(
     else if ((margin.up === 0) !== (result.winner === null)) err('a halved match has margin "AS" and winner null');
     if (match.totals) err('totals are only for aggregate sessions');
   } else {
-    checkAggregate(event, match, session.round, teamIds, err);
+    checkAggregate(event, match, session.round, session.basis ?? 'net', teamIds, err);
   }
 
   // Scorecard
@@ -225,6 +231,7 @@ function checkAggregate(
   event: HistoryEvent,
   match: HistoryMatch,
   roundId: string,
+  basis: 'net' | 'gross',
   teamIds: string[],
   err: (msg: string) => void,
 ) {
@@ -239,17 +246,22 @@ function checkAggregate(
   const winner = leaders.length === 1 ? leaders[0] : null;
   if (winner !== result.winner) err(`totals make the winner ${winner ?? 'nobody (halved)'}, not ${result.winner}`);
 
+  // Gross totals come from any card that day; net only from cards with each player's full
+  // handicap (true net scores)
   const rows = new Map(
     event.matches
-      .filter((m) => event.sessions.find((s) => s.id === m.session)?.round === roundId)
+      .filter((m) => {
+        const s = event.sessions.find((x) => x.id === m.session);
+        return s?.round === roundId && (basis === 'gross' || s.strokes !== 'difference');
+      })
       .flatMap((m) => m.scores ?? [])
       .filter(isComplete)
-      .map((row) => [row.player, netTotal(row)!]),
+      .map((row) => [row.player, basis === 'gross' ? grossTotal(row)! : netTotal(row)!]),
   );
   for (const t of teamIds) {
     const players = match.sides[t] ?? [];
     if (!players.every((p) => rows.has(p))) continue;
     const fromCards = players.reduce((a, p) => a + rows.get(p)!, 0);
-    if (fromCards !== totals[t]) err(`${t}'s scorecards add up to ${fromCards} net, but totals say ${totals[t]}`);
+    if (fromCards !== totals[t]) err(`${t}'s scorecards add up to ${fromCards} ${basis}, but totals say ${totals[t]}`);
   }
 }

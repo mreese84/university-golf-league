@@ -1,0 +1,10 @@
+{
+  "session": "aggregate",
+  "match": 1,
+  "sides": {
+    "palmetto": ["mark-reese", "justin-thompson", "jeff-siarto", "jason-sudan", "john-collins", "greg-dundas"],
+    "crescent": ["ricky-menchaca", "travis-vance", "nick-smith", "ross-gilbert", "patrick-bohac", "adam-cowdin"]
+  },
+  "totals": { "palmetto": 534, "crescent": 557 },
+  "result": { "winner": "palmetto", "margin": "23 strokes", "points": { "palmetto": 2, "crescent": 0 } }
+}

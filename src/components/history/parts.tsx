@@ -125,7 +125,11 @@ export function MatchRow({ info }: { info: MatchInfo }) {
     session.scoring === 'aggregate' ? (
       <>
         <span className="block">{team.name.replace(/^Team /, '')}</span>
-        {match.totals && <span className="block text-xs text-gray-500 font-normal">{match.totals[team.id]} net</span>}
+        {match.totals && (
+          <span className="block text-xs text-gray-500 font-normal">
+            {match.totals[team.id]} {session.basis ?? 'net'}
+          </span>
+        )}
       </>
     ) : (
       match.sides[team.id].map((id) => (

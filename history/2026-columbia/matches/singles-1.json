@@ -1,0 +1,13 @@
+{
+  "session": "singles",
+  "match": 1,
+  "sides": {
+    "palmetto": ["jason-sudan"],
+    "crescent": ["adam-cowdin"]
+  },
+  "result": { "winner": "palmetto", "margin": "1 UP", "points": { "palmetto": 1, "crescent": 0 } },
+  "scores": [
+    { "player": "jason-sudan", "strokes": 0,  "gross": [6, 4, 6, 4, 4, 6, 4, 5, 5, 6, 6, 6, 5, 4, 7, 6, 3, 6] },
+    { "player": "adam-cowdin", "strokes": 7,  "gross": [6, 6, 8, 4, 3, 6, 5, 5, 6, 6, 5, 8, 6, 3, 6, 7, 5, 6] }
+  ]
+}

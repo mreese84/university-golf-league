@@ -49,7 +49,9 @@
       "id": "sat",
       "label": "Day 2",
       "date": "2026-11-07",
-      "course": "Columbia Country Club"
+      "course": "Columbia Country Club",
+      "par": [4, 4, 5, 4, 3, 4, 5, 3, 4, 4, 4, 5, 4, 3, 5, 4, 3, 4],
+      "strokeIndex": [13, 7, 3, 15, 9, 5, 1, 17, 11, 12, 4, 2, 14, 16, 8, 6, 18, 10]
     },
     {
       "id": "sun",
@@ -75,16 +77,18 @@
       "format": "singles",
       "scoring": "match",
       "points": 1,
-      "matches": 6
+      "matches": 6,
+      "strokes": "difference"
     },
     {
       "id": "aggregate",
       "round": "sat",
-      "name": "Team Net Aggregate",
+      "name": "Team Aggregate",
       "format": "aggregate",
       "scoring": "aggregate",
       "points": 2,
-      "matches": 1
+      "matches": 1,
+      "basis": "gross"
     }
   ]
 }

@@ -38,6 +38,13 @@ export interface EventSession {
   scoring: Scoring;
   points: number; // per match
   matches: number; // how many matches the session has
+  // How the scorecards' strokes were given. full (the default): each player's whole handicap, so
+  // the nets are true net scores. difference: strokes off the low player in each match (one gets
+  // 0), as Squabbit's singles match play gives them; they decide the match, but the nets aren't
+  // true net scores, so those cards stay out of net-score awards and the aggregate check.
+  strokes?: 'full' | 'difference';
+  // Aggregate sessions: what each player's 18 holes add up as, net (the default) or gross
+  basis?: 'net' | 'gross';
 }
 
 export interface EventFile {

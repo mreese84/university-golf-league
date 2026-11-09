@@ -286,11 +286,14 @@ export function superlatives(data: HistoryData, players: Map<string, PlayerStats
     },
   ];
 
-  // Scorecard awards
+  // Scorecard awards. Net-score awards only use cards with each player's full handicap (not
+  // singles strokes given off the low player)
+  if (!all.some((i) => i.round.par && i.match.scores)) return { results, scorecards: null };
   const rows = all.flatMap((i) =>
-    i.round.par && i.match.scores ? i.match.scores.map((row) => ({ info: i, row, nets: netScores(row, i.round) })) : [],
+    i.round.par && i.match.scores && i.session.strokes !== 'difference'
+      ? i.match.scores.map((row) => ({ info: i, row, nets: netScores(row, i.round) }))
+      : [],
   );
-  if (rows.length === 0) return { results, scorecards: null };
   const played = matchPlay.filter((i) => i.play);
   const teamOfPlayer = (i: MatchInfo, id: string) => i.teams.find((t) => i.match.sides[t.id].includes(id));
 
