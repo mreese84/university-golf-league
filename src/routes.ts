@@ -7,7 +7,13 @@
 //   /players, /players/jeff-siarto    player records
 //   /superlatives
 //   /move-over                        moving today's data into The Founder's Chapter (admin only)
+// Phase 1 pages, on dev data only until the switch (src/next/enabled.ts):
+//   /next                             the new home: the landing page, or your chapter (becomes / at the switch)
+//   /finish-sign-in                   where email sign-in links land
+//   /founders                         a chapter
 // Firebase Hosting serves index.html at every address (firebase.json), and the app reads the path itself.
+
+import { isValidChapterId } from './data/ids';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -23,7 +29,14 @@ export type Route =
   | { page: 'players' }
   | { page: 'player'; playerId: string }
   | { page: 'superlatives' }
-  | { page: 'moveOver' };
+  | { page: 'moveOver' }
+  | { page: 'nextHome' }
+  | { page: 'finishSignIn' }
+  | { page: 'chapter'; chapterId: string };
+
+export type NextRoute = Extract<Route, { page: 'nextHome' | 'finishSignIn' | 'chapter' }>;
+
+export const isNextRoute = (route: Route): route is NextRoute => ['nextHome', 'finishSignIn', 'chapter'].includes(route.page);
 
 export type HistoryRoute = Extract<Route, { page: 'history' | 'event' | 'match' | 'players' | 'player' | 'superlatives' }>;
 
@@ -39,11 +52,15 @@ export const playersPath = () => `${BASE}players`;
 export const playerPath = (playerId: string) => `${BASE}players/${encodeURIComponent(playerId)}`;
 export const superlativesPath = () => `${BASE}superlatives`;
 export const moveOverPath = () => `${BASE}move-over`;
+export const nextHomePath = () => `${BASE}next`;
+export const finishSignInPath = () => `${BASE}finish-sign-in`;
+export const chapterPath = (chapterId: string) => `${BASE}${encodeURIComponent(chapterId)}`;
 
-export function currentRoute(): Route {
-  const legacy = window.location.hash.match(/^#\/guide\/(.+)$/);
+export const currentRoute = (): Route => parseRoute(window.location.pathname, window.location.hash);
+
+export function parseRoute(pathname: string, hash = ''): Route {
+  const legacy = hash.match(/^#\/guide\/(.+)$/);
   if (legacy) return { page: 'legacyGuide', tripId: decodeURIComponent(legacy[1]) };
-  const { pathname } = window.location;
   const path = pathname.startsWith(BASE) ? pathname.slice(BASE.length).replace(/\/$/, '') : '';
   const parts = path.split('/').map(decodeURIComponent);
   if (parts.length === 2 && parts[1] === 'guide') return { page: 'guide', slug: parts[0] };
@@ -58,6 +75,9 @@ export function currentRoute(): Route {
   }
   if (path === 'superlatives') return { page: 'superlatives' };
   if (path === 'move-over') return { page: 'moveOver' };
+  if (path === 'next') return { page: 'nextHome' };
+  if (path === 'finish-sign-in') return { page: 'finishSignIn' };
+  if (parts.length === 1 && isValidChapterId(parts[0])) return { page: 'chapter', chapterId: parts[0] };
   return { page: 'home' };
 }
 

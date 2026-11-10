@@ -46,6 +46,16 @@ The preview address stays the same as long as a preview is published at least ev
 
 Previews use the dev data, not the live data, so trying something there never changes the live site. A "Dev data" banner across the top says so.
 
+## Email-link sign-in (Phase 1, step 5)
+
+For people who'd rather not sign in with Google, Firebase emails them a sign-in link. It's off until it's turned on:
+
+1. Firebase console → **Authentication → Sign-in method → Add new provider → Email/Password**.
+2. Turn on **Email/Password**, then **Email link (passwordless sign-in)**, and save. (Password sign-in itself isn't used; the app has no password form.)
+3. Optional but worth it: **Project settings → General → Public-facing name** → `University Golf League`. The sign-in emails use this name; otherwise they show the project's ID.
+
+The links come back to `/finish-sign-in` on whichever address asked for them (the live site or the preview), and both are already authorized domains from step 3 above.
+
 ## Later: the `ugl-selector` forwarder
 
 The old `ugl-selector` repo forwards to the GitHub Pages address, which now forwards to the new one. That works, but when this repo goes private (step 9), GitHub Pages stops, so before then `ugl-selector` should point straight at `https://university-golf-league.web.app`.

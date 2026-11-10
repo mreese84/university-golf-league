@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useAuth } from '../auth';
 import { isDevData } from '../dataEnv';
+import { followLink, nextHomePath } from '../routes';
 import GoogleSignInButton from './GoogleSignInButton';
 import UserAvatar from './UserAvatar';
 
@@ -29,7 +30,10 @@ export default function Layout({ activeTab, onTabChange, showHistory, children }
       {/* On the dev server and preview links, so they're never mistaken for the live site */}
       {isDevData && (
         <p className="bg-amber-100 text-amber-900 text-xs text-center px-4 py-1.5">
-          <span className="font-semibold">Dev data.</span> Changes here don't affect the live site.
+          <span className="font-semibold">Dev data.</span> Changes here don't affect the live site.{' '}
+          <a href={nextHomePath()} onClick={(e) => followLink(e, nextHomePath())} className="underline font-medium">
+            Try the Phase 1 pages
+          </a>
         </p>
       )}
 

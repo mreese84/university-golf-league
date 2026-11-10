@@ -178,8 +178,8 @@ Done when the test passes and The Founder's Chapter is in the dev data, copied f
 Steps 5 to 8 build the new pages at `/founders/…` and try them on dev data, on the dev server and preview links. The live site doesn't link to them until the switch, so everyone keeps using today's pages.
 
 **5. Sign-in and landing page.**
-Email-link sign-in next to Google; the signed-out landing page (logo, tagline, sign-in); a sign-in finds its person, and an invitee's first sign-in completes their join; a "you're not in a chapter yet" page.
-Mark does, once: upgrade to Blaze and set a $5 budget alert.
+Email-link sign-in next to Google; the signed-out landing page (logo, tagline, sign-in); a sign-in finds its person, and an invitee's first sign-in completes their join; a "you're not in a chapter yet" page. Until the switch these live at `/next` (the new home, which becomes `/`), `/finish-sign-in` and `/founders`, on dev data only; on the live site those addresses go to today's home page.
+Mark does, once: upgrade to Blaze and set a $5 budget alert (done), and turn on email-link sign-in ([setup steps](firebase-hosting-setup.md#email-link-sign-in-phase-1-step-5)).
 
 **6. Chapter home.**
 Trips, Selection (active members), Members (roster with statuses and roles; organizers invite by email and see invitees, members don't), and My profile (bio, college, GHIN number).
