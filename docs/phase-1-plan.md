@@ -191,7 +191,10 @@ The guide, pairings, Fireball (it knows who's signed in, so no more "pick yourse
 History pages read the database, per chapter, members only. Player pages, the Players list and superlatives drop team logos; event and match pages keep that year's teams. The chapter's History tab, at `/founders/history`, `/founders/players` and `/founders/superlatives`, on dev data until the switch; today's public history pages keep reading the files until then.
 
 **9. The switch.**
-Today's data goes read-only; the move-over writes The Founder's Chapter into the live data; old addresses redirect; everyone lands in The Founder's Chapter; Export downloads the whole chapter as a backup. Then the old code, old rules, history build step and today's `-dev` collections go. Dev data lives under `envs/dev` from then on.
+In three parts:
+- **9a, freeze.** Today's live data goes read-only (the `-dev` copies stay writable), and today's pages say changes are paused. Once it's deployed, Mark runs the Move-over on the live site, which writes The Founder's Chapter into the live data, and checks its counts.
+- **9b, switch.** The new pages go on for everyone and `/` becomes the new home; old addresses redirect into `/founders`; Export downloads the whole chapter as a backup; today's app code goes.
+- **9c, cleanup**, once Mark is happy with 9b. The old rules, the history files and their build step, the Move-over page and today's `-dev` collections go. Dev data lives under `envs/dev` from then on.
 History is members-only now, so the repo goes private and the history files leave it. Profile photos stay in the repo until Phase 2 moves them to uploaded storage. The `ugl-selector` forwarder switches to the new address, since GitHub Pages stops with the repo private.
 
 ### C. Edit everything in the app

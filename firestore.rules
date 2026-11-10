@@ -19,41 +19,42 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/access/members).data.byMember.get(memberId, '') == request.auth.token.email.lower();
     }
 
-    // Public trip and member data (live site: data, local dev: data-dev)
+    // ── Frozen for the switch (Phase 1, step 9) ──
+    // Today's live data can be read but not changed, so the move into The Founder's Chapter copies it
+    // exactly and nothing is lost afterwards. The local-dev (-dev) copies stay as they were.
+
+    // Public trip and member data (live site: data, frozen; local dev: data-dev)
     match /app/{docId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAdmin() && docId != 'data';
     }
 
-    // Member emails for guide access: admin only
+    // Member emails for guide access: admin only, frozen
     match /access/members {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin();
     }
 
-    // Player's Guides, one per trip, members only (live site: guides, local dev: guides-dev)
+    // Player's Guides, one per trip, members only (live site: guides, frozen; local dev: guides-dev)
     match /guides/{tripId} {
       allow read: if isAdmin() || isMember();
-      allow write: if isAdmin();
     }
     match /guides-dev/{tripId} {
       allow read: if isAdmin() || isMember();
       allow write: if isAdmin();
     }
 
-    // Draft teams, pairings, and handicaps: admin only (live site: guideDrafts, local dev: guideDrafts-dev)
+    // Draft teams, pairings, and handicaps: admin only (live site: guideDrafts, frozen; local dev: guideDrafts-dev)
     match /guideDrafts/{tripId} {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin();
     }
     match /guideDrafts-dev/{tripId} {
       allow read, write: if isAdmin();
     }
 
     // Fireball shots, one doc per player per trip: members see everyone's; each player changes
-    // only their own (the admin can fix anyone's). Live site: fireball, local dev: fireball-dev.
+    // only their own (the admin can fix anyone's). Live site: fireball, frozen; local dev: fireball-dev.
     match /fireball/{tripId}/players/{memberId} {
       allow read: if isAdmin() || isMember();
-      allow create, update: if (isAdmin() || isSelf(memberId))
-        && request.resource.data.keys().hasOnly(['counts', 'updatedAt']);
     }
     match /fireball-dev/{tripId}/players/{memberId} {
       allow read: if isAdmin() || isMember();
@@ -62,10 +63,9 @@ service cloud.firestore {
     }
 
     // Player bios for the guide's profiles: members read, the admin writes.
-    // Live site: profiles, local dev: profiles-dev.
+    // Live site: profiles, frozen; local dev: profiles-dev.
     match /profiles/{playerId} {
       allow read: if isAdmin() || isMember();
-      allow create, update: if isAdmin() && request.resource.data.keys().hasOnly(['bio', 'updatedAt']);
     }
     match /profiles-dev/{playerId} {
       allow read: if isAdmin() || isMember();

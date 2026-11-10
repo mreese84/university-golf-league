@@ -36,6 +36,12 @@ export default function Layout({ activeTab, onTabChange, showHistory, children }
           </a>
         </p>
       )}
+      {/* Today's live data is read-only while the league moves to the new pages (Phase 1, step 9) */}
+      {!isDevData && (
+        <p className="bg-amber-100 text-amber-900 text-xs text-center px-4 py-1.5">
+          <span className="font-semibold">Changes are paused</span> while the league moves to its new home. Everything here stays readable.
+        </p>
+      )}
 
       {/* Header */}
       <header className="bg-white border-b border-gray-100 shadow-sm">
