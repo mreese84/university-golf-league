@@ -74,6 +74,30 @@ export function useLiveDocs<T>(paths: string[], key: string | null) {
   return state.key === key ? state.docs : {};
 }
 
+// Live copies of several collections at once, by path. A path is missing until its first copy arrives;
+// one that can't be read comes back empty. `key` identifies the subscription; null stays idle.
+export function useLiveCollections<T>(paths: string[], key: string | null) {
+  const [state, setState] = useState<{ key: string | null; lists: Record<string, (T & { id: string })[]> }>({ key: null, lists: {} });
+  const joined = paths.join('\n');
+
+  useEffect(() => {
+    if (!key) return;
+    const list = joined ? joined.split('\n') : [];
+    const put = (path: string, items: (T & { id: string })[]) =>
+      setState((prev) => ({ key, lists: { ...(prev.key === key ? prev.lists : {}), [path]: items } }));
+    const unsubscribes = list.map((path) =>
+      onSnapshot(
+        collection(db, path),
+        (snap) => put(path, snap.docs.map((d) => ({ ...(d.data() as T), id: d.id }))),
+        () => put(path, []),
+      ),
+    );
+    return () => unsubscribes.forEach((u) => u());
+  }, [joined, key]);
+
+  return state.key === key ? state.lists : {};
+}
+
 // The people on a roster, by person ID (those not loaded yet are missing)
 export function usePeople(personIds: string[], uid: string | null) {
   const sorted = [...new Set(personIds)].sort();

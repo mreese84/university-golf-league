@@ -13,7 +13,7 @@ export default function NextApp({ route }: { route: NextRoute }) {
       <NextLayout>
         {route.page === 'finishSignIn' && <FinishSignIn />}
         {route.page === 'nextHome' && <HomePage />}
-        {route.page === 'chapter' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab={route.tab} />}
+        {route.page === 'chapter' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab={route.tab} history={route.history} />}
         {route.page === 'tripGuide' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab="trips" guideTripId={route.tripId} />}
         {route.page === 'me' && <ProfilePage />}
       </NextLayout>

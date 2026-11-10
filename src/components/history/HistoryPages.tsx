@@ -1,5 +1,5 @@
-import { history } from '../../history/data';
-import { historyPath, playersPath, superlativesPath, type HistoryRoute } from '../../routes';
+import { useHistory } from '../../history/historyContext';
+import type { HistoryRoute } from '../../routes';
 import { EmblemDefs } from '../guide/Emblem';
 import EventPage from './EventPage';
 import EventsPage from './EventsPage';
@@ -9,11 +9,6 @@ import PlayersPage from './PlayersPage';
 import SuperlativesPage from './SuperlativesPage';
 import { Link } from './parts';
 
-const sections = [
-  { key: 'events', label: 'Events', path: historyPath() },
-  { key: 'players', label: 'Players', path: playersPath() },
-  { key: 'superlatives', label: 'Superlatives', path: superlativesPath() },
-] as const;
 
 function sectionOf(route: HistoryRoute) {
   if (route.page === 'players' || route.page === 'player') return 'players';
@@ -38,8 +33,16 @@ function page(route: HistoryRoute) {
   }
 }
 
+// The history pages, for whichever history the surrounding HistoryContext provides: today's public
+// one, or a chapter's
 export default function HistoryPages({ route }: { route: HistoryRoute }) {
+  const { data, links } = useHistory();
   const current = sectionOf(route);
+  const sections = [
+    { key: 'events', label: 'Events', path: links.events },
+    { key: 'players', label: 'Players', path: links.players },
+    { key: 'superlatives', label: 'Superlatives', path: links.superlatives },
+  ] as const;
   return (
     <div className="space-y-6">
       <EmblemDefs />
@@ -58,7 +61,7 @@ export default function HistoryPages({ route }: { route: HistoryRoute }) {
         ))}
       </nav>
 
-      {history.events.some((e) => e.sample) && (
+      {data.events.some((e) => e.sample) && (
         <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
           <span className="font-semibold">Sample data.</span> Made-up teams and scores, shown only when the
           site runs on your computer. The live site leaves sample events out.

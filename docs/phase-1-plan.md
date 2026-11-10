@@ -188,7 +188,7 @@ Trips, Selection (active members), Members (roster with statuses and roles; orga
 The guide, pairings, Fireball (it knows who's signed in, so no more "pick yourself") and player profiles. Importing a guide file stays until step 10. At `/founders/2026-columbia/guide`, linked from each trip on the Trips tab, on dev data until the switch.
 
 **8. History in the chapter.**
-History pages read the database, per chapter, members only. Player pages, the Players list and superlatives drop team logos; event and match pages keep that year's teams.
+History pages read the database, per chapter, members only. Player pages, the Players list and superlatives drop team logos; event and match pages keep that year's teams. The chapter's History tab, at `/founders/history`, `/founders/players` and `/founders/superlatives`, on dev data until the switch; today's public history pages keep reading the files until then.
 
 **9. The switch.**
 Today's data goes read-only; the move-over writes The Founder's Chapter into the live data; old addresses redirect; everyone lands in The Founder's Chapter; Export downloads the whole chapter as a backup. Then the old code, old rules, history build step and today's `-dev` collections go. Dev data lives under `envs/dev` from then on.

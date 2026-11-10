@@ -1,11 +1,12 @@
-import { history, nameOf, stats } from '../../history/data';
+import { useHistory } from '../../history/historyContext';
 import { eventLabel, formatPoints, formatRecord } from '../../history/format';
-import { playerPath } from '../../routes';
 import { Card } from '../guide/parts';
 import { Link, PlayerAvatar } from './parts';
 
+// Individual records, so no team logos: photo, name and record
 export default function PlayersPage() {
-  const players = history.players
+  const { data, stats, nameOf, links } = useHistory();
+  const players = data.players
     .map((p) => stats.get(p.id))
     .filter((s) => s !== undefined)
     .sort((a, b) => b.points - a.points || b.record.w - a.record.w || nameOf(a.id).localeCompare(nameOf(b.id)));
@@ -24,14 +25,13 @@ export default function PlayersPage() {
         </div>
         <div className="divide-y divide-gray-100">
           {players.map((s) => {
-            const latest = s.events[0];
             return (
               <Link
                 key={s.id}
-                to={playerPath(s.id)}
+                to={links.player(s.id)}
                 className="flex items-center gap-3 py-3 -mx-5 px-5 hover:bg-gray-50 transition-colors"
               >
-                <PlayerAvatar id={s.id} team={latest?.team} />
+                <PlayerAvatar id={s.id} />
                 <span className="flex-1 min-w-0">
                   <span className="block text-sm font-semibold text-gray-800 truncate">{nameOf(s.id)}</span>
                   <span className="block text-xs text-gray-500 truncate">

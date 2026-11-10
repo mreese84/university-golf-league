@@ -12,6 +12,7 @@
 //   /finish-sign-in                   where email sign-in links land
 //   /founders                         a chapter's trips; /founders/selection, /founders/members
 //   /founders/2026-columbia/guide     a trip's Player's Guide in the chapter
+//   /founders/history, /founders/players, /founders/superlatives   the chapter's history (as /history above)
 //   /me                               your profile
 // Firebase Hosting serves index.html at every address (firebase.json), and the app reads the path itself.
 
@@ -34,11 +35,11 @@ export type Route =
   | { page: 'moveOver' }
   | { page: 'nextHome' }
   | { page: 'finishSignIn' }
-  | { page: 'chapter'; chapterId: string; tab: ChapterTab }
+  | { page: 'chapter'; chapterId: string; tab: ChapterTab; history?: HistoryRoute }
   | { page: 'tripGuide'; chapterId: string; tripId: string }
   | { page: 'me' };
 
-export type ChapterTab = 'trips' | 'selection' | 'members';
+export type ChapterTab = 'trips' | 'selection' | 'members' | 'history';
 const CHAPTER_TABS: ChapterTab[] = ['trips', 'selection', 'members'];
 
 export type NextRoute = Extract<Route, { page: 'nextHome' | 'finishSignIn' | 'chapter' | 'tripGuide' | 'me' }>;
@@ -66,14 +67,22 @@ export const chapterPath = (chapterId: string, tab: ChapterTab = 'trips') =>
 export const mePath = () => `${BASE}me`;
 export const tripGuidePath = (chapterId: string, tripId: string) => `${BASE}${encodeURIComponent(chapterId)}/${encodeURIComponent(tripId)}/guide`;
 
-export const currentRoute = (): Route => parseRoute(window.location.pathname, window.location.hash);
+// A chapter's history addresses, the same as today's public ones but under the chapter
+export function chapterHistoryLinks(chapterId: string) {
+  const root = `${BASE}${encodeURIComponent(chapterId)}`;
+  const event = (eventId: string) => `${root}/history/${encodeURIComponent(eventId)}`;
+  return {
+    events: `${root}/history`,
+    event,
+    match: (eventId: string, matchId: string) => `${event(eventId)}/${encodeURIComponent(matchId)}`,
+    players: `${root}/players`,
+    player: (playerId: string) => `${root}/players/${encodeURIComponent(playerId)}`,
+    superlatives: `${root}/superlatives`,
+  };
+}
 
-export function parseRoute(pathname: string, hash = ''): Route {
-  const legacy = hash.match(/^#\/guide\/(.+)$/);
-  if (legacy) return { page: 'legacyGuide', tripId: decodeURIComponent(legacy[1]) };
-  const path = pathname.startsWith(BASE) ? pathname.slice(BASE.length).replace(/\/$/, '') : '';
-  const parts = path.split('/').map(decodeURIComponent);
-  if (parts.length === 2 && parts[1] === 'guide') return { page: 'guide', slug: parts[0] };
+// history/…, players/…, superlatives, as a history page (today's public ones and a chapter's)
+function historyRouteOf(parts: string[]): HistoryRoute | null {
   if (parts[0] === 'history') {
     if (parts.length === 1) return { page: 'history' };
     if (parts.length === 2) return { page: 'event', eventId: parts[1] };
@@ -83,11 +92,26 @@ export function parseRoute(pathname: string, hash = ''): Route {
     if (parts.length === 1) return { page: 'players' };
     if (parts.length === 2) return { page: 'player', playerId: parts[1] };
   }
-  if (path === 'superlatives') return { page: 'superlatives' };
+  if (parts[0] === 'superlatives' && parts.length === 1) return { page: 'superlatives' };
+  return null;
+}
+
+export const currentRoute = (): Route => parseRoute(window.location.pathname, window.location.hash);
+
+export function parseRoute(pathname: string, hash = ''): Route {
+  const legacy = hash.match(/^#\/guide\/(.+)$/);
+  if (legacy) return { page: 'legacyGuide', tripId: decodeURIComponent(legacy[1]) };
+  const path = pathname.startsWith(BASE) ? pathname.slice(BASE.length).replace(/\/$/, '') : '';
+  const parts = path.split('/').map(decodeURIComponent);
+  if (parts.length === 2 && parts[1] === 'guide') return { page: 'guide', slug: parts[0] };
+  const history = historyRouteOf(parts);
+  if (history) return history;
   if (path === 'move-over') return { page: 'moveOver' };
   if (path === 'next') return { page: 'nextHome' };
   if (path === 'finish-sign-in') return { page: 'finishSignIn' };
   if (path === 'me') return { page: 'me' };
+  const chapterHistory = parts.length >= 2 && isValidChapterId(parts[0]) ? historyRouteOf(parts.slice(1)) : null;
+  if (chapterHistory) return { page: 'chapter', chapterId: parts[0], tab: 'history', history: chapterHistory };
   if (parts.length === 3 && isValidChapterId(parts[0]) && parts[1] && parts[2] === 'guide') {
     return { page: 'tripGuide', chapterId: parts[0], tripId: parts[1] };
   }

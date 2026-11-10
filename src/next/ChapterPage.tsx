@@ -3,9 +3,10 @@ import { pathsFor } from '../data/paths';
 import type { RosterEntry } from '../data/types';
 import { dataEnv } from '../dataEnv';
 import { useLiveDoc } from '../guides';
-import { chapterPath, followLink, nextHomePath, tripGuidePath, type ChapterTab } from '../routes';
+import { chapterPath, followLink, nextHomePath, tripGuidePath, type ChapterTab, type HistoryRoute } from '../routes';
 import { hasJoined, type ChapterData } from './chapter/data';
 import GuidePage from './chapter/GuidePage';
+import HistoryView from './chapter/HistoryView';
 import MembersView from './chapter/MembersView';
 import SelectionView from './chapter/SelectionView';
 import TripsView from './chapter/TripsView';
@@ -21,10 +22,11 @@ const TABS: { key: ChapterTab; label: string }[] = [
   { key: 'trips', label: 'Trips' },
   { key: 'selection', label: 'Selection' },
   { key: 'members', label: 'Members' },
+  { key: 'history', label: 'History' },
 ];
 
-// A chapter's home: its trips, selection draw and members. Guides and history join in steps 7–8.
-function ChapterHome({ chapterId, tab, guideTripId }: { chapterId: string; tab: ChapterTab; guideTripId?: string }) {
+// A chapter's home: its trips, selection draw, members and history; each trip's guide on its own page.
+function ChapterHome({ chapterId, tab, history, guideTripId }: { chapterId: string; tab: ChapterTab; history?: HistoryRoute; guideTripId?: string }) {
   const { user, personId, isAdmin } = useSession();
   const uid = user!.uid;
   const { status, chapter } = useChapter(chapterId, uid);
@@ -84,15 +86,16 @@ function ChapterHome({ chapterId, tab, guideTripId }: { chapterId: string; tab: 
       {tab === 'trips' && <TripsView data={data} />}
       {tab === 'selection' && <SelectionView data={data} />}
       {tab === 'members' && <MembersView data={data} />}
+      {tab === 'history' && <HistoryView data={data} route={history ?? { page: 'history' }} />}
     </div>
   );
 }
 
-export default function ChapterPage({ chapterId, tab, guideTripId }: { chapterId: string; tab: ChapterTab; guideTripId?: string }) {
+export default function ChapterPage({ chapterId, tab, history, guideTripId }: { chapterId: string; tab: ChapterTab; history?: HistoryRoute; guideTripId?: string }) {
   const { status } = useSession();
   if (status === 'signedOut') return <Landing continuePath={guideTripId ? tripGuidePath(chapterId, guideTripId) : chapterPath(chapterId, tab)} />;
   if (status === 'loading' || status === 'joining') return <SessionWaiting />;
   if (status === 'error') return <SessionError />;
   if (status === 'notInLeague') return <NotInLeague />;
-  return <ChapterHome chapterId={chapterId} tab={tab} guideTripId={guideTripId} />;
+  return <ChapterHome chapterId={chapterId} tab={tab} history={history} guideTripId={guideTripId} />;
 }

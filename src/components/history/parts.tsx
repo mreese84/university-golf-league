@@ -1,6 +1,6 @@
 import { Fragment, type ReactNode } from 'react';
-import { followLink, matchPath, playerPath } from '../../routes';
-import { nameOf, photoOf, shortName } from '../../history/data';
+import { followLink } from '../../routes';
+import { useHistory } from '../../history/historyContext';
 import { formatPoints } from '../../history/format';
 import type { MatchInfo, Outcome, Standings } from '../../history/stats';
 import type { EventTeam, HistoryEvent } from '../../history/types';
@@ -41,17 +41,22 @@ export function TeamMark({ team, className = 'w-6 h-6' }: { team: EventTeam; cla
   );
 }
 
-// A player's profile photo in a circle, with their team's emblem as a small badge so teams stay
-// easy to tell apart; just the team emblem for anyone without a photo yet
-export function PlayerAvatar({ id, team, className = 'w-11 h-11' }: { id: string; team?: EventTeam; className?: string }) {
+// A player's profile photo in a circle, or their initials. History follows individuals, so there's
+// no team badge here (event and match pages keep each year's teams).
+export function PlayerAvatar({ id, className = 'w-11 h-11' }: { id: string; className?: string }) {
+  const { photoOf, nameOf } = useHistory();
   const photo = photoOf(id);
-  if (!photo) return team ? <TeamMark team={team} className={className} /> : <span className={`${className} shrink-0`} />;
+  if (!photo) {
+    const initials = nameOf(id).split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+    return (
+      <span className={`${className} shrink-0 rounded-full bg-gray-100 text-gray-500 text-sm font-semibold inline-flex items-center justify-center`}>
+        {initials}
+      </span>
+    );
+  }
   return (
     <span className={`${className} relative shrink-0`}>
       <img src={photo} alt="" loading="lazy" className="w-full h-full rounded-full object-cover object-[50%_20%] bg-gray-100" />
-      {team && (
-        <TeamMark team={team} className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] ring-2 ring-white" />
-      )}
     </span>
   );
 }
@@ -59,6 +64,7 @@ export function PlayerAvatar({ id, team, className = 'w-11 h-11' }: { id: string
 // "Jeff Siarto & Adam Cowdin"; links to profiles unless it sits inside another link.
 // Short names ("Jeff S.") on phones when space is tight.
 export function Names({ ids, link = false, short = false }: { ids: string[]; link?: boolean; short?: boolean }) {
+  const { nameOf, shortName, links } = useHistory();
   return (
     <>
       {ids.map((id, i) => {
@@ -74,7 +80,7 @@ export function Names({ ids, link = false, short = false }: { ids: string[]; lin
           <Fragment key={id}>
             {i > 0 && ' & '}
             {link ? (
-              <Link to={playerPath(id)} className="hover:underline">
+              <Link to={links.player(id)} className="hover:underline">
                 {name}
               </Link>
             ) : (
@@ -131,6 +137,7 @@ export function MarginPill({ info }: { info: MatchInfo }) {
 
 // One match in a list, the sides facing each other with the result between them
 export function MatchRow({ info }: { info: MatchInfo }) {
+  const { links } = useHistory();
   const { event, match, teams, session } = info;
   const [a, b] = teams;
   const winner = match.result.winner;
@@ -155,7 +162,7 @@ export function MatchRow({ info }: { info: MatchInfo }) {
     );
   return (
     <Link
-      to={matchPath(event.id, match.id)}
+      to={links.match(event.id, match.id)}
       className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-3 py-3 -mx-5 px-5 hover:bg-gray-50 transition-colors"
     >
       <div className={`text-right text-sm leading-snug ${sideClass(a)}`} style={winner === a.id ? { color: a.color } : undefined}>
