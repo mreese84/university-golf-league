@@ -71,5 +71,274 @@ service cloud.firestore {
       allow read: if isAdmin() || isMember();
       allow create, update: if isAdmin() && request.resource.data.keys().hasOnly(['bio', 'updatedAt']);
     }
+
+    // ══ Phase 1 layout ══════════════════════════════════════════════════════════════════════
+    // Everything below lives under envs/live (the live site) or envs/dev (the dev server and preview
+    // links), with the same rules for both. Who can do what: docs/phase-1-plan.md. Tests:
+    // tests/rules/chapters.rules.test.ts. The helpers in src/data/writes.ts make the saves that
+    // touch several documents at once, which these rules expect to arrive together.
+    match /envs/{env} {
+
+      // ── Paths ──
+      function loginPath(email) { return /databases/$(database)/documents/envs/$(env)/logins/$(email); }
+      function personPath(p) { return /databases/$(database)/documents/envs/$(env)/people/$(p); }
+      function rosterPath(c, p) { return /databases/$(database)/documents/envs/$(env)/chapters/$(c)/members/$(p); }
+      function adminsPath() { return /databases/$(database)/documents/envs/$(env)/config/admins; }
+
+      // ── Who's asking ──
+      // Signed in with a verified email (Google and email links both verify), in one of the two copies
+      function verified() {
+        return env in ['live', 'dev']
+          && request.auth != null
+          && request.auth.token.email is string
+          && request.auth.token.email_verified == true;
+      }
+      function myEmail() { return request.auth.token.email.lower(); }
+      // The commissioner, fixed by email so the league can never lock itself out
+      function isCommissioner() { return verified() && myEmail() == 'reese296@gmail.com'; }
+      // A sign-in is a person once their email has a logins record
+      function hasLogin() { return verified() && exists(loginPath(myEmail())); }
+      function me() { return get(loginPath(myEmail())).data.personId; }
+      function isSelf(p) { return hasLogin() && me() == p; }
+      function isAdmin() {
+        return isCommissioner()
+          || (hasLogin() && exists(adminsPath()) && me() in get(adminsPath()).data.personIds);
+      }
+      // The signed-in person's own record, which mirrors their rosters (empty lists without one)
+      function hasRecord() { return hasLogin() && exists(personPath(me())); }
+      function myChapterIds() { return hasRecord() ? get(personPath(me())).data.chapterIds : []; }
+      function myOrganizerOf() { return hasRecord() ? get(personPath(me())).data.organizerOf : []; }
+
+      // ── Chapters ──
+      function joinedStatuses() { return ['active', 'alumni', 'guest']; }
+      function myEntry(c) { return get(rosterPath(c, me())).data; }
+      // On the chapter's roster and joined: an active member, alumni or a guest, not an invitee
+      function hasJoined(c) { return hasLogin() && exists(rosterPath(c, me())) && myEntry(c).status in joinedStatuses(); }
+      function isOrganizer(c) { return hasJoined(c) && myEntry(c).role == 'organizer'; }
+      function canSee(c) { return isAdmin() || hasJoined(c); }
+      function canManage(c) { return isAdmin() || isOrganizer(c); }
+      // Anyone (not just the signed-in person) who has joined the chapter
+      function joinedChapter(c, p) {
+        return exists(rosterPath(c, p)) && get(rosterPath(c, p)).data.status in joinedStatuses();
+      }
+
+      // ── People ──
+      // Every chapter a person's record names, joined or invited
+      function allChapters(person) { return person.chapterIds.concat(person.invitedTo); }
+      // The signed-in person organizes one of this person's chapters
+      function organizes(person) { return hasLogin() && allChapters(person).hasAny(myOrganizerOf()); }
+      // What differs between two lists, as a set
+      function changed(a, b) { return a.toSet().difference(b.toSet()).union(b.toSet().difference(a.toSet())); }
+      function personShape(d) {
+        return d.keys().hasOnly(['name', 'college', 'bio', 'ghin', 'photo', 'chapterIds', 'invitedTo', 'organizerOf', 'updatedAt'])
+          && d.keys().hasAll(['name', 'chapterIds', 'invitedTo', 'organizerOf'])
+          && d.name is string && d.name.size() > 0
+          && d.chapterIds is list && d.invitedTo is list && d.organizerOf is list;
+      }
+      // A person changes their own bio, college, GHIN number and photo
+      function selfEdit() {
+        return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['bio', 'college', 'ghin', 'photo', 'updatedAt']);
+      }
+      // An invitee's first sign-in: one chapter moves from invitedTo to the end of chapterIds, and its
+      // roster entry says they've joined, in the same save (completeJoin in src/data/writes.ts)
+      function selfJoin(p) {
+        let before = resource.data;
+        let after = request.resource.data;
+        let c = after.chapterIds[after.chapterIds.size() - 1];
+        return after.diff(before).affectedKeys().hasOnly(['chapterIds', 'invitedTo', 'updatedAt'])
+          && c in before.invitedTo
+          && !(c in after.invitedTo)
+          && changed(before.chapterIds, after.chapterIds).hasOnly([c])
+          && changed(before.invitedTo, after.invitedTo).hasOnly([c])
+          && getAfter(rosterPath(c, p)).data.status in joinedStatuses();
+      }
+      // An organizer fixes a profile, or puts the person on or off their own chapters' rosters. Only
+      // admins change organizerOf.
+      function organizerEdit() {
+        let before = resource.data;
+        let after = request.resource.data;
+        return after.diff(before).affectedKeys()
+            .hasOnly(['name', 'college', 'bio', 'ghin', 'photo', 'chapterIds', 'invitedTo', 'updatedAt'])
+          && changed(before.chapterIds, after.chapterIds).hasOnly(myOrganizerOf())
+          && changed(before.invitedTo, after.invitedTo).hasOnly(myOrganizerOf());
+      }
+      // Who can attach sign-in emails to a person: admins, or an organizer when the person is in none
+      // but that organizer's chapters and is neither an organizer nor an admin. So nobody can take
+      // over an account with more rights than their own.
+      function mayManageLogins(p) { return isAdmin() || organizerMayManageLogins(p); }
+      function organizerMayManageLogins(p) {
+        let person = getAfter(personPath(p)).data;
+        return hasLogin()
+          && person.organizerOf.size() == 0
+          && allChapters(person).size() > 0
+          && allChapters(person).hasOnly(myOrganizerOf())
+          && !(exists(adminsPath()) && p in get(adminsPath()).data.personIds);
+      }
+
+      match /people/{p} {
+        allow get: if isAdmin() || isSelf(p) || organizes(resource.data)
+          || (hasLogin() && resource.data.chapterIds.hasAny(myChapterIds()));
+        allow list: if isAdmin();
+        allow create: if personShape(request.resource.data) && (isAdmin() || (
+          request.resource.data.organizerOf.size() == 0
+          && allChapters(request.resource.data).size() > 0
+          && allChapters(request.resource.data).hasOnly(myOrganizerOf())));
+        allow update: if personShape(request.resource.data) && (
+          isAdmin()
+          || (isSelf(p) && (selfEdit() || selfJoin(p)))
+          || ((organizes(resource.data) || organizes(request.resource.data)) && organizerEdit()));
+        allow delete: if isAdmin();
+
+        // Their email addresses: themselves, admins and their chapters' organizers
+        match /private/contact {
+          allow get: if isAdmin() || isSelf(p) || organizes(get(personPath(p)).data);
+          allow create, update: if request.resource.data.keys().hasOnly(['emails'])
+            && request.resource.data.emails is list && mayManageLogins(p);
+          allow delete: if mayManageLogins(p);
+        }
+      }
+
+      // One per email, so a sign-in finds its person. Organizers can look one up to see whether
+      // someone they're inviting is already in the league.
+      match /logins/{email} {
+        allow get: if isAdmin()
+          || (verified() && email == myEmail())
+          || (hasLogin() && myOrganizerOf().size() > 0);
+        allow list: if isAdmin();
+        allow create: if email == email.lower()
+          && request.resource.data.keys().hasOnly(['personId'])
+          && request.resource.data.personId is string
+          && mayManageLogins(request.resource.data.personId);
+        allow update: if email == email.lower()
+          && request.resource.data.keys().hasOnly(['personId'])
+          && mayManageLogins(resource.data.personId)
+          && mayManageLogins(request.resource.data.personId);
+        allow delete: if mayManageLogins(resource.data.personId);
+      }
+
+      // The co-admins. Admins can read it; only the commissioner changes it.
+      match /config/admins {
+        allow get: if isAdmin();
+        allow create, update: if isCommissioner()
+          && request.resource.data.keys().hasOnly(['personIds'])
+          && request.resource.data.personIds is list;
+        allow delete: if isCommissioner();
+      }
+
+      // Anyone signed in can ask for a chapter; they see their own requests, admins see and decide all
+      match /chapterRequests/{id} {
+        allow create: if verified()
+          && request.resource.data.keys().hasOnly(['name', 'note', 'requestedBy', 'status', 'createdAt'])
+          && request.resource.data.status == 'pending'
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80
+          && (request.resource.data.note == null
+            || (request.resource.data.note is string && request.resource.data.note.size() <= 1000))
+          && request.resource.data.requestedBy.keys().hasOnly(['uid', 'email', 'name'])
+          && request.resource.data.requestedBy.uid == request.auth.uid
+          && request.resource.data.requestedBy.email == myEmail();
+        allow read: if isAdmin() || (verified() && resource.data.requestedBy.uid == request.auth.uid);
+        allow update, delete: if isAdmin();
+      }
+
+      // A roster entry agrees with the person's record after the save: joined chapters in chapterIds,
+      // invited ones in invitedTo, and organizers in organizerOf
+      function matchesRecord(c, p) {
+        let person = getAfter(personPath(p)).data;
+        let entry = request.resource.data;
+        return (entry.status == 'invitee'
+            ? (c in person.invitedTo && !(c in person.chapterIds))
+            : (c in person.chapterIds && !(c in person.invitedTo)))
+          && ((entry.role == 'organizer') == (c in person.organizerOf));
+      }
+      // After removing an entry, the person's record no longer names the chapter
+      function goneFromRecord(c, p) {
+        return !existsAfter(personPath(p)) || !namesChapter(getAfter(personPath(p)).data, c);
+      }
+      function namesChapter(person, c) { return c in allChapters(person) || c in person.organizerOf; }
+      function rosterShape() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['role', 'status', 'joinsAs', 'since'])
+          && d.role in ['organizer', 'member']
+          && d.status in ['active', 'alumni', 'guest', 'invitee']
+          && (d.status != 'invitee' || d.get('joinsAs', '') in ['active', 'guest']);
+      }
+      // An invitee's first sign-in: their status becomes what they were invited as
+      function selfJoinEntry() {
+        return resource.data.status == 'invitee'
+          && request.resource.data.status == resource.data.joinsAs
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'since']);
+      }
+
+      match /chapters/{c} {
+        allow get: if canSee(c);
+        allow list: if isAdmin();
+        allow create, delete: if isAdmin();
+        allow update: if canManage(c);
+
+        // The roster. Members see the people who've joined; organizers and admins also see invitees.
+        // Members' queries must ask only for joined statuses (status in active, alumni, guest).
+        match /members/{p} {
+          allow get: if canManage(c) || isSelf(p) || (hasJoined(c) && resource.data.status in joinedStatuses());
+          allow list: if canManage(c) || (hasJoined(c) && resource.data.status in joinedStatuses());
+          allow create: if rosterShape() && matchesRecord(c, p)
+            && (isAdmin() || (isOrganizer(c) && request.resource.data.role == 'member'));
+          allow update: if rosterShape() && matchesRecord(c, p) && (
+            isAdmin()
+            || (isOrganizer(c) && resource.data.role == 'member' && request.resource.data.role == 'member')
+            || (isSelf(p) && selfJoinEntry()));
+          allow delete: if (isAdmin() || (isOrganizer(c) && resource.data.role == 'member')) && goneFromRecord(c, p);
+        }
+
+        match /trips/{t} {
+          allow read: if canSee(c);
+          allow write: if canManage(c);
+
+          // The Player's Guide (content/guide): members read, organizers edit
+          match /content/{d} {
+            allow read: if canSee(c);
+            allow write: if canManage(c);
+          }
+          // The teams and pairings draft (private/draft): organizers only
+          match /private/{d} {
+            allow read, write: if canManage(c);
+          }
+          match /matches/{m} {
+            allow read: if canSee(c);
+            allow write: if canManage(c);
+          }
+          // Organizers' notes on how invitees answered; invitees stay hidden from members
+          match /invites/{p} {
+            allow read, write: if canManage(c);
+          }
+          // Pre-trip handicap index, entered by the player or an organizer, for people who've joined
+          match /handicaps/{p} {
+            allow read: if canSee(c);
+            allow create, update: if joinedChapter(c, p)
+              && request.resource.data.keys().hasOnly(['index', 'updatedBy', 'updatedAt'])
+              && request.resource.data.index is number
+              && (canManage(c) || (isSelf(p) && hasJoined(c)));
+            allow delete: if canManage(c) || (isSelf(p) && hasJoined(c));
+          }
+          match /rsvps/{p} {
+            allow read: if canSee(c);
+            allow create, update: if joinedChapter(c, p)
+              && request.resource.data.keys().hasOnly(['response', 'note', 'updatedAt'])
+              && request.resource.data.response in ['invited', 'yes', 'maybe', 'no']
+              && (canManage(c) || (isSelf(p) && hasJoined(c)));
+            allow delete: if canManage(c);
+          }
+          match /fireball/{p} {
+            allow read: if canSee(c);
+            allow create, update: if joinedChapter(c, p)
+              && request.resource.data.keys().hasOnly(['counts', 'updatedAt'])
+              && request.resource.data.counts is map
+              && (canManage(c) || (isSelf(p) && hasJoined(c)));
+            allow delete: if canManage(c);
+          }
+        }
+      }
+    }
   }
 }

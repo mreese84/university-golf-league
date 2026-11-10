@@ -42,18 +42,21 @@ Everything below sits under `envs/live` for the live site, or `envs/dev` for dev
 
 ```
 config/admins                     { personIds }                  co-admins (the commissioner is fixed in the rules)
-logins/{email}                    { personId, chapterId }        one per email: how a sign-in finds its person
-people/{personId}                 { name, college, bio, ghin, photo, chapterIds, organizerOf, updatedAt }
-chapterRequests/{requestId}       { name, note, requestedBy, status, decidedBy, createdAt }
+logins/{email}                    { personId }                   one per email: how a sign-in finds its person
+people/{personId}                 { name, college, bio, ghin, photo, chapterIds, invitedTo, organizerOf, updatedAt }
+  private/contact                 { emails }                     the person, admins and their organizers only
+chapterRequests/{requestId}       { name, note, requestedBy, status, decidedBy, chapterId, createdAt }
 
 chapters/{chapterId}              { name, createdAt }
-  members/{personId}              { role: organizer | member, status: active | alumni | guest | invitee, since }
+  members/{personId}              { role: organizer | member, status: active | alumni | guest | invitee,
+                                    joinsAs (invitees: active | guest), since }
   trips/{tripId}                  { number, title, year, month, location, dates, timeZone, theme, competition,
                                     attendeeIds, selectedById, nextSelectorId }
     content/guide                 { flights, teams, rounds, format, football, nightlife }
     private/draft                 { published, captains, teams, rounds }       pairings draft, organizers only
     handicaps/{personId}          { index, updatedAt, updatedBy }               one pre-trip index per player
-    rsvps/{personId}              { response: invited | yes | maybe | no, note, updatedAt }
+    rsvps/{personId}              { response: invited | yes | maybe | no, note, updatedAt }   people who've joined
+    invites/{personId}            { response, note, updatedAt }                organizers' notes on invitees
     fireball/{personId}           { counts, updatedAt }
     matches/{matchId}             { session, match, sides, result, totals, scores }   today's match files
 ```
@@ -62,9 +65,11 @@ chapters/{chapterId}              { name, createdAt }
 - **One person record each.** It replaces today's two lists ("Mark R" on the Members page and "mark-reese" in the history), which are matched by name.
 - **Guide and history share one model.** A trip's teams, rounds and sessions serve both. Rounds gain par and stroke index, and sessions gain how they're scored, as in today's `event.json`. The history pages assemble the same shape they read today, so the records and superlatives code stays as it is.
 - **Numbering:** `number` is per chapter: UGL1 (2025 Lubbock, `competition: false`) and UGL2 (2026 Columbia) in The Founder's Chapter. A new chapter starts at 1.
-- **Emails live only in `logins`**, so members don't see each other's addresses. Organizers see the emails their chapter invited.
-- **Invitees are hidden from members.** Until someone joins, their roster entry, person record and RSVPs are visible only to organizers and admins. Their first sign-in with the invited email completes the join: their status changes to what the organizer invited them as (active member or guest), and members can see them from then on.
-- **`chapterIds` and `organizerOf`** on a person mirror the rosters, so the rules can check "shares a chapter with" in one lookup. They're saved together with the roster, and the rules reject a save where they'd disagree.
+- **Emails live in `logins` and each person's private contact record**, so members don't see each other's addresses. Organizers see the emails of people in their chapters, and can look up an email to see whether someone they're inviting is already in the league.
+- **Two ways onto a roster.** An organizer either confirms someone straight away as an active member, alumni or guest (members see them at once, and they don't need to sign in, which suits a guest who never uses the app), or invites them.
+- **Invitees are hidden from members.** Until someone joins, their roster entry and person record are visible only to organizers and admins, and their answers go in the organizers' `invites` notes rather than `rsvps`. Their first sign-in with the invited email completes the join: their status changes to what the organizer invited them as (active member or guest), and members can see them from then on. An organizer can also confirm an invitee who never signs in.
+- **`chapterIds`, `invitedTo` and `organizerOf`** on a person mirror the rosters, so the rules can check "shares a chapter with" in one lookup. They're saved together with the roster (`src/data/writes.ts`), and the rules reject a roster save where they'd disagree. Only admins change `organizerOf`.
+- **No account takeovers.** Organizers can attach sign-in emails only to people who are in none but their own chapters and aren't organizers or admins, so nobody can sign in as someone with more rights than their own.
 - **Handicaps are their own records** so a player can enter their own. Members of the chapter can see them.
 - **Offline:** the app keeps a local copy of what it has read, so the guide opens with no signal and Fireball shots save when the phone reconnects (today that only works while the page stays open).
 
