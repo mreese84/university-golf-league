@@ -1,18 +1,9 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { AuthContext } from './authContext';
+import { COMMISSIONER_EMAIL } from './data/commissioner';
 import { auth } from './firebase';
 import { forgetGoogleSignIn } from './googleSignIn';
-
-const ADMIN_EMAIL = 'reese296@gmail.com';
-
-interface AuthState {
-  user: User | null;
-  isAdmin: boolean;
-  loading: boolean;
-  logOut: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -31,17 +22,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth);
   };
 
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  // The commissioner, for the Move-over page; the app's pages use the session's isAdmin, which
+  // also counts co-admins
+  const isAdmin = !!user?.emailVerified && user.email?.toLowerCase() === COMMISSIONER_EMAIL;
 
   return (
     <AuthContext.Provider value={{ user, isAdmin, loading, logOut }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be inside AuthProvider');
-  return ctx;
 }

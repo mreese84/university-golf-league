@@ -1,73 +1,57 @@
 // Page addresses, all under the site's base path (/):
-//   /                                 trips, selection, and members tabs
-//   /2026-columbia/guide              a trip's Player's Guide
-//   /history                          every event
-//   /history/2026-columbia            an event's matches
-//   /history/2026-columbia/singles-1  one match's scorecard
-//   /players, /players/jeff-siarto    player records
-//   /superlatives
-//   /move-over                        moving today's data into The Founder's Chapter (admin only)
-// Phase 1 pages, on dev data only until the switch (src/next/enabled.ts):
-//   /next                             the new home: the landing page, or your chapter (becomes / at the switch)
+//   /                                 the landing page, or your chapter once you're signed in
 //   /finish-sign-in                   where email sign-in links land
-//   /founders                         a chapter's trips; /founders/selection, /founders/members
-//   /founders/2026-columbia/guide     a trip's Player's Guide in the chapter
-//   /founders/history, /founders/players, /founders/superlatives   the chapter's history (as /history above)
 //   /me                               your profile
-// Firebase Hosting serves index.html at every address (firebase.json), and the app reads the path itself.
+//   /founders                         a chapter's trips; /founders/selection, /founders/members
+//   /founders/2026-columbia/guide     a trip's Player's Guide
+//   /founders/history                 the chapter's events; /founders/history/2026-columbia, and
+//                                     /founders/history/2026-columbia/singles-1 for one match
+//   /founders/players, /founders/players/jeff-siarto, /founders/superlatives
+//   /move-over                        moving the old data into The Founder's Chapter (admin only)
+// Addresses from before the switch (Phase 1, step 9) redirect into The Founder's Chapter:
+//   /2026-columbia/guide              → /founders/2026-columbia/guide
+//   /history…, /players…, /superlatives → the same under /founders
+//   #/guide/<old trip ID>             → /founders (the old IDs aren't kept)
+//   /next                             → /
+// Anything else goes to /. Firebase Hosting serves index.html at every address (firebase.json), and
+// the app reads the path itself.
 
 import { isValidChapterId } from './data/ids';
 
 const BASE = import.meta.env.BASE_URL;
 
-export { tripSlugs } from './tripSlugs';
+// The chapter today's league moved into, where the old addresses lead
+export const FOUNDERS = 'founders';
 
-export type Route =
-  | { page: 'home' }
-  | { page: 'guide'; slug: string }
-  | { page: 'legacyGuide'; tripId: string } // old #/guide/<tripId> links
+export type HistoryRoute =
   | { page: 'history' }
   | { page: 'event'; eventId: string }
   | { page: 'match'; eventId: string; matchId: string }
   | { page: 'players' }
   | { page: 'player'; playerId: string }
-  | { page: 'superlatives' }
-  | { page: 'moveOver' }
-  | { page: 'nextHome' }
-  | { page: 'finishSignIn' }
-  | { page: 'chapter'; chapterId: string; tab: ChapterTab; history?: HistoryRoute }
-  | { page: 'tripGuide'; chapterId: string; tripId: string }
-  | { page: 'me' };
+  | { page: 'superlatives' };
 
 export type ChapterTab = 'trips' | 'selection' | 'members' | 'history';
 const CHAPTER_TABS: ChapterTab[] = ['trips', 'selection', 'members'];
 
-export type NextRoute = Extract<Route, { page: 'nextHome' | 'finishSignIn' | 'chapter' | 'tripGuide' | 'me' }>;
-
-export const isNextRoute = (route: Route): route is NextRoute => ['nextHome', 'finishSignIn', 'chapter', 'tripGuide', 'me'].includes(route.page);
-
-export type HistoryRoute = Extract<Route, { page: 'history' | 'event' | 'match' | 'players' | 'player' | 'superlatives' }>;
-
-export const isHistoryRoute = (route: Route): route is HistoryRoute =>
-  ['history', 'event', 'match', 'players', 'player', 'superlatives'].includes(route.page);
+export type Route =
+  | { page: 'home' }
+  | { page: 'finishSignIn' }
+  | { page: 'me' }
+  | { page: 'chapter'; chapterId: string; tab: ChapterTab; history?: HistoryRoute }
+  | { page: 'tripGuide'; chapterId: string; tripId: string }
+  | { page: 'moveOver' }
+  | { page: 'redirect'; to: string }; // an old or unknown address, replaced on arrival
 
 export const homePath = () => BASE;
-export const guidePath = (slug: string) => `${BASE}${encodeURIComponent(slug)}/guide`;
-export const historyPath = () => `${BASE}history`;
-export const eventPath = (eventId: string) => `${BASE}history/${encodeURIComponent(eventId)}`;
-export const matchPath = (eventId: string, matchId: string) => `${eventPath(eventId)}/${encodeURIComponent(matchId)}`;
-export const playersPath = () => `${BASE}players`;
-export const playerPath = (playerId: string) => `${BASE}players/${encodeURIComponent(playerId)}`;
-export const superlativesPath = () => `${BASE}superlatives`;
 export const moveOverPath = () => `${BASE}move-over`;
-export const nextHomePath = () => `${BASE}next`;
 export const finishSignInPath = () => `${BASE}finish-sign-in`;
 export const chapterPath = (chapterId: string, tab: ChapterTab = 'trips') =>
   `${BASE}${encodeURIComponent(chapterId)}${tab === 'trips' ? '' : `/${tab}`}`;
 export const mePath = () => `${BASE}me`;
 export const tripGuidePath = (chapterId: string, tripId: string) => `${BASE}${encodeURIComponent(chapterId)}/${encodeURIComponent(tripId)}/guide`;
 
-// A chapter's history addresses, the same as today's public ones but under the chapter
+// A chapter's history addresses
 export function chapterHistoryLinks(chapterId: string) {
   const root = `${BASE}${encodeURIComponent(chapterId)}`;
   const event = (eventId: string) => `${root}/history/${encodeURIComponent(eventId)}`;
@@ -81,7 +65,7 @@ export function chapterHistoryLinks(chapterId: string) {
   };
 }
 
-// history/…, players/…, superlatives, as a history page (today's public ones and a chapter's)
+// history/…, players/…, superlatives, as a history page
 function historyRouteOf(parts: string[]): HistoryRoute | null {
   if (parts[0] === 'history') {
     if (parts.length === 1) return { page: 'history' };
@@ -98,28 +82,43 @@ function historyRouteOf(parts: string[]): HistoryRoute | null {
 
 export const currentRoute = (): Route => parseRoute(window.location.pathname, window.location.hash);
 
+const redirect = (to: string): Route => ({ page: 'redirect', to });
+
 export function parseRoute(pathname: string, hash = ''): Route {
-  const legacy = hash.match(/^#\/guide\/(.+)$/);
-  if (legacy) return { page: 'legacyGuide', tripId: decodeURIComponent(legacy[1]) };
-  const path = pathname.startsWith(BASE) ? pathname.slice(BASE.length).replace(/\/$/, '') : '';
-  const parts = path.split('/').map(decodeURIComponent);
-  if (parts.length === 2 && parts[1] === 'guide') return { page: 'guide', slug: parts[0] };
-  const history = historyRouteOf(parts);
-  if (history) return history;
-  if (path === 'move-over') return { page: 'moveOver' };
-  if (path === 'next') return { page: 'nextHome' };
+  if (/^#\/guide\/./.test(hash)) return redirect(chapterPath(FOUNDERS));
+  if (!pathname.startsWith(BASE)) return redirect(homePath());
+  // Links from the GitHub Pages days can end in a slash (/2026-columbia/guide/); keep the tidy form
+  if (pathname.length > BASE.length && pathname.endsWith('/')) return redirect(pathname.replace(/\/+$/, ''));
+  const path = pathname.slice(BASE.length);
+  if (path === '') return { page: 'home' };
+  let parts: string[];
+  try {
+    parts = path.split('/').map(decodeURIComponent);
+  } catch {
+    return redirect(homePath()); // a mangled address (%E0)
+  }
+
   if (path === 'finish-sign-in') return { page: 'finishSignIn' };
   if (path === 'me') return { page: 'me' };
-  const chapterHistory = parts.length >= 2 && isValidChapterId(parts[0]) ? historyRouteOf(parts.slice(1)) : null;
-  if (chapterHistory) return { page: 'chapter', chapterId: parts[0], tab: 'history', history: chapterHistory };
-  if (parts.length === 3 && isValidChapterId(parts[0]) && parts[1] && parts[2] === 'guide') {
-    return { page: 'tripGuide', chapterId: parts[0], tripId: parts[1] };
+  if (path === 'move-over') return { page: 'moveOver' };
+
+  // Old addresses
+  if (path === 'next') return redirect(homePath());
+  if (historyRouteOf(parts)) return redirect(`${BASE}${FOUNDERS}/${path}`);
+  if (parts.length === 2 && parts[1] === 'guide' && parts[0] && !isValidChapterId(parts[0])) return redirect(tripGuidePath(FOUNDERS, parts[0]));
+
+  // A chapter's pages
+  if (isValidChapterId(parts[0])) {
+    const chapterId = parts[0];
+    const history = historyRouteOf(parts.slice(1));
+    if (history) return { page: 'chapter', chapterId, tab: 'history', history };
+    if (parts.length === 1) return { page: 'chapter', chapterId, tab: 'trips' };
+    if (parts.length === 2 && CHAPTER_TABS.includes(parts[1] as ChapterTab) && parts[1] !== 'trips') {
+      return { page: 'chapter', chapterId, tab: parts[1] as ChapterTab };
+    }
+    if (parts.length === 3 && parts[1] && parts[2] === 'guide') return { page: 'tripGuide', chapterId, tripId: parts[1] };
   }
-  if (parts.length === 1 && isValidChapterId(parts[0])) return { page: 'chapter', chapterId: parts[0], tab: 'trips' };
-  if (parts.length === 2 && isValidChapterId(parts[0]) && CHAPTER_TABS.includes(parts[1] as ChapterTab) && parts[1] !== 'trips') {
-    return { page: 'chapter', chapterId: parts[0], tab: parts[1] as ChapterTab };
-  }
-  return { page: 'home' };
+  return redirect(homePath());
 }
 
 // Changes the address without reloading; App listens for popstate

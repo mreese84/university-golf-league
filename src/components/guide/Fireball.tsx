@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useAuth } from '../../auth';
-import { OFF_COURSE, addShots, useFireball, type ShotCounts } from '../../fireball';
-import type { GuideTeam, Member, PlayerGuide } from '../../types';
+import type { GuideTeam } from '../../types';
 import Emblem from './Emblem';
-import { bucketsFor, currentBucket, type Bucket } from './fireballBuckets';
+import { OFF_COURSE, type Bucket } from './fireballBuckets';
 import { Card, Tbd } from './parts';
+
+type ShotCounts = Record<string, Record<string, number>>; // person ID -> bucket -> shots
 
 interface Player {
   id: string;
@@ -37,10 +37,7 @@ interface FireballBoardProps {
   teams: GuideTeam[]; // teams with players set
   counts: ShotCounts;
   me: string | null; // who this phone logs for
-  canLogForAnyone: boolean; // admin
-  // Whether this phone can change who it logs for. The Phase 1 pages know who's signed in, so for
-  // players it's always them (false); today's guide asks (true).
-  canSwitch?: boolean;
+  canLogForAnyone: boolean; // organizers; players log only their own, as whoever's signed in
   error: string | null;
   onPickMe: (id: string | null) => void;
   onAdd: (bucket: string, delta: 1 | -1) => void;
@@ -54,7 +51,6 @@ export function FireballBoard({
   counts,
   me,
   canLogForAnyone,
-  canSwitch = true,
   error,
   onPickMe,
   onAdd,
@@ -84,9 +80,9 @@ export function FireballBoard({
         setChoosing(false);
       }}
       className="text-sm font-medium text-gray-800 bg-white border border-gray-200 rounded-lg px-2 py-1"
-      aria-label={canLogForAnyone ? 'Logging for' : 'Which player are you?'}
+      aria-label="Logging for"
     >
-      <option value="">{canLogForAnyone ? 'Pick a player' : 'Pick yourself'}</option>
+      <option value="">Pick a player</option>
       {players.map((p) => (
         <option key={p.id} value={p.id}>
           {p.name}
@@ -138,22 +134,22 @@ export function FireballBoard({
               {canLogForAnyone ? 'Logging for ' : 'Logging as '}
               <span className="font-medium text-gray-700">{meName}</span>
               {' · '}trip total {total(counts[me])}
-              {(canSwitch || canLogForAnyone) && (
+              {canLogForAnyone && (
                 <>
                   {' · '}
                   <button onClick={() => setChoosing(true)} className="font-medium text-(--guide) hover:underline cursor-pointer">
-                    {canLogForAnyone ? 'Switch player' : 'Not you?'}
+                    Switch player
                   </button>
                 </>
               )}
             </p>
           </>
-        ) : !canSwitch && !canLogForAnyone ? (
+        ) : !canLogForAnyone ? (
           <p className="text-center text-sm text-gray-500 mt-5">You're not on this trip's list of players, so there's nothing to log.</p>
         ) : (
           <div className="text-center mt-5 space-y-2">
             <p className="text-sm text-gray-600">
-              {canLogForAnyone ? 'Who are you logging for?' : 'Which player are you? You can only log your own shots.'}
+              Who are you logging for?
             </p>
             {picker}
             {choosing && me && (
@@ -238,111 +234,5 @@ export function FireballBoard({
         {anyShots && <p className="text-[11px] text-gray-400 mt-2">Bold marks the leader for each round.</p>}
       </div>
     </Card>
-  );
-}
-
-// ── Connected to sign-in and the database ─────────────────────────
-
-// A Google name ("Mark Reese") matched to one member ("Mark R"), or null if it's unclear
-function guessMember(displayName: string | null | undefined, players: Player[]) {
-  const words = displayName?.trim().toLowerCase().split(/\s+/) ?? [];
-  if (!words[0]) return null;
-  const [first, last] = [words[0], words.length > 1 ? words[words.length - 1][0] : ''];
-  const matches = players.filter((p) => {
-    const parts = p.name.toLowerCase().split(/\s+/);
-    const initial = parts.length > 1 ? parts[parts.length - 1][0] : '';
-    return parts[0] === first && (!initial || !last || initial === last);
-  });
-  return matches.length === 1 ? matches[0].id : null;
-}
-
-// Remembers who this phone logs for (best effort: storage can be unavailable)
-function readChoice(key: string) {
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-function saveChoice(key: string, id: string | null) {
-  try {
-    if (id) localStorage.setItem(key, id);
-    else localStorage.removeItem(key);
-  } catch {
-    // fine: it just won't be remembered
-  }
-}
-
-interface FireballTrackerProps {
-  tripId: string;
-  guide: PlayerGuide;
-  members: Member[];
-  attendeeIds: string[];
-  timeZone: string | null;
-}
-
-export default function FireballTracker({ tripId, guide, members, attendeeIds, timeZone }: FireballTrackerProps) {
-  const { user, isAdmin } = useAuth();
-  const { status, counts } = useFireball(tripId, user?.uid ?? null);
-  const storageKey = `ugl-fireball:${tripId}:${user?.uid ?? ''}`;
-  const [picked, setPicked] = useState<string | null>(() => readChoice(storageKey));
-  const [error, setError] = useState<string | null>(null);
-
-  const teams = guide.teams.filter((t) => t.memberIds.length > 0);
-  const players: Player[] = attendeeIds.map((id) => ({
-    id,
-    name: members.find((m) => m.id === id)?.name ?? 'Unknown',
-    team: teams.find((t) => t.memberIds.includes(id)),
-  }));
-  const me = (picked && attendeeIds.includes(picked) ? picked : null) ?? guessMember(user?.displayName, players);
-
-  const pickMe = (id: string | null) => {
-    setPicked(id);
-    saveChoice(storageKey, id);
-    setError(null);
-  };
-
-  const add = (bucket: string, delta: 1 | -1) => {
-    if (!me) return;
-    setError(null);
-    addShots(tripId, me, bucket, delta).catch((err: { code?: string }) => {
-      if (err.code === 'permission-denied') {
-        const name = players.find((p) => p.id === me)?.name ?? 'that player';
-        setError(
-          isAdmin
-            ? "Couldn't save: the database rules need publishing (see firestore.rules)."
-            : `That didn't save: your sign-in isn't ${name}'s. Pick yourself.`,
-        );
-        if (!isAdmin) pickMe(null);
-      } else {
-        setError("Couldn't save that shot. Check your connection and try again.");
-      }
-    });
-  };
-
-  if (status === 'denied' || status === 'error') {
-    return (
-      <Card className="text-sm text-gray-500 text-center">
-        {status === 'denied' && isAdmin
-          ? 'To turn this on, publish the updated database rules from firestore.rules in the Firebase console.'
-          : "The Fireball tracker isn't available right now. It will keep trying."}
-      </Card>
-    );
-  }
-  if (status === 'loading') return <Card className="text-sm text-gray-400 text-center">Loading…</Card>;
-
-  return (
-    <FireballBoard
-      buckets={bucketsFor(guide)}
-      initialBucket={currentBucket(guide, timeZone)}
-      players={players}
-      teams={teams}
-      counts={counts}
-      me={me}
-      canLogForAnyone={isAdmin}
-      error={error}
-      onPickMe={pickMe}
-      onAdd={add}
-    />
   );
 }

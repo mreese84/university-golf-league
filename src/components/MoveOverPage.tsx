@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
-import { useAuth } from '../auth';
+import { useAuth } from '../authContext';
 import { pathsFor } from '../data/paths';
 import type { JoinedStatus } from '../data/types';
 import { dataEnv } from '../dataEnv';
@@ -244,7 +244,7 @@ export default function MoveOverPage() {
             {dataEnv === 'live' && (
               <label className="flex items-start gap-2 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
                 <input type="checkbox" checked={liveConfirmed} onChange={(e) => setLiveConfirmed(e.target.checked)} className="mt-0.5 accent-amber-600" />
-                This is the live site. Writing the live copy is for the switch (step 9); before then, run this from the dev server or a preview link.
+                This is the live site. Each run replaces {FOUNDERS_NAME}, so anything changed on the new pages since the last run is lost. Run it once, at the switch.
               </label>
             )}
             <button onClick={write} disabled={busy || problems.length > 0 || (dataEnv === 'live' && !liveConfirmed)} className={buttonClass}>

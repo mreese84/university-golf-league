@@ -7,19 +7,19 @@ import PairingsAdmin from '../../components/guide/PairingsAdmin';
 import { ProfileSheet } from '../../components/guide/PlayerProfile';
 import { tripTimeZone } from '../../components/guide/timeZones';
 import { applyDraftToContent, contentFromView, draftForView, guideForView } from '../../data/guide';
-import { useLiveCollection } from '../../data/hooks';
+import { useLiveCollection, useLiveDoc } from '../../data/hooks';
 import { pathsFor } from '../../data/paths';
 import type { Draft, FireballEntry, GuideContent, Handicap } from '../../data/types';
 import { addShots, saveDraft, updateProfile } from '../../data/writes';
 import { dataEnv } from '../../dataEnv';
 import { db } from '../../firebase';
-import { useLiveDoc } from '../../guides';
 import { eventLabel } from '../../history/format';
 import { contentFromGuideFile } from '../../moveOver/transform';
 import type { HistoryModel } from '../../history/model';
 import { chapterPath, followLink } from '../../routes';
 import type { PlayerGuide } from '../../types';
 import type { ChapterTrip } from '../chapterTrips';
+import { downloadJson } from '../download';
 import { Notice, Waiting, buttonClass } from '../parts';
 import { useChapterHistory } from './chapterHistory';
 import { joinedPeople, nameOf, photoUrl, type ChapterData } from './data';
@@ -35,15 +35,6 @@ function isGuideFile(data: unknown): data is PlayerGuide {
     !!g && typeof g.title === 'string' && typeof g.location === 'string' && !!g.theme && !!g.format && !!g.football &&
     [g.flights, g.teams, g.rounds, g.nightlife, g.format.sessions].every(Array.isArray)
   );
-}
-
-function download(data: unknown, name: string) {
-  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 // Fireball shots for the trip. Players log their own (the page knows who's signed in); organizers can
@@ -72,7 +63,6 @@ function ChapterFireball({ data, trip, view, counts }: { data: ChapterData; trip
       counts={counts}
       me={me}
       canLogForAnyone={data.canManage}
-      canSwitch={false}
       error={error}
       onPickMe={setPicked}
       onAdd={add}
@@ -215,7 +205,7 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
       <>
         {data.canManage && (
           <div className="flex items-center justify-end gap-4 text-xs text-gray-400">
-            <button onClick={() => download(guideForView(trip, content, handicaps), `ugl-guide-${tripId}.json`)} className="hover:text-green-600 cursor-pointer">
+            <button onClick={() => downloadJson(guideForView(trip, content, handicaps), `ugl-guide-${tripId}.json`)} className="hover:text-green-600 cursor-pointer">
               Export JSON
             </button>
             <button onClick={() => fileInput.current?.click()} disabled={busy} className="hover:text-green-600 cursor-pointer">

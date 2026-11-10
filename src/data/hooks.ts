@@ -1,16 +1,50 @@
-// Live reads of the Phase 1 layout, for the pages built in later steps. Each takes the signed-in
-// user's uid so its listener restarts after signing in, and retries after an error, like the guide's
-// (see useLiveDoc in src/guides.ts).
+// Live reads of the data. Each takes the signed-in user's uid (in its key) so its listener restarts
+// after signing in, and retries after an error.
 
 import { useEffect, useState } from 'react';
 import { collection, doc, onSnapshot, query, where, type WhereFilterOp } from 'firebase/firestore';
 import { dataEnv } from '../dataEnv';
 import { db } from '../firebase';
-import { retryDelay, statusFor, useLiveDoc, type LoadStatus } from '../guides';
 import { normalizeEmail, pathsFor } from './paths';
 import { JOINED_STATUSES, type Chapter, type Login, type Person, type RosterEntry, type Trip } from './types';
 
 const P = pathsFor(dataEnv);
+
+export type LoadStatus = 'loading' | 'ready' | 'missing' | 'denied' | 'error';
+
+export const statusFor = (err: { code: string }): LoadStatus => (err.code === 'permission-denied' ? 'denied' : 'error');
+
+// Firestore stops a listener for good after an error (e.g. rules not published yet, or someone added
+// to a chapter while their page is open), so retry with backoff up to 5 minutes.
+export const retryDelay = (attempt: number) => Math.min(10_000 * 2 ** attempt, 300_000);
+
+// Live copy of one document. `key` identifies the subscription (e.g. trip + user); pass null to stay
+// idle. `retry` resubscribes right away.
+export function useLiveDoc<T>(collectionPath: string, id: string | null, key: string | null) {
+  const [state, setState] = useState<{ key: string | null; status: LoadStatus; data: T | null }>({ key: null, status: 'loading', data: null });
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (!id || !key) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const unsubscribe = onSnapshot(
+      doc(db, collectionPath, id),
+      (snap) => setState({ key, status: snap.exists() ? 'ready' : 'missing', data: snap.exists() ? (snap.data() as T) : null }),
+      (err) => {
+        setState({ key, status: statusFor(err), data: null });
+        timer = setTimeout(() => setAttempt((a) => a + 1), retryDelay(attempt));
+      },
+    );
+    return () => {
+      unsubscribe();
+      clearTimeout(timer);
+    };
+  }, [collectionPath, id, key, attempt]);
+
+  const retry = () => setAttempt((a) => a + 1);
+  if (!key || state.key !== key) return { status: 'loading' as LoadStatus, data: null, retry };
+  return { status: state.status, data: state.data, retry };
+}
 
 type Filter = [field: string, op: WhereFilterOp, value: unknown];
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { emptyDraft, type LoadStatus } from '../../guides';
+import type { LoadStatus } from '../../data/hooks';
 import { planPairings } from '../../pairings';
 import type { DraftGroup, GuideDraft, GuideRound, GuideTeam, MatchType, Member, PlayerGuide } from '../../types';
 import { fmt } from './dates';
@@ -199,7 +199,7 @@ export default function PairingsAdmin({
   onSave,
   onRetry,
 }: PairingsAdminProps) {
-  const draft = saved ?? emptyDraft();
+  const draft = saved ?? { published: false, handicaps: {}, captains: {}, teams: {}, rounds: {} };
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

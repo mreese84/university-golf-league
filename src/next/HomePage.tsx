@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
-import { useChapter } from '../data/hooks';
+import { useChapter, useLiveDoc } from '../data/hooks';
 import { pathsFor } from '../data/paths';
 import type { RosterEntry } from '../data/types';
 import { dataEnv } from '../dataEnv';
-import { useLiveDoc } from '../guides';
-import { chapterPath, followLink, navigate, nextHomePath } from '../routes';
+import { chapterPath, followLink, navigate, homePath } from '../routes';
 import { describeEntry } from './labels';
 import Landing from './Landing';
 import { Notice, Waiting, buttonClass } from './parts';
@@ -61,7 +60,7 @@ export const SessionError = () => (
   </Notice>
 );
 
-// The new home page (/next until the switch): the landing page when signed out, your chapter when
+// The home page: the landing page when signed out, your chapter when
 // you're in one, a picker when you're in several
 export default function HomePage() {
   const { status, person, joinError } = useSession();
@@ -72,7 +71,7 @@ export default function HomePage() {
     if (only) navigate(chapterPath(only), { replace: true });
   }, [only]);
 
-  if (status === 'signedOut') return <Landing continuePath={nextHomePath()} />;
+  if (status === 'signedOut') return <Landing continuePath={homePath()} />;
   if (status === 'loading' || status === 'joining') return <SessionWaiting />;
   if (status === 'error') return <SessionError />;
   if (status === 'notInLeague') return <NotInLeague />;

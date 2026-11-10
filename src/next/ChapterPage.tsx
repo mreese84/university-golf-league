@@ -1,10 +1,10 @@
-import { useChapter, usePeople, useRoster, useTrips } from '../data/hooks';
+import { useChapter, useLiveDoc, usePeople, useRoster, useTrips } from '../data/hooks';
 import { pathsFor } from '../data/paths';
 import type { RosterEntry } from '../data/types';
 import { dataEnv } from '../dataEnv';
-import { useLiveDoc } from '../guides';
-import { chapterPath, followLink, nextHomePath, tripGuidePath, type ChapterTab, type HistoryRoute } from '../routes';
+import { chapterPath, followLink, homePath, tripGuidePath, type ChapterTab, type HistoryRoute } from '../routes';
 import { hasJoined, type ChapterData } from './chapter/data';
+import ExportChapter from './chapter/ExportChapter';
 import GuidePage from './chapter/GuidePage';
 import HistoryView from './chapter/HistoryView';
 import MembersView from './chapter/MembersView';
@@ -41,7 +41,7 @@ function ChapterHome({ chapterId, tab, history, guideTripId }: { chapterId: stri
     return (
       <Notice title="Not one of your chapters">
         <p>You can only see the chapters you belong to.</p>
-        <a href={nextHomePath()} onClick={(e) => followLink(e, nextHomePath())} className="text-green-700 font-medium">
+        <a href={homePath()} onClick={(e) => followLink(e, homePath())} className="text-green-700 font-medium">
           Your chapters
         </a>
       </Notice>
@@ -87,6 +87,7 @@ function ChapterHome({ chapterId, tab, history, guideTripId }: { chapterId: stri
       {tab === 'selection' && <SelectionView data={data} />}
       {tab === 'members' && <MembersView data={data} />}
       {tab === 'history' && <HistoryView data={data} route={history ?? { page: 'history' }} />}
+      {canManage && <ExportChapter chapterId={chapterId} />}
     </div>
   );
 }

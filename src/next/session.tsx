@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
-import { useAuth } from '../auth';
+import { useAuth } from '../authContext';
 import { COMMISSIONER_EMAIL } from '../data/commissioner';
 import { useSignedInPerson } from '../data/hooks';
 import { pathsFor } from '../data/paths';

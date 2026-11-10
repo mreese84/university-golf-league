@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { useAuth } from '../../auth';
-import { useFireball } from '../../fireball';
-import { awards, stats } from '../../history/data';
-import { eventLabel, formatHandicap, formatPoints, formatRecord } from '../../history/format';
+import { formatHandicap, formatPoints, formatRecord } from '../../history/format';
 import type { WinLoss } from '../../history/stats';
-import { findPlayer, saveBio, useBio } from '../../profiles';
-import { followLink, playerPath } from '../../routes';
-import type { GuideTeam, Member, PlayerGuide } from '../../types';
+import { followLink } from '../../routes';
+import type { GuideTeam } from '../../types';
 import Emblem from './Emblem';
 import { inputClass } from './parts';
 
@@ -245,62 +241,5 @@ export function ProfileSheet({ profile: p, theme, onClose, onSaveBio }: ProfileS
         </div>
       </div>
     </dialog>
-  );
-}
-
-// ── Connected to the guide, history, Fireball counts and bios ────
-
-const BASE = import.meta.env.BASE_URL;
-
-interface PlayerProfileProps {
-  tripId: string;
-  memberId: string;
-  guide: PlayerGuide;
-  members: Member[];
-  onClose: () => void;
-}
-
-export default function PlayerProfile({ tripId, memberId, guide, members, onClose }: PlayerProfileProps) {
-  const { user, isAdmin } = useAuth();
-  const member = members.find((m) => m.id === memberId);
-  const memberName = member?.name ?? 'Unknown';
-  const player = findPlayer(memberName);
-  const key = player?.id ?? `member-${memberId}`; // bios are kept by history id when there is one
-  const { status: bioStatus, bio } = useBio(key, user?.uid ?? null);
-  const { status: fireballStatus, counts } = useFireball(tripId, user?.uid ?? null);
-
-  const record = player ? stats.get(player.id) : undefined;
-  const team = guide.teams.find((t) => t.memberIds.includes(memberId)) ?? null;
-  const handicap = guide.handicaps?.[memberId] ?? record?.events[0]?.handicap ?? null;
-  const shots = Object.values(counts[memberId] ?? {}).reduce((sum, n) => sum + Math.max(0, n), 0);
-  const superlatives = player
-    ? [...awards.results, ...(awards.scorecards ?? [])].flatMap((a) =>
-        a.entries
-          .filter((e) => e.players.includes(player.id))
-          .map((e) => ({ title: a.title, value: e.value, where: e.event ? `${eventLabel(e.event)} ${e.event.year}` : '' })),
-      )
-    : [];
-
-  return (
-    <ProfileSheet
-      theme={guide.theme}
-      onClose={onClose}
-      onSaveBio={isAdmin ? (text) => saveBio(key, text) : undefined}
-      profile={{
-        name: player?.name ?? memberName,
-        photo: player?.photo ? `${BASE}${player.photo}` : null,
-        college: member?.college ?? null,
-        team,
-        captain: !!team && team.captainId === memberId,
-        handicap,
-        record: record && record.matches.length > 0 ? record.record : null,
-        points: record?.points ?? 0,
-        historyUrl: record && record.matches.length > 0 ? playerPath(record.id) : null,
-        fireball: fireballStatus === 'ready' ? shots : null,
-        superlatives,
-        bio,
-        bioLoading: bioStatus === 'loading',
-      }}
-    />
   );
 }
