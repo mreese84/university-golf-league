@@ -1,13 +1,13 @@
-import { history } from '../../history/data';
+import { useHistory } from '../../history/historyContext';
 import { eventLabel, formatPts } from '../../history/format';
 import { standings } from '../../history/stats';
 import type { HistoryEvent } from '../../history/types';
-import { eventPath } from '../../routes';
 import { dateRange } from '../guide/dates';
 import { Card } from '../guide/parts';
 import { Link, Names, Scoreboard, TeamMark } from './parts';
 
 function EventCard({ event }: { event: HistoryEvent }) {
+  const { links } = useHistory();
   const competitionRounds = new Set(event.sessions.map((s) => s.round));
   return (
     <Card className="space-y-5">
@@ -69,7 +69,7 @@ function EventCard({ event }: { event: HistoryEvent }) {
       </dl>
 
       <Link
-        to={eventPath(event.id)}
+        to={links.event(event.id)}
         className="block text-center rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2.5 transition-colors"
       >
         See all {event.matches.length > 0 ? `${event.matches.length} ` : ''}matches
@@ -79,16 +79,17 @@ function EventCard({ event }: { event: HistoryEvent }) {
 }
 
 export default function EventsPage() {
+  const { data } = useHistory();
   return (
     <div className="space-y-4">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">History</h2>
-        <p className="text-sm text-gray-500 mt-1">Every UGL competition, starting with UGL2 in 2026.</p>
+        <p className="text-sm text-gray-500 mt-1">Every competition, newest first.</p>
       </div>
-      {history.events.length === 0 ? (
-        <Card className="text-center text-sm text-gray-500 py-8">Results will appear here after UGL2.</Card>
+      {data.events.length === 0 ? (
+        <Card className="text-center text-sm text-gray-500 py-8">Results appear here after the first competition.</Card>
       ) : (
-        history.events.map((event) => <EventCard key={event.id} event={event} />)
+        data.events.map((event) => <EventCard key={event.id} event={event} />)
       )}
     </div>
   );

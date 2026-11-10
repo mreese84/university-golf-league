@@ -1,16 +1,17 @@
-import { awards } from '../../history/data';
+import { useHistory } from '../../history/historyContext';
 import { eventLabel } from '../../history/format';
 import type { Award, AwardEntry } from '../../history/stats';
-import { matchPath } from '../../routes';
 import { Card } from '../guide/parts';
-import { Link, Names, SectionTitle, TeamMark } from './parts';
+import { Link, Names, PlayerAvatar, SectionTitle } from './parts';
 
+// Individual honors, so the first player's photo rather than a team logo
 function Entry({ entry }: { entry: AwardEntry }) {
-  const { players, opponents, team, event, match, value, note } = entry;
+  const { links } = useHistory();
+  const { players, opponents, event, match, value, note } = entry;
   const where = [event && `${eventLabel(event)} · ${event.year}`, note].filter(Boolean).join(' · ');
   return (
     <li className="flex items-start gap-3 py-3">
-      {team ? <TeamMark team={team} className="w-7 h-7 mt-0.5" /> : <span className="w-7 shrink-0" />}
+      {players[0] ? <PlayerAvatar id={players[0]} className="w-8 h-8 mt-0.5" /> : <span className="w-8 shrink-0" />}
       <div className="flex-1 min-w-0 text-sm">
         <p className="font-semibold text-gray-800">
           <Names ids={players} link />
@@ -25,7 +26,7 @@ function Entry({ entry }: { entry: AwardEntry }) {
           {match && event && (
             <>
               {where && ' · '}
-              <Link to={matchPath(event.id, match.id)} className="font-medium text-green-700 hover:underline">
+              <Link to={links.match(event.id, match.id)} className="font-medium text-green-700 hover:underline">
                 Scorecard
               </Link>
             </>
@@ -56,6 +57,7 @@ function AwardCard({ award }: { award: Award }) {
 }
 
 export default function SuperlativesPage() {
+  const { awards } = useHistory();
   return (
     <div className="space-y-6">
       <div>

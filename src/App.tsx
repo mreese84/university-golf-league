@@ -10,7 +10,8 @@ import HistoryPages from './components/history/HistoryPages';
 import MoveOverPage from './components/MoveOverPage';
 import NextApp from './next/NextApp';
 import { nextPagesEnabled } from './next/enabled';
-import { history } from './history/data';
+import { history, publicModel } from './history/data';
+import { HistoryContext } from './history/historyContext';
 import { currentRoute, followLink, guidePath, historyPath, homePath, isHistoryRoute, isNextRoute, moveOverPath, navigate, tripSlugs, type Route } from './routes';
 
 type Tab = 'members' | 'trips' | 'selection' | 'history';
@@ -87,7 +88,9 @@ function AppContent({ route }: { route: Route }) {
       showHistory={showHistory}
     >
       {isHistoryRoute(route) ? (
-        <HistoryPages route={route} />
+        <HistoryContext.Provider value={publicModel}>
+          <HistoryPages route={route} />
+        </HistoryContext.Provider>
       ) : route.page === 'moveOver' ? (
         <MoveOverPage />
       ) : !onHome ? (

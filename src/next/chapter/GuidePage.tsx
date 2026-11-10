@@ -14,13 +14,14 @@ import { addShots, saveDraft, updateProfile } from '../../data/writes';
 import { dataEnv } from '../../dataEnv';
 import { db } from '../../firebase';
 import { useLiveDoc } from '../../guides';
-import { awards, stats } from '../../history/data';
 import { eventLabel } from '../../history/format';
 import { contentFromGuideFile } from '../../moveOver/transform';
-import { chapterPath, followLink, playerPath } from '../../routes';
+import type { HistoryModel } from '../../history/model';
+import { chapterPath, followLink } from '../../routes';
 import type { PlayerGuide } from '../../types';
 import type { ChapterTrip } from '../chapterTrips';
 import { Notice, Waiting, buttonClass } from '../parts';
+import { useChapterHistory } from './chapterHistory';
 import { joinedPeople, nameOf, photoUrl, type ChapterData } from './data';
 
 const P = pathsFor(dataEnv);
@@ -80,7 +81,15 @@ function ChapterFireball({ data, trip, view, counts }: { data: ChapterData; trip
 }
 
 // A player's profile: their record, this trip's team and handicap, Fireball shots and bio
-function PlayerSheet({ data, personId, view, counts, onClose }: { data: ChapterData; personId: string; view: PlayerGuide; counts: Counts; onClose: () => void }) {
+function PlayerSheet({ data, history, personId, view, counts, onClose }: {
+  data: ChapterData;
+  history: HistoryModel;
+  personId: string;
+  view: PlayerGuide;
+  counts: Counts;
+  onClose: () => void;
+}) {
+  const { stats, awards, links } = history;
   const person = data.people[personId];
   const record = stats.get(personId);
   const team = view.teams.find((t) => t.memberIds.includes(personId)) ?? null;
@@ -105,7 +114,7 @@ function PlayerSheet({ data, personId, view, counts, onClose }: { data: ChapterD
         handicap: view.handicaps?.[personId] ?? record?.events[0]?.handicap ?? null,
         record: record && record.matches.length > 0 ? record.record : null,
         points: record?.points ?? 0,
-        historyUrl: record && record.matches.length > 0 ? playerPath(personId) : null,
+        historyUrl: record && record.matches.length > 0 ? links.player(personId) : null,
         fireball: shots,
         superlatives,
         bio: person?.bio ?? null,
@@ -129,6 +138,7 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const { model: history } = useChapterHistory(data);
 
   const handicaps = Object.fromEntries(handicapDocs.map((h) => [h.id, h.index]));
   const counts: Counts = Object.fromEntries(fireballDocs.map((f) => [f.id, f.counts ?? {}]));
@@ -236,7 +246,9 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
           fireball={<ChapterFireball data={data} trip={trip} view={view} counts={counts} />}
           onSave={data.canManage ? (edited) => setDoc(doc(db, P.guide(c, tripId)), contentFromView(edited, content)) : undefined}
         />
-        {profileOf && <PlayerSheet key={profileOf} data={data} personId={profileOf} view={view} counts={counts} onClose={() => setProfileOf(null)} />}
+        {profileOf && (
+          <PlayerSheet key={profileOf} data={data} history={history} personId={profileOf} view={view} counts={counts} onClose={() => setProfileOf(null)} />
+        )}
       </>
     );
   }

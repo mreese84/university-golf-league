@@ -1,8 +1,7 @@
-import { findEvent } from '../../history/data';
+import { useHistory } from '../../history/historyContext';
 import { grossTotal, netTotal } from '../../history/scoring';
 import { eventLabel, formatHandicap, formatPts } from '../../history/format';
 import { matchInfo, type MatchInfo } from '../../history/stats';
-import { eventPath, historyPath } from '../../routes';
 import { fmt } from '../guide/dates';
 import Emblem from '../guide/Emblem';
 import { Card } from '../guide/parts';
@@ -91,12 +90,13 @@ function Sides({ info }: { info: MatchInfo }) {
 }
 
 export default function MatchPage({ eventId, matchId }: { eventId: string; matchId: string }) {
+  const { findEvent, links } = useHistory();
   const event = findEvent(eventId);
   const match = event?.matches.find((m) => m.id === matchId);
   if (!event || !match) {
     return (
       <NotFound>
-        <BackLink to={event ? eventPath(event.id) : historyPath()}>{event ? event.title : 'All events'}</BackLink>
+        <BackLink to={event ? links.event(event.id) : links.events}>{event ? event.title : 'All events'}</BackLink>
       </NotFound>
     );
   }
@@ -106,7 +106,7 @@ export default function MatchPage({ eventId, matchId }: { eventId: string; match
 
   return (
     <div className="space-y-5">
-      <BackLink to={eventPath(event.id)}>{event.title}</BackLink>
+      <BackLink to={links.event(event.id)}>{event.title}</BackLink>
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
           {eventLabel(event)} · {round.label} · {fmt(round.date, { weekday: 'short', month: 'short', day: 'numeric' })}

@@ -1,8 +1,7 @@
-import { findEvent } from '../../history/data';
+import { useHistory } from '../../history/historyContext';
 import { eventLabel, formatPts } from '../../history/format';
 import { matchInfo, standings } from '../../history/stats';
 import type { EventRound, EventSession, HistoryEvent } from '../../history/types';
-import { historyPath } from '../../routes';
 import { dateRange, fmt } from '../guide/dates';
 import { Card } from '../guide/parts';
 import { BackLink, MatchRow, NotFound, Scoreboard, SectionTitle } from './parts';
@@ -34,11 +33,12 @@ function SessionCard({ event, session }: { event: HistoryEvent; session: EventSe
 }
 
 export default function EventPage({ eventId }: { eventId: string }) {
+  const { findEvent, links } = useHistory();
   const event = findEvent(eventId);
   if (!event) {
     return (
       <NotFound>
-        <BackLink to={historyPath()}>All events</BackLink>
+        <BackLink to={links.events}>All events</BackLink>
       </NotFound>
     );
   }
@@ -46,7 +46,7 @@ export default function EventPage({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <BackLink to={historyPath()}>All events</BackLink>
+        <BackLink to={links.events}>All events</BackLink>
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
             {eventLabel(event)} · {event.format}

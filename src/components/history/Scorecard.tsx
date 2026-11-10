@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { firstName } from '../../history/data';
+import { useHistory } from '../../history/historyContext';
 import { netScores, statusText, strokesOnHole } from '../../history/scoring';
 import type { MatchInfo } from '../../history/stats';
 import type { EventTeam } from '../../history/types';
@@ -54,6 +54,7 @@ function TotalRow({ label, columns, from, to, status }: { label: string; columns
 
 // Holes run down the page and players across, so 18 holes fit a phone without scrolling sideways
 export default function Scorecard({ info }: { info: MatchInfo }) {
+  const { firstName } = useHistory();
   const { match, round, teams, play } = info;
   if (!play || !match.scores || !round.par || !round.strokeIndex) return null;
   const par = round.par;

@@ -23,6 +23,13 @@ describe('addresses', () => {
     expect(parseRoute('/me')).toEqual({ page: 'me' });
     expect(parseRoute('/founders/2026-columbia/guide')).toEqual({ page: 'tripGuide', chapterId: 'founders', tripId: '2026-columbia' });
     expect(parseRoute('/2026-columbia/guide')).toEqual({ page: 'guide', slug: '2026-columbia' }); // today's guide address, unchanged
+    expect(parseRoute('/founders/history')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'history' } });
+    expect(parseRoute('/founders/history/2026-columbia/singles-1')).toEqual({
+      page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'match', eventId: '2026-columbia', matchId: 'singles-1' },
+    });
+    expect(parseRoute('/founders/players/mark-reese')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'player', playerId: 'mark-reese' } });
+    expect(parseRoute('/founders/superlatives')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'superlatives' } });
+    expect(parseRoute('/history/2026-columbia')).toEqual({ page: 'event', eventId: '2026-columbia' }); // today's history, unchanged
   });
 
   it('never read a reserved word or an unknown address as a chapter', () => {

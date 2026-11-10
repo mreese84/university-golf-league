@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react';
-import { nameOf, photoOf, stats } from '../../history/data';
+import { useHistory } from '../../history/historyContext';
 import { eventLabel, formatHandicap, formatPoints, formatRecord } from '../../history/format';
 import type { PlayerMatch, WinLoss } from '../../history/stats';
-import { matchPath, playersPath } from '../../routes';
 import { Card } from '../guide/parts';
-import { BackLink, Link, Names, NotFound, OutcomeBadge, SectionTitle, TeamMark } from './parts';
+import { BackLink, Link, Names, NotFound, OutcomeBadge, SectionTitle } from './parts';
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -49,9 +48,10 @@ function RecordTable({ title, rows }: { title: string; rows: { key: string; labe
 }
 
 function MatchLine({ m }: { m: PlayerMatch }) {
+  const { links } = useHistory();
   return (
     <Link
-      to={matchPath(m.event.id, m.match.id)}
+      to={links.match(m.event.id, m.match.id)}
       className="flex items-center gap-3 py-3 -mx-5 px-5 hover:bg-gray-50 transition-colors"
     >
       <OutcomeBadge outcome={m.outcome} />
@@ -75,19 +75,22 @@ function MatchLine({ m }: { m: PlayerMatch }) {
   );
 }
 
+// One player's record. History follows individuals, so each year's team is named but there are no
+// team logos here.
 export default function PlayerPage({ playerId }: { playerId: string }) {
+  const { stats, nameOf, photoOf, links } = useHistory();
   const s = stats.get(playerId);
   if (!s) {
     return (
       <NotFound>
-        <BackLink to={playersPath()}>All players</BackLink>
+        <BackLink to={links.players}>All players</BackLink>
       </NotFound>
     );
   }
 
   return (
     <div className="space-y-6">
-      <BackLink to={playersPath()}>All players</BackLink>
+      <BackLink to={links.players}>All players</BackLink>
       <div>
         <div className="flex items-center gap-4">
           {/* The whole portrait: the frame matches the photos' 3:4 shape */}
@@ -104,9 +107,8 @@ export default function PlayerPage({ playerId }: { playerId: string }) {
           {s.events.map((e) => (
             <span
               key={e.event.id}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white border border-gray-200 pl-1 pr-3 py-1 text-xs text-gray-700"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs text-gray-700"
             >
-              <TeamMark team={e.team} className="w-5 h-5" />
               <span className="font-semibold">
                 {eventLabel(e.event)} · {e.event.year}
               </span>
