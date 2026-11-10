@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { useAppState } from './store';
+import { AppProvider, useAppState } from './store';
 import { useAuth } from './auth';
 import Layout from './components/Layout';
 import MembersTab from './components/MembersTab';
@@ -8,34 +8,22 @@ import SelectionTab from './components/SelectionTab';
 import GuidePage from './components/guide/GuidePage';
 import HistoryPages from './components/history/HistoryPages';
 import MoveOverPage from './components/MoveOverPage';
+import NextApp from './next/NextApp';
+import { nextPagesEnabled } from './next/enabled';
 import { history } from './history/data';
-import { currentRoute, followLink, guidePath, historyPath, homePath, isHistoryRoute, moveOverPath, navigate, tripSlugs } from './routes';
+import { currentRoute, followLink, guidePath, historyPath, homePath, isHistoryRoute, isNextRoute, moveOverPath, navigate, tripSlugs, type Route } from './routes';
 
 type Tab = 'members' | 'trips' | 'selection' | 'history';
 
 // The History tab appears once there's an event to show (the live site skips sample events)
 const showHistory = history.events.length > 0;
 
-function AppContent() {
+function AppContent({ route }: { route: Route }) {
   const { trips, loading, exportData, importData } = useAppState();
   const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('trips');
-  const [route, setRoute] = useState(currentRoute);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const slugs = useMemo(() => tripSlugs(trips), [trips]);
-
-  useEffect(() => {
-    const onNavigate = () => {
-      setRoute(currentRoute());
-      window.scrollTo(0, 0);
-    };
-    window.addEventListener('popstate', onNavigate);
-    window.addEventListener('hashchange', onNavigate);
-    return () => {
-      window.removeEventListener('popstate', onNavigate);
-      window.removeEventListener('hashchange', onNavigate);
-    };
-  }, []);
 
   // Old #/guide/<tripId> links move to the trip's /<year-city>/guide address once trips load;
   // any other unknown address goes home
@@ -140,5 +128,27 @@ function AppContent() {
 }
 
 export default function App() {
-  return <AppContent />;
+  const [route, setRoute] = useState(currentRoute);
+
+  useEffect(() => {
+    const onNavigate = () => {
+      setRoute(currentRoute());
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener('popstate', onNavigate);
+    window.addEventListener('hashchange', onNavigate);
+    return () => {
+      window.removeEventListener('popstate', onNavigate);
+      window.removeEventListener('hashchange', onNavigate);
+    };
+  }, []);
+
+  // The Phase 1 pages run on dev data until the switch, without today's data (app/data) loaded; on
+  // the live site their addresses go home
+  if (isNextRoute(route) && nextPagesEnabled) return <NextApp route={route} />;
+  return (
+    <AppProvider>
+      <AppContent route={isNextRoute(route) ? { page: 'home' } : route} />
+    </AppProvider>
+  );
 }

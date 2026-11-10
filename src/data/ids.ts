@@ -20,8 +20,8 @@ export function personIdFor(name: string, taken: Iterable<string>) {
 
 // Words the app's addresses use, which a chapter's address can't be (/admin, /me, /profiles/…)
 const RESERVED = new Set([
-  'admin', 'api', 'assets', 'envs', 'guide', 'history', 'join', 'login', 'me', 'new', 'players',
-  'profiles', 'request', 'signin', 'superlatives',
+  'admin', 'api', 'assets', 'envs', 'finish-sign-in', 'guide', 'history', 'join', 'login', 'me', 'move-over',
+  'new', 'next', 'players', 'profiles', 'request', 'signin', 'superlatives',
 ]);
 
 // A chapter's ID is its address: /founders. It starts with a letter, so it never looks like an old
