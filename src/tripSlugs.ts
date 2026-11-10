@@ -5,7 +5,7 @@ import type { Trip } from './types';
 type SlugTrip = Pick<Trip, 'id' | 'year' | 'month' | 'location'>;
 
 // "Columbia, SC" in 2026 -> "2026-columbia"
-function baseSlug(trip: SlugTrip) {
+export function baseSlug(trip: SlugTrip) {
   const city = trip.location
     .split(',')[0]
     .normalize('NFKD')

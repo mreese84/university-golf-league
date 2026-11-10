@@ -1,6 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../auth';
+import { COMMISSIONER_EMAIL } from '../data/commissioner';
 import { useSignedInPerson } from '../data/hooks';
+import { pathsFor } from '../data/paths';
+import type { AdminsConfig } from '../data/types';
 import { dataEnv } from '../dataEnv';
 import { db } from '../firebase';
 import { completeInvitations } from './join';
@@ -33,6 +37,31 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     };
   }, [invitedKey]);
 
+  // Admins: the commissioner, or a co-admin in config/admins (which only admins can read, so a
+  // refusal means no). Checked once per sign-in.
+  const isCommissioner = !!user?.emailVerified && user.email?.toLowerCase() === COMMISSIONER_EMAIL;
+  const adminKey = user && personId && !isCommissioner ? `${user.uid}|${personId}` : null;
+  const [adminResult, setAdminResult] = useState<{ key: string; isAdmin: boolean } | null>(null);
+
+  useEffect(() => {
+    if (!adminKey) return;
+    const id = adminKey.split('|')[1];
+    let cancelled = false;
+    getDoc(doc(db, pathsFor(dataEnv).admins)).then(
+      (snap) => {
+        if (!cancelled) setAdminResult({ key: adminKey, isAdmin: !!(snap.data() as AdminsConfig | undefined)?.personIds?.includes(id) });
+      },
+      () => {
+        if (!cancelled) setAdminResult({ key: adminKey, isAdmin: false });
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [adminKey]);
+
+  const isAdmin = isCommissioner || (!!adminKey && adminResult?.key === adminKey && adminResult.isAdmin);
+
   const joinError = invitedKey && joinResult?.key === invitedKey ? joinResult.error : null;
   const joining = !!invitedKey && joinResult?.key !== invitedKey;
 
@@ -43,11 +72,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   else if (found.status === 'missing') status = 'notInLeague';
   else if (found.status !== 'ready' || !person) status = 'error';
   else if (joining) status = 'joining';
-  else if (person.chapterIds.length === 0) status = 'notInLeague';
+  else if (person.chapterIds.length === 0 && !isAdmin) status = 'notInLeague';
   else status = 'ready';
 
   return (
-    <SessionContext.Provider value={{ status, user, personId: user ? personId : null, person: user ? person : null, joinError, logOut }}>
+    <SessionContext.Provider value={{ status, user, personId: user ? personId : null, person: user ? person : null, isAdmin: !!user && isAdmin, joinError, logOut }}>
       {children}
     </SessionContext.Provider>
   );
