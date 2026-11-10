@@ -3,7 +3,7 @@
 // (see useLiveDoc in src/guides.ts).
 
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot, query, where, type WhereFilterOp } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, where, type WhereFilterOp } from 'firebase/firestore';
 import { dataEnv } from '../dataEnv';
 import { db } from '../firebase';
 import { retryDelay, statusFor, useLiveDoc, type LoadStatus } from '../guides';
@@ -48,6 +48,37 @@ export function useLiveCollection<T>(path: string | null, key: string | null, fi
 
   if (!key || state.key !== key) return { status: 'loading' as LoadStatus, items: [] as (T & { id: string })[] };
   return { status: state.status, items: state.items };
+}
+
+// Live copies of several documents at once, by path: null for one that's missing or can't be read.
+// `key` identifies the subscription; null stays idle.
+export function useLiveDocs<T>(paths: string[], key: string | null) {
+  const [state, setState] = useState<{ key: string | null; docs: Record<string, T | null> }>({ key: null, docs: {} });
+  const joined = paths.join('\n');
+
+  useEffect(() => {
+    if (!key) return;
+    const list = joined ? joined.split('\n') : [];
+    const put = (path: string, data: T | null) =>
+      setState((prev) => ({ key, docs: { ...(prev.key === key ? prev.docs : {}), [path]: data } }));
+    const unsubscribes = list.map((path) =>
+      onSnapshot(
+        doc(db, path),
+        (snap) => put(path, snap.exists() ? (snap.data() as T) : null),
+        () => put(path, null),
+      ),
+    );
+    return () => unsubscribes.forEach((u) => u());
+  }, [joined, key]);
+
+  return state.key === key ? state.docs : {};
+}
+
+// The people on a roster, by person ID (those not loaded yet are missing)
+export function usePeople(personIds: string[], uid: string | null) {
+  const sorted = [...new Set(personIds)].sort();
+  const docs = useLiveDocs<Person>(sorted.map(P.person), uid ? `people:${uid}` : null);
+  return Object.fromEntries(sorted.flatMap((id) => (docs[P.person(id)] ? [[id, docs[P.person(id)]!]] : []))) as Record<string, Person>;
 }
 
 // The signed-in person: their email's login, then their record. `missing` means they're signed in

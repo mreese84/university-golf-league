@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { isDevData } from '../dataEnv';
-import { followLink, nextHomePath } from '../routes';
+import { followLink, mePath, nextHomePath } from '../routes';
 import UserAvatar from '../components/UserAvatar';
 import { useSession } from './sessionContext';
 
@@ -49,7 +49,9 @@ export function NextLayout({ children }: { children: ReactNode }) {
               <Badge size="small" />
               <span className="font-bold text-gray-900 tracking-tight truncate">University Golf League</span>
             </a>
-            <UserAvatar key={user.uid} user={user} />
+            <a href={mePath()} onClick={(e) => followLink(e, mePath())} title="Your profile">
+              <UserAvatar key={user.uid} user={user} />
+            </a>
             <button onClick={logOut} className="text-xs text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
               Sign out
             </button>

@@ -29,6 +29,8 @@ import type { DataEnv, Person, RosterEntry } from '../../src/data/types';
 import {
   addEmail,
   addPersonToChapter,
+  deleteTrip,
+  removeEmail,
   addShots,
   approveChapterRequest,
   completeJoin,
@@ -308,6 +310,28 @@ describe('Edit trips, guides, teams, results, roster', () => {
     await no(setDoc(doc(as('oscar'), L.chapter('third')), { name: 'Third' }));
     await ok(setDoc(doc(as('jeff'), L.chapter('third')), { name: 'Third' }));
     await no(deleteDoc(doc(as('oscar'), L.chapter('founders'))));
+  });
+});
+
+describe('Delete a trip, with everything in it', () => {
+  it('an organizer can, a member can’t', async () => {
+    await no(deleteTrip(as('fred'), 'live', 'founders', TRIP));
+    await ok(deleteTrip(as('oscar'), 'live', 'founders', TRIP));
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      const db = firestoreOf(ctx);
+      for (const path of [L.trip('founders', TRIP), L.guide('founders', TRIP), L.draft('founders', TRIP), L.match('founders', TRIP, 'fourball-1'),
+        L.handicap('founders', TRIP, id('fred')), L.fireballEntry('founders', TRIP, id('fred')), L.invite('founders', TRIP, id('ivy'))]) {
+        if ((await getDoc(doc(db, path))).exists()) throw new Error(`${path} is still there`);
+      }
+    });
+  });
+});
+
+describe('Remove a sign-in email', () => {
+  it('organizers for their members; not for anyone with more rights', async () => {
+    await ok(removeEmail(as('oscar'), 'live', id('fred'), 'fred@example.com'));
+    await no(removeEmail(as('oscar'), 'live', id('jeff'), 'jeff@example.com'));
+    await no(removeEmail(as('fred'), 'live', id('alice'), 'alice@example.com'));
   });
 });
 

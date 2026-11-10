@@ -3,6 +3,7 @@
 // documents out. The Move-over page runs it and writes the result; tests/moveOver.test.ts checks
 // that UGL2's records come out exactly as the history files have them.
 
+import { COMMISSIONER_EMAIL } from '../data/commissioner';
 import { historyFromChapter, type ChapterTripRecord } from '../data/history';
 import { personIdFor, slugify } from '../data/ids';
 import { normalizeEmail, pathsFor } from '../data/paths';
@@ -25,7 +26,6 @@ import type { GuideDraft, GuideFootball, GuideTeam, GuideTheme, MatchType, Membe
 
 export const FOUNDERS = 'founders';
 export const FOUNDERS_NAME = "The Founder's Chapter";
-const COMMISSIONER_EMAIL = 'reese296@gmail.com';
 
 // From the decisions doc: UGL2's pre-trip index changes for four players when it's moved over.
 // Everyone else keeps event.json's number. Scorecard strokes and results don't change.

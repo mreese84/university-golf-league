@@ -17,6 +17,7 @@ export interface Session {
   user: User | null;
   personId: string | null;
   person: Person | null;
+  isAdmin: boolean; // the commissioner or a co-admin: every chapter, everything in it
   joinError: string | null; // an invitation that couldn't be completed
   logOut: () => Promise<void>;
 }

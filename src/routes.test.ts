@@ -15,8 +15,12 @@ describe('addresses', () => {
   it('add the Phase 1 pages', () => {
     expect(parseRoute('/next')).toEqual({ page: 'nextHome' });
     expect(parseRoute('/finish-sign-in')).toEqual({ page: 'finishSignIn' });
-    expect(parseRoute('/founders')).toEqual({ page: 'chapter', chapterId: 'founders' });
-    expect(parseRoute('/founders/')).toEqual({ page: 'chapter', chapterId: 'founders' });
+    expect(parseRoute('/founders')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'trips' });
+    expect(parseRoute('/founders/')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'trips' });
+    expect(parseRoute('/founders/selection')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'selection' });
+    expect(parseRoute('/founders/members')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'members' });
+    expect(parseRoute('/founders/trips')).toEqual({ page: 'home' }); // the trips tab is the chapter's own address
+    expect(parseRoute('/me')).toEqual({ page: 'me' });
   });
 
   it('never read a reserved word or an unknown address as a chapter', () => {

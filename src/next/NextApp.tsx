@@ -3,6 +3,7 @@ import ChapterPage from './ChapterPage';
 import FinishSignIn from './FinishSignIn';
 import HomePage from './HomePage';
 import { NextLayout } from './parts';
+import ProfilePage from './ProfilePage';
 import { SessionProvider } from './session';
 
 // The Phase 1 pages, on dev data until the switch (see enabled.ts)
@@ -12,7 +13,8 @@ export default function NextApp({ route }: { route: NextRoute }) {
       <NextLayout>
         {route.page === 'finishSignIn' && <FinishSignIn />}
         {route.page === 'nextHome' && <HomePage />}
-        {route.page === 'chapter' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} />}
+        {route.page === 'chapter' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab={route.tab} />}
+        {route.page === 'me' && <ProfilePage />}
       </NextLayout>
     </SessionProvider>
   );

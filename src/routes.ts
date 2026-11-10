@@ -10,7 +10,8 @@
 // Phase 1 pages, on dev data only until the switch (src/next/enabled.ts):
 //   /next                             the new home: the landing page, or your chapter (becomes / at the switch)
 //   /finish-sign-in                   where email sign-in links land
-//   /founders                         a chapter
+//   /founders                         a chapter's trips; /founders/selection, /founders/members
+//   /me                               your profile
 // Firebase Hosting serves index.html at every address (firebase.json), and the app reads the path itself.
 
 import { isValidChapterId } from './data/ids';
@@ -32,11 +33,15 @@ export type Route =
   | { page: 'moveOver' }
   | { page: 'nextHome' }
   | { page: 'finishSignIn' }
-  | { page: 'chapter'; chapterId: string };
+  | { page: 'chapter'; chapterId: string; tab: ChapterTab }
+  | { page: 'me' };
 
-export type NextRoute = Extract<Route, { page: 'nextHome' | 'finishSignIn' | 'chapter' }>;
+export type ChapterTab = 'trips' | 'selection' | 'members';
+const CHAPTER_TABS: ChapterTab[] = ['trips', 'selection', 'members'];
 
-export const isNextRoute = (route: Route): route is NextRoute => ['nextHome', 'finishSignIn', 'chapter'].includes(route.page);
+export type NextRoute = Extract<Route, { page: 'nextHome' | 'finishSignIn' | 'chapter' | 'me' }>;
+
+export const isNextRoute = (route: Route): route is NextRoute => ['nextHome', 'finishSignIn', 'chapter', 'me'].includes(route.page);
 
 export type HistoryRoute = Extract<Route, { page: 'history' | 'event' | 'match' | 'players' | 'player' | 'superlatives' }>;
 
@@ -54,7 +59,9 @@ export const superlativesPath = () => `${BASE}superlatives`;
 export const moveOverPath = () => `${BASE}move-over`;
 export const nextHomePath = () => `${BASE}next`;
 export const finishSignInPath = () => `${BASE}finish-sign-in`;
-export const chapterPath = (chapterId: string) => `${BASE}${encodeURIComponent(chapterId)}`;
+export const chapterPath = (chapterId: string, tab: ChapterTab = 'trips') =>
+  `${BASE}${encodeURIComponent(chapterId)}${tab === 'trips' ? '' : `/${tab}`}`;
+export const mePath = () => `${BASE}me`;
 
 export const currentRoute = (): Route => parseRoute(window.location.pathname, window.location.hash);
 
@@ -77,7 +84,11 @@ export function parseRoute(pathname: string, hash = ''): Route {
   if (path === 'move-over') return { page: 'moveOver' };
   if (path === 'next') return { page: 'nextHome' };
   if (path === 'finish-sign-in') return { page: 'finishSignIn' };
-  if (parts.length === 1 && isValidChapterId(parts[0])) return { page: 'chapter', chapterId: parts[0] };
+  if (path === 'me') return { page: 'me' };
+  if (parts.length === 1 && isValidChapterId(parts[0])) return { page: 'chapter', chapterId: parts[0], tab: 'trips' };
+  if (parts.length === 2 && isValidChapterId(parts[0]) && CHAPTER_TABS.includes(parts[1] as ChapterTab) && parts[1] !== 'trips') {
+    return { page: 'chapter', chapterId: parts[0], tab: parts[1] as ChapterTab };
+  }
   return { page: 'home' };
 }
 

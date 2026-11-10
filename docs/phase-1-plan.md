@@ -182,7 +182,7 @@ Email-link sign-in next to Google; the signed-out landing page (logo, tagline, s
 Mark does, once: upgrade to Blaze and set a $5 budget alert (done), and turn on email-link sign-in ([setup steps](firebase-hosting-setup.md#email-link-sign-in-phase-1-step-5)).
 
 **6. Chapter home.**
-Trips, Selection (active members), Members (roster with statuses and roles; organizers invite by email and see invitees, members don't), and My profile (bio, college, GHIN number).
+Trips, Selection (active members), Members (roster with statuses and roles; organizers invite by email and see invitees, members don't), and My profile (bio, college, GHIN number). At `/founders`, `/founders/selection`, `/founders/members` and `/me`, on dev data until the switch. Adding someone sends no email: the organizer tells them which address to sign in with.
 
 **7. Guide in the chapter.**
 The guide, pairings, Fireball (it knows who's signed in, so no more "pick yourself") and player profiles. Importing a guide file stays until step 10.
@@ -210,6 +210,10 @@ Request a chapter (from the landing page, after signing in). Admins approve, and
 
 **14. Installable app.**
 Manifest, icons and a service worker: add to Home Screen, opens offline. It's small and independent, so it can move earlier.
+
+## Known issues
+
+- **Sign-in emails to Apple addresses** (icloud.com, me.com, mac.com) may never arrive: Apple's mail service tends to drop Firebase's default sender (`noreply@ugl-selector.firebaseapp.com`) without even a junk-folder copy. Gmail and others work. The fix is sending Firebase's emails from a domain the league owns (Firebase's custom email domain), once there is one; it's deferred until then. Meanwhile, anyone with a Google account can sign in with Google.
 
 ## After Phase 1
 

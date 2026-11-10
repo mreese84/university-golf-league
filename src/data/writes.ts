@@ -8,6 +8,7 @@ import {
   arrayUnion,
   collection,
   doc,
+  getDocs,
   increment,
   serverTimestamp,
   setDoc,
@@ -241,6 +242,28 @@ export function declineChapterRequest(db: Firestore, env: DataEnv, requestId: st
 // The commissioner only: the full list of co-admins
 export function setCoAdmins(db: Firestore, env: DataEnv, personIds: string[]) {
   return setDoc(doc(db, pathsFor(env).admins), { personIds: [...new Set(personIds)] });
+}
+
+// ── Trips ───────────────────────────────────────────────────────
+
+// Everything a trip holds, beside the trip itself
+export const TRIP_PARTS = ['content', 'private', 'handicaps', 'rsvps', 'invites', 'fireball', 'matches'] as const;
+
+// Deletes a trip and everything in it (guide, draft, handicaps, RSVPs, Fireball counts, results).
+// Organizers only. Saves go ten at a time, inside Firestore's limit on rule lookups per save.
+export async function deleteTrip(db: Firestore, env: DataEnv, chapterId: string, tripId: string) {
+  const p = pathsFor(env);
+  const paths: string[] = [];
+  for (const part of TRIP_PARTS) {
+    const inside = await getDocs(collection(db, `${p.trip(chapterId, tripId)}/${part}`));
+    paths.push(...inside.docs.map((d) => d.ref.path));
+  }
+  paths.push(p.trip(chapterId, tripId));
+  for (let i = 0; i < paths.length; i += 10) {
+    const batch = writeBatch(db);
+    for (const path of paths.slice(i, i + 10)) batch.delete(doc(db, path));
+    await batch.commit();
+  }
 }
 
 // ── A trip's per-player records ─────────────────────────────────
