@@ -1,10 +1,12 @@
-name: Deploy to GitHub Pages
+name: Deploy
+
+# On every merge to main: build the site and publish it to Firebase Hosting together with the
+# database rules (firestore.rules), then point the old GitHub Pages address at the new one.
+# Setup: docs/firebase-hosting-setup.md
 
 on:
   push:
     branches: [main]
-  # Run by hand (Actions tab → Deploy to GitHub Pages → Run workflow), e.g. so a newly added
-  # trip gets its own guide page for link previews
   workflow_dispatch:
 
 permissions:
@@ -13,17 +15,17 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: deploy
   cancel-in-progress: true
 
 jobs:
-  build:
+  firebase:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -33,16 +35,34 @@ jobs:
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-      - uses: actions/upload-pages-artifact@v3
+      - uses: google-github-actions/auth@v2
         with:
-          path: dist
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Publish the site and the database rules
+        run: >
+          npx --yes firebase-tools@15.34.2 deploy
+          --only hosting,firestore:rules
+          --project "$PROJECT_ID"
+          --message "${{ github.sha }}"
+          --non-interactive
+        env:
+          PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
 
-  deploy:
-    needs: build
+  # Runs only after the Firebase deploy succeeds, so the old address never forwards to an empty site
+  forward-old-address:
+    needs: firebase
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir _site
+          cp forwarder/index.html _site/index.html
+          cp forwarder/index.html _site/404.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

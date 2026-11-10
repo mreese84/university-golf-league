@@ -1,4 +1,4 @@
-// Page addresses, all under the site's base path (/university-golf-league/):
+// Page addresses, all under the site's base path (/):
 //   /                                 trips, selection, and members tabs
 //   /2026-columbia/guide              a trip's Player's Guide
 //   /history                          every event
@@ -6,8 +6,7 @@
 //   /history/2026-columbia/singles-1  one match's scorecard
 //   /players, /players/jeff-siarto    player records
 //   /superlatives
-// GitHub Pages only serves files. The build (vite.config.ts) writes a copy of index.html at each
-// guide and history address and as 404.html for anything else, and the app reads the path itself.
+// Firebase Hosting serves index.html at every address (firebase.json), and the app reads the path itself.
 
 const BASE = import.meta.env.BASE_URL;
 

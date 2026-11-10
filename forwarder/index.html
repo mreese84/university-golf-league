@@ -1,0 +1,22 @@
+<!doctype html>
+<!--
+  The old address, mreese84.github.io/university-golf-league/, forwards here: the same page at the
+  new address. The deploy workflow publishes this file to GitHub Pages as index.html and 404.html,
+  so every old path lands on it. Old #/guide/<tripId> links keep their hash, which the app reads.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>University Golf League</title>
+    <script>
+      var path = location.pathname.replace(/^\/university-golf-league(?=\/|$)/, '') || '/';
+      location.replace('https://university-golf-league.web.app' + path + location.search + location.hash);
+    </script>
+    <noscript><meta http-equiv="refresh" content="0; url=https://university-golf-league.web.app/" /></noscript>
+  </head>
+  <body>
+    <p>University Golf League has moved to <a href="https://university-golf-league.web.app/">university-golf-league.web.app</a>.</p>
+  </body>
+</html>
