@@ -60,7 +60,7 @@ The links come back to `/finish-sign-in` on whichever address asked for them (th
 
 Until step 9c, the GitHub Pages address (`mreese84.github.io/university-golf-league`) forwarded to the new one, and the old `ugl-selector` repo forwarded to that. GitHub Pages stops when a repo goes private (on GitHub's free plan), so:
 
-1. Merge the `ugl-selector` pull request that points it straight at `https://university-golf-league.web.app`. Check that `https://mreese84.github.io/ugl-selector/2026-columbia/guide` lands on the guide.
+1. Point `ugl-selector` straight at `https://university-golf-league.web.app`: replace its `index.html` and `404.html` (the same file) with a forwarder to the new address that keeps the path, query and hash. Check that `https://mreese84.github.io/ugl-selector/2026-columbia/guide` lands on the guide.
 2. Merge step 9c. Deploys stop republishing the GitHub Pages forwarder; the copy already published keeps working until the next step.
 3. In GitHub, open this repo's **Settings → General**, scroll to **Danger Zone**, click **Change visibility** and choose **Make private**. The `mreese84.github.io/university-golf-league` address stops working; it only went up on 2026-11-09, so few links use it.
 
