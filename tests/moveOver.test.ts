@@ -116,8 +116,12 @@ describe('the move', () => {
 
   it('keeps the draft, Fireball counts and handicaps, with UGL2’s four pre-trip changes', () => {
     const { docs, warnings } = run();
+    // UGL2 has results, so the draft's teams are the history's (the old draft had only three players
+    // on teams): publishing it again can never change who played
+    const columbia = history.events.find((e) => e.id === '2026-columbia')!;
     expect(docAt(docs, `${T}/2026-columbia/private/draft`)).toMatchObject({
       captains: { palmetto: 'mark-reese', crescent: 'ricky-menchaca' },
+      teams: Object.fromEntries(columbia.teams.map((t) => [t.id, t.players])),
       rounds: { r1: [{ playerIds: ['mark-reese', null, 'ricky-menchaca', null] }] },
     });
     expect(docAt(docs, `${T}/2026-columbia/fireball/mark-reese`)).toEqual({ counts: { r1: 3, off: 2 } });

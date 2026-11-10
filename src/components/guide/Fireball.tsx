@@ -2,43 +2,14 @@ import { useState } from 'react';
 import { useAuth } from '../../auth';
 import { OFF_COURSE, addShots, useFireball, type ShotCounts } from '../../fireball';
 import type { GuideTeam, Member, PlayerGuide } from '../../types';
-import { clockHours, fmt } from './dates';
 import Emblem from './Emblem';
+import { bucketsFor, currentBucket, type Bucket } from './fireballBuckets';
 import { Card, Tbd } from './parts';
-import { zonedParts } from './timeZones';
-
-export interface Bucket {
-  id: string; // a round id, or OFF_COURSE
-  label: string; // button and column heading: "Fri", "Off"
-  title: string; // "Fri · Aiken Golf Club"
-  place: string; // "Aiken Golf Club"
-}
 
 interface Player {
   id: string;
   name: string;
   team?: GuideTeam;
-}
-
-// Golf rounds in order, then everything else (nights out, the game)
-function bucketsFor(guide: PlayerGuide): Bucket[] {
-  return [
-    ...guide.rounds.map((r) => {
-      const day = fmt(r.date, { weekday: 'short' });
-      return { id: r.id, label: day, title: `${day} · ${r.course}`, place: r.course };
-    }),
-    { id: OFF_COURSE, label: 'Off', title: 'Off the course', place: 'Nights out, the game, anywhere but golf' },
-  ];
-}
-
-// Today's round until about 5½ hours after the last tee time, then off the course
-function currentBucket(guide: PlayerGuide, timeZone: string | null, now = new Date()) {
-  const { date, hours } = zonedParts(now, timeZone);
-  const round = guide.rounds.find((r) => r.date === date);
-  if (!round) return OFF_COURSE;
-  const tees = round.groups.map((g) => clockHours(g.teeTime)).filter((h): h is number => h !== null);
-  const done = tees.length ? Math.max(...tees) + 5.5 : 18;
-  return hours < done ? round.id : OFF_COURSE;
 }
 
 const total = (counts: Record<string, number> | undefined) =>
@@ -67,6 +38,9 @@ interface FireballBoardProps {
   counts: ShotCounts;
   me: string | null; // who this phone logs for
   canLogForAnyone: boolean; // admin
+  // Whether this phone can change who it logs for. The Phase 1 pages know who's signed in, so for
+  // players it's always them (false); today's guide asks (true).
+  canSwitch?: boolean;
   error: string | null;
   onPickMe: (id: string | null) => void;
   onAdd: (bucket: string, delta: 1 | -1) => void;
@@ -80,6 +54,7 @@ export function FireballBoard({
   counts,
   me,
   canLogForAnyone,
+  canSwitch = true,
   error,
   onPickMe,
   onAdd,
@@ -163,12 +138,18 @@ export function FireballBoard({
               {canLogForAnyone ? 'Logging for ' : 'Logging as '}
               <span className="font-medium text-gray-700">{meName}</span>
               {' · '}trip total {total(counts[me])}
-              {' · '}
-              <button onClick={() => setChoosing(true)} className="font-medium text-(--guide) hover:underline cursor-pointer">
-                {canLogForAnyone ? 'Switch player' : 'Not you?'}
-              </button>
+              {(canSwitch || canLogForAnyone) && (
+                <>
+                  {' · '}
+                  <button onClick={() => setChoosing(true)} className="font-medium text-(--guide) hover:underline cursor-pointer">
+                    {canLogForAnyone ? 'Switch player' : 'Not you?'}
+                  </button>
+                </>
+              )}
             </p>
           </>
+        ) : !canSwitch && !canLogForAnyone ? (
+          <p className="text-center text-sm text-gray-500 mt-5">You're not on this trip's list of players, so there's nothing to log.</p>
         ) : (
           <div className="text-center mt-5 space-y-2">
             <p className="text-sm text-gray-600">

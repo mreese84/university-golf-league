@@ -16,8 +16,10 @@ import {
   writeBatch,
   type Firestore,
 } from 'firebase/firestore';
+import { applyDraftToContent, clearPairingsInContent } from './guide';
 import { normalizeEmail, pathsFor } from './paths';
-import type { ChapterRequest, DataEnv, JoinedStatus, Person, Response, Role, RosterEntry } from './types';
+import type { GuideDraft } from '../types';
+import type { ChapterRequest, DataEnv, GuideContent, JoinedStatus, Person, Response, Role, RosterEntry } from './types';
 
 // Today as YYYY-MM-DD, for `since`
 const today = () => new Date().toISOString().slice(0, 10);
@@ -263,6 +265,40 @@ export async function deleteTrip(db: Firestore, env: DataEnv, chapterId: string,
     const batch = writeBatch(db);
     for (const path of paths.slice(i, i + 10)) batch.delete(doc(db, path));
     await batch.commit();
+  }
+}
+
+// Saves an organizer's pairings draft and, in the same save, what members see in the guide: the
+// draft's teams and groups once published, TBD before. Handicaps that changed are saved after, a few
+// at a time (each one's rule checks the roster).
+export async function saveDraft(
+  db: Firestore,
+  env: DataEnv,
+  c: string,
+  t: string,
+  draft: GuideDraft,
+  content: GuideContent,
+  currentHandicaps: Record<string, number>,
+  by: string | null,
+) {
+  const p = pathsFor(env);
+  const { handicaps, ...rest } = draft;
+  const batch = writeBatch(db);
+  batch.set(doc(db, p.draft(c, t)), rest);
+  batch.set(doc(db, p.guide(c, t)), rest.published ? applyDraftToContent(content, rest) : clearPairingsInContent(content));
+  await batch.commit();
+
+  const changed = Object.entries(handicaps).filter(([id, index]) => currentHandicaps[id] !== index);
+  const removed = Object.keys(currentHandicaps).filter((id) => !(id in handicaps));
+  const ops = [
+    ...changed.map(([id, index]) => (b: ReturnType<typeof writeBatch>) =>
+      b.set(doc(db, p.handicap(c, t, id)), { index, ...(by ? { updatedBy: by } : {}), updatedAt: serverTimestamp() })),
+    ...removed.map((id) => (b: ReturnType<typeof writeBatch>) => b.delete(doc(db, p.handicap(c, t, id)))),
+  ];
+  for (let i = 0; i < ops.length; i += 6) {
+    const b = writeBatch(db);
+    for (const op of ops.slice(i, i + 6)) op(b);
+    await b.commit();
   }
 }
 

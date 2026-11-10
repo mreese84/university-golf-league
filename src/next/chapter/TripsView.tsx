@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import TripForm from '../../components/TripForm';
+import { useLiveDocs } from '../../data/hooks';
 import { pathsFor } from '../../data/paths';
 import { deleteTrip } from '../../data/writes';
 import { dataEnv } from '../../dataEnv';
 import { db } from '../../firebase';
 import type { Trip as OldTrip } from '../../types';
 import { byDate, newTrip, newTripId, type ChapterTrip, type TripFields } from '../chapterTrips';
+import { followLink, tripGuidePath } from '../../routes';
 import { buttonClass } from '../parts';
 import { joinedPeople, nameOf, tripDate, type ChapterData } from './data';
 
@@ -32,7 +34,9 @@ const fieldsOf = (t: Omit<OldTrip, 'id'>): TripFields => ({
   nextSelectorId: t.nextSelectorId,
 });
 
-function TripCard({ data, trip, onEdit, onDelete }: { data: ChapterData; trip: ChapterTrip; onEdit: () => void; onDelete: () => void }) {
+// hasGuide is undefined until it's known, so the card never flashes "+ Add" before a guide loads
+function TripCard({ data, trip, hasGuide, onEdit, onDelete }: { data: ChapterData; trip: ChapterTrip; hasGuide: boolean | undefined; onEdit: () => void; onDelete: () => void }) {
+  const guide = tripGuidePath(data.chapterId, trip.id);
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
       <div className="flex items-start justify-between gap-3">
@@ -80,6 +84,17 @@ function TripCard({ data, trip, onEdit, onDelete }: { data: ChapterData; trip: C
           ))}
         </div>
       </div>
+      {(hasGuide || (hasGuide === false && data.canManage)) && (
+        <a
+          href={guide}
+          onClick={(e) => followLink(e, guide)}
+          className={`flex items-center justify-between px-4 py-2.5 -mx-1 rounded-xl text-sm font-medium transition-colors
+            ${hasGuide ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'border border-dashed border-gray-200 text-gray-400 hover:text-green-600 hover:border-green-300'}`}
+        >
+          <span>{hasGuide ? "Player's Guide" : "+ Add Player's Guide"}</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      )}
     </div>
   );
 }
@@ -91,6 +106,7 @@ export default function TripsView({ data }: { data: ChapterData }) {
   const oldestFirst = [...data.trips].sort(byDate);
   const newestFirst = [...oldestFirst].reverse();
   const people = joinedPeople(data);
+  const guides = useLiveDocs<object>(data.trips.map((t) => P.guide(data.chapterId, t.id)), `guides:${data.chapterId}:${data.uid}`);
 
   const run = async (work: Promise<unknown>) => {
     setError(null);
@@ -147,7 +163,14 @@ export default function TripsView({ data }: { data: ChapterData }) {
                 onCancel={() => setEditingId(null)}
               />
             ) : (
-              <TripCard key={trip.id} data={data} trip={trip} onEdit={() => setEditingId(trip.id)} onDelete={() => remove(trip)} />
+              <TripCard
+                key={trip.id}
+                data={data}
+                trip={trip}
+                hasGuide={P.guide(data.chapterId, trip.id) in guides ? !!guides[P.guide(data.chapterId, trip.id)] : undefined}
+                onEdit={() => setEditingId(trip.id)}
+                onDelete={() => remove(trip)}
+              />
             ),
           )}
         </div>

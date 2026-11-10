@@ -238,7 +238,7 @@ export function buildFoundersChapter(old: OldData, history: HistoryData, rows: P
     put('trips', 'trips', P.trip(FOUNDERS, tripId), trip);
     if (content) {
       put('content', 'guides', P.guide(FOUNDERS, tripId), content.guide);
-      if (draft) put('content', 'pairings drafts', P.draft(FOUNDERS, tripId), draftFor(draft, content.teamIds, fromMember));
+      if (draft) put('content', 'pairings drafts', P.draft(FOUNDERS, tripId), draftFor(draft, content.teamIds, fromMember, event));
     }
 
     // Pre-trip handicaps: the history's (with UGL2's four changes), or else the draft's
@@ -371,11 +371,17 @@ function contentFor(
       if (!used.has(i)) warnings.push(`${tripId}: the guide's "${g.name}" session isn't in the history, so its rules are left out.`);
     });
   } else {
+    // The guide's own sessions, on the rounds the guide shows them on: the first day's sessions on
+    // the first competition round, and so on. The guide gives each session's total points; they're
+    // stored per match, as the history's are.
+    const sessionDays = [...new Set((guide?.format.sessions ?? []).map((s) => s.day))];
+    const competitionRounds = rounds.filter((r) => r.matchType !== 'casual');
     sessions = (guide?.format.sessions ?? []).map((s) => {
-      const round = rounds.find((r) => r.label.startsWith(s.day)) ?? rounds[0];
+      const round = competitionRounds[sessionDays.indexOf(s.day)] ?? rounds.find((r) => r.label.startsWith(s.day)) ?? rounds[0];
       const id = slugify(s.name) || 'session';
       const perGroup = round?.matchType === 'singles' ? 2 : round?.matchType === 'fourball' ? 1 : 0;
-      return { id, round: round?.id ?? '', name: s.name, format: id, scoring: 'match', points: s.points, matches: (round?.groups.length ?? 0) * perGroup, rules: s.rules };
+      const matches = (round?.groups.length ?? 0) * perGroup;
+      return { id, round: round?.id ?? '', name: s.name, format: id, scoring: 'match', points: matches > 0 ? s.points / matches : s.points, matches, rules: s.rules };
     });
   }
 
@@ -418,8 +424,29 @@ function contentFor(
   };
 }
 
-function draftFor(draft: GuideDraft, teamIds: Map<string, string>, fromMember: (id: string | null | undefined) => string | null): Draft {
+// A guide file (today's Player's Guide JSON) as a trip's guide, with no one on a team or in a group
+// yet: for organizers importing a guide until the guide editors arrive (step 10)
+export function contentFromGuideFile(guide: PlayerGuide): GuideContent {
+  return contentFor('import', guide, undefined, () => null, []).guide;
+}
+
+// For a trip with results, the draft's teams and captains are the history's: the guide's published
+// teams are the record of who played, so publishing the draft again must never change them.
+function draftFor(
+  draft: GuideDraft,
+  teamIds: Map<string, string>,
+  fromMember: (id: string | null | undefined) => string | null,
+  event?: HistoryEvent,
+): Draft {
   const team = (id: string) => teamIds.get(id) ?? id;
+  if (event) {
+    return {
+      published: draft.published,
+      captains: Object.fromEntries(event.teams.flatMap((t) => (t.captain ? [[t.id, t.captain]] : []))),
+      teams: Object.fromEntries(event.teams.map((t) => [t.id, t.players])),
+      rounds: draftFor(draft, teamIds, fromMember).rounds,
+    };
+  }
   return {
     published: draft.published,
     captains: Object.fromEntries(

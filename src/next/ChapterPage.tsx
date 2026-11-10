@@ -3,8 +3,9 @@ import { pathsFor } from '../data/paths';
 import type { RosterEntry } from '../data/types';
 import { dataEnv } from '../dataEnv';
 import { useLiveDoc } from '../guides';
-import { chapterPath, followLink, nextHomePath, type ChapterTab } from '../routes';
+import { chapterPath, followLink, nextHomePath, tripGuidePath, type ChapterTab } from '../routes';
 import { hasJoined, type ChapterData } from './chapter/data';
+import GuidePage from './chapter/GuidePage';
 import MembersView from './chapter/MembersView';
 import SelectionView from './chapter/SelectionView';
 import TripsView from './chapter/TripsView';
@@ -23,7 +24,7 @@ const TABS: { key: ChapterTab; label: string }[] = [
 ];
 
 // A chapter's home: its trips, selection draw and members. Guides and history join in steps 7–8.
-function ChapterHome({ chapterId, tab }: { chapterId: string; tab: ChapterTab }) {
+function ChapterHome({ chapterId, tab, guideTripId }: { chapterId: string; tab: ChapterTab; guideTripId?: string }) {
   const { user, personId, isAdmin } = useSession();
   const uid = user!.uid;
   const { status, chapter } = useChapter(chapterId, uid);
@@ -58,6 +59,9 @@ function ChapterHome({ chapterId, tab }: { chapterId: string; tab: ChapterTab })
     tripsStatus,
   };
 
+  // A trip's guide takes the whole page, with its own header
+  if (guideTripId) return <GuidePage data={data} tripId={guideTripId} />;
+
   return (
     <div className="space-y-6">
       <div>
@@ -84,11 +88,11 @@ function ChapterHome({ chapterId, tab }: { chapterId: string; tab: ChapterTab })
   );
 }
 
-export default function ChapterPage({ chapterId, tab }: { chapterId: string; tab: ChapterTab }) {
+export default function ChapterPage({ chapterId, tab, guideTripId }: { chapterId: string; tab: ChapterTab; guideTripId?: string }) {
   const { status } = useSession();
-  if (status === 'signedOut') return <Landing continuePath={chapterPath(chapterId, tab)} />;
+  if (status === 'signedOut') return <Landing continuePath={guideTripId ? tripGuidePath(chapterId, guideTripId) : chapterPath(chapterId, tab)} />;
   if (status === 'loading' || status === 'joining') return <SessionWaiting />;
   if (status === 'error') return <SessionError />;
   if (status === 'notInLeague') return <NotInLeague />;
-  return <ChapterHome chapterId={chapterId} tab={tab} />;
+  return <ChapterHome chapterId={chapterId} tab={tab} guideTripId={guideTripId} />;
 }

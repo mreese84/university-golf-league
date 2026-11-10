@@ -11,6 +11,7 @@
 //   /next                             the new home: the landing page, or your chapter (becomes / at the switch)
 //   /finish-sign-in                   where email sign-in links land
 //   /founders                         a chapter's trips; /founders/selection, /founders/members
+//   /founders/2026-columbia/guide     a trip's Player's Guide in the chapter
 //   /me                               your profile
 // Firebase Hosting serves index.html at every address (firebase.json), and the app reads the path itself.
 
@@ -34,14 +35,15 @@ export type Route =
   | { page: 'nextHome' }
   | { page: 'finishSignIn' }
   | { page: 'chapter'; chapterId: string; tab: ChapterTab }
+  | { page: 'tripGuide'; chapterId: string; tripId: string }
   | { page: 'me' };
 
 export type ChapterTab = 'trips' | 'selection' | 'members';
 const CHAPTER_TABS: ChapterTab[] = ['trips', 'selection', 'members'];
 
-export type NextRoute = Extract<Route, { page: 'nextHome' | 'finishSignIn' | 'chapter' | 'me' }>;
+export type NextRoute = Extract<Route, { page: 'nextHome' | 'finishSignIn' | 'chapter' | 'tripGuide' | 'me' }>;
 
-export const isNextRoute = (route: Route): route is NextRoute => ['nextHome', 'finishSignIn', 'chapter', 'me'].includes(route.page);
+export const isNextRoute = (route: Route): route is NextRoute => ['nextHome', 'finishSignIn', 'chapter', 'tripGuide', 'me'].includes(route.page);
 
 export type HistoryRoute = Extract<Route, { page: 'history' | 'event' | 'match' | 'players' | 'player' | 'superlatives' }>;
 
@@ -62,6 +64,7 @@ export const finishSignInPath = () => `${BASE}finish-sign-in`;
 export const chapterPath = (chapterId: string, tab: ChapterTab = 'trips') =>
   `${BASE}${encodeURIComponent(chapterId)}${tab === 'trips' ? '' : `/${tab}`}`;
 export const mePath = () => `${BASE}me`;
+export const tripGuidePath = (chapterId: string, tripId: string) => `${BASE}${encodeURIComponent(chapterId)}/${encodeURIComponent(tripId)}/guide`;
 
 export const currentRoute = (): Route => parseRoute(window.location.pathname, window.location.hash);
 
@@ -85,6 +88,9 @@ export function parseRoute(pathname: string, hash = ''): Route {
   if (path === 'next') return { page: 'nextHome' };
   if (path === 'finish-sign-in') return { page: 'finishSignIn' };
   if (path === 'me') return { page: 'me' };
+  if (parts.length === 3 && isValidChapterId(parts[0]) && parts[1] && parts[2] === 'guide') {
+    return { page: 'tripGuide', chapterId: parts[0], tripId: parts[1] };
+  }
   if (parts.length === 1 && isValidChapterId(parts[0])) return { page: 'chapter', chapterId: parts[0], tab: 'trips' };
   if (parts.length === 2 && isValidChapterId(parts[0]) && CHAPTER_TABS.includes(parts[1] as ChapterTab) && parts[1] !== 'trips') {
     return { page: 'chapter', chapterId: parts[0], tab: parts[1] as ChapterTab };
