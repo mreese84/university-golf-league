@@ -43,7 +43,8 @@ export function oldData(history: HistoryData, withGuide: boolean): OldData {
       notes: [],
       sessions: [
         { day: 'Day 1', name: '2-Man Net Best Ball', points: 1, rules: ['Each side counts its best net score.'] },
-        { day: 'Day 2', name: 'Singles Net Match Play', points: 1, rules: [] },
+        // Worded differently from the history's "Singles Net Match Play", as in the real guide
+        { day: 'Day 2', name: 'Singles Match Play', points: 1, rules: ['Strokes come off the low player.'] },
         { day: 'Day 2', name: 'Team Aggregate', points: 2, rules: [] },
       ],
       pointsToWin: 6,

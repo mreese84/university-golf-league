@@ -331,6 +331,30 @@ function contentFor(
   const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
   let sessions: TripSession[];
   if (event) {
+    // The guide and the history may word a session differently ("Singles Match Play" in the guide,
+    // "Singles Net Match Play" in the history). Exact names match first; then names where one's words
+    // all appear in the other's, preferring a guide session on the same day.
+    const guideSessions = guide?.format.sessions ?? [];
+    const words = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
+    const similar = (a: string, b: string) => {
+      const [x, y] = [words(a), words(b)];
+      return x.length > 0 && y.length > 0 && (x.every((w) => y.includes(w)) || y.every((w) => x.includes(w)));
+    };
+    const dateOfDay = (day: string) => rounds.find((r) => r.label.startsWith(day))?.date;
+    const guideFor = new Map<string, number>(); // history session ID -> index of its guide session
+    const used = new Set<number>();
+    for (const matches of [sameName, similar]) {
+      for (const s of event.sessions) {
+        if (guideFor.has(s.id)) continue;
+        const date = event.rounds.find((r) => r.id === s.round)?.date;
+        const candidates = guideSessions.flatMap((g, i) => (!used.has(i) && matches(g.name, s.name) ? [i] : []));
+        const i = candidates.find((c) => date && dateOfDay(guideSessions[c].day) === date) ?? candidates[0];
+        if (i !== undefined) {
+          guideFor.set(s.id, i);
+          used.add(i);
+        }
+      }
+    }
     sessions = event.sessions.map((s) => ({
       id: s.id,
       round: roundIds.get(s.round) ?? s.round,
@@ -341,13 +365,11 @@ function contentFor(
       matches: s.matches,
       ...(s.strokes ? { strokes: s.strokes } : {}),
       ...(s.basis ? { basis: s.basis } : {}),
-      rules: guide?.format.sessions.find((g) => sameName(g.name, s.name))?.rules ?? [],
+      rules: guideFor.has(s.id) ? guideSessions[guideFor.get(s.id)!].rules : [],
     }));
-    for (const g of guide?.format.sessions ?? []) {
-      if (!event.sessions.some((s) => sameName(s.name, g.name))) {
-        warnings.push(`${tripId}: the guide's "${g.name}" session isn't in the history, so its rules are left out.`);
-      }
-    }
+    guideSessions.forEach((g, i) => {
+      if (!used.has(i)) warnings.push(`${tripId}: the guide's "${g.name}" session isn't in the history, so its rules are left out.`);
+    });
   } else {
     sessions = (guide?.format.sessions ?? []).map((s) => {
       const round = rounds.find((r) => r.label.startsWith(s.day)) ?? rounds[0];

@@ -100,8 +100,18 @@ describe('the move', () => {
     expect(guide.rounds[0].groups[0].playerIds.every((p) => p && !p.startsWith('m-'))).toBe(true);
     expect(guide.format.sessions.map((s) => [s.id, s.round])).toEqual([['fourball', 'r1'], ['singles', 'r2'], ['aggregate', 'r2']]);
     expect(guide.format.sessions[0].rules).toEqual(['Each side counts its best net score.']);
+    // "Singles Match Play" in the guide is the history's "Singles Net Match Play"; the history's name stays
+    expect(guide.format.sessions[1]).toMatchObject({ name: 'Singles Net Match Play', rules: ['Strokes come off the low player.'] });
     expect(guide.teams[0]).toMatchObject({ id: 'palmetto', house: 'The Palmetto House', captainId: 'mark-reese', emblem: 'palmetto' });
     expect(guide.teams[0].memberIds).toContain('jason-sudan');
+  });
+
+  it('matches guide sessions worded differently, and flags one that isn’t in the history', () => {
+    expect(run().warnings.filter((w) => w.includes('session'))).toEqual([]);
+    const old = oldData(true);
+    old.guides['t-columbia'].format.sessions.push({ day: 'Day 3', name: 'Closest to the Pin', points: 0, rules: ['Par 3s only.'] });
+    const { warnings } = buildFoundersChapter(old, history, readyPeople(old), 'dev');
+    expect(warnings).toContain(`2026-columbia: the guide's "Closest to the Pin" session isn't in the history, so its rules are left out.`);
   });
 
   it('keeps the draft, Fireball counts and handicaps, with UGL2’s four pre-trip changes', () => {
