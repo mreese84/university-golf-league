@@ -57,7 +57,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       skipSync.current = false;
       return;
     }
-    setDoc(DOC_REF, { members, trips });
+    // Fails on the live site while changes are paused for the switch (Phase 1, step 9)
+    setDoc(DOC_REF, { members, trips }).catch((err: unknown) => console.error(err));
   }, [members, trips, loading]);
 
   const setMembers = (m: Member[]) => setMembersState(m);

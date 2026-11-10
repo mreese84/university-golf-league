@@ -62,21 +62,26 @@ describe('trips and members (app/data)', () => {
     await assertSucceeds(read(signedOut(), 'app/data-dev'));
   });
 
-  it('only the admin can change', async () => {
+  it('the live copy is frozen for the switch, even for the admin; the dev copy isn’t', async () => {
     await assertFails(setDoc(doc(jeff(), 'app/data'), { members: [], trips: [] }));
     await assertFails(setDoc(doc(signedOut(), 'app/data'), { members: [], trips: [] }));
-    await assertSucceeds(setDoc(doc(admin(), 'app/data'), { members: [], trips: [] }));
+    await assertFails(setDoc(doc(admin(), 'app/data'), { members: [], trips: [] }));
+    await assertSucceeds(setDoc(doc(admin(), 'app/data-dev'), { members: [], trips: [] }));
+    await assertFails(setDoc(doc(jeff(), 'app/data-dev'), { members: [], trips: [] }));
   });
 });
 
 describe('guide-access emails (access/members)', () => {
-  it('only the admin can read or change', async () => {
+  it('only the admin can read; frozen for the switch', async () => {
     await assertFails(read(jeff(), 'access/members'));
     await assertFails(setDoc(doc(jeff(), 'access/members'), { byMember: {} }));
     await assertSucceeds(read(admin(), 'access/members'));
-    await assertSucceeds(setDoc(doc(admin(), 'access/members'), { byMember: {} }));
+    await assertFails(setDoc(doc(admin(), 'access/members'), { byMember: {} }));
   });
 });
+
+// The live collections ('') are frozen for the switch (Phase 1, step 9); the -dev ones aren't
+const writable = (suffix: string) => (suffix === '' ? assertFails : assertSucceeds);
 
 describe.each(['', '-dev'])('guides%s', (suffix) => {
   const path = `guides${suffix}/trip1`;
@@ -95,20 +100,20 @@ describe.each(['', '-dev'])('guides%s', (suffix) => {
     await assertFails(read(signedIn('jeff-uid', 'jeff@example.com', false), path));
   });
 
-  it('only the admin can change', async () => {
+  it('only the admin can change, and only the dev copy now', async () => {
     await assertFails(setDoc(doc(jeff(), path), { title: 'changed' }));
-    await assertSucceeds(setDoc(doc(admin(), path), { title: 'changed' }));
+    await writable(suffix)(setDoc(doc(admin(), path), { title: 'changed' }));
   });
 });
 
 describe.each(['', '-dev'])('pairings drafts (guideDrafts%s)', (suffix) => {
   const path = `guideDrafts${suffix}/trip1`;
 
-  it('only the admin can read or change', async () => {
+  it('only the admin can read or change, and only the dev copy now', async () => {
     await assertFails(read(jeff(), path));
     await assertFails(setDoc(doc(jeff(), path), { published: true }));
     await assertSucceeds(read(admin(), path));
-    await assertSucceeds(setDoc(doc(admin(), path), { published: true }));
+    await writable(suffix)(setDoc(doc(admin(), path), { published: true }));
   });
 });
 
@@ -122,8 +127,8 @@ describe.each(['', '-dev'])('Fireball counts (fireball%s)', (suffix) => {
     await assertFails(read(stranger(), other));
   });
 
-  it('a member logs only their own shots', async () => {
-    await assertSucceeds(setDoc(doc(jeff(), own), shot(), { merge: true }));
+  it('a member logs only their own shots (in the dev copy now)', async () => {
+    await writable(suffix)(setDoc(doc(jeff(), own), shot(), { merge: true }));
     await assertFails(setDoc(doc(jeff(), other), shot(), { merge: true }));
   });
 
@@ -131,8 +136,8 @@ describe.each(['', '-dev'])('Fireball counts (fireball%s)', (suffix) => {
     await assertFails(setDoc(doc(jeff(), own), { ...shot(), note: 'extra' }, { merge: true }));
   });
 
-  it('the admin can fix anyone’s, but nobody can delete', async () => {
-    await assertSucceeds(setDoc(doc(admin(), other), shot(), { merge: true }));
+  it('the admin can fix anyone’s (in the dev copy now), but nobody can delete', async () => {
+    await writable(suffix)(setDoc(doc(admin(), other), shot(), { merge: true }));
     await assertFails(deleteDoc(doc(admin(), other)));
   });
 });
@@ -145,9 +150,9 @@ describe.each(['', '-dev'])('bios (profiles%s)', (suffix) => {
     await assertFails(read(stranger(), path));
   });
 
-  it('only the admin writes, and only the bio', async () => {
+  it('only the admin writes, only the bio, and only the dev copy now', async () => {
     await assertFails(setDoc(doc(jeff(), path), { bio: 'Mine now', updatedAt: serverTimestamp() }));
-    await assertSucceeds(setDoc(doc(admin(), path), { bio: 'Still straight.', updatedAt: serverTimestamp() }));
+    await writable(suffix)(setDoc(doc(admin(), path), { bio: 'Still straight.', updatedAt: serverTimestamp() }));
     await assertFails(setDoc(doc(admin(), path), { bio: 'x', photo: 'y' }));
   });
 });
