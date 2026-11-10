@@ -1,7 +1,7 @@
 name: Tests
 
 # On every pull request and merge to main:
-# - code: type-checks everything and runs the code tests (npm test)
+# - code: type-checks and lints everything and runs the code tests (npm test)
 # - rules: runs the database rules tests (npm run test:rules) inside Firebase's local emulator, a
 #   throwaway database that never touches the live project. The emulator needs Java, which is set
 #   up here so no one has to install it on their own computer.
@@ -29,6 +29,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc -b
+      - run: npm run lint
       - run: npm test
 
   rules:

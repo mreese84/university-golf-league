@@ -1,6 +1,6 @@
 import type { Person, RosterEntry } from '../../data/types';
 import { JOINED_STATUSES } from '../../data/types';
-import type { LoadStatus } from '../../guides';
+import type { LoadStatus } from '../../data/hooks';
 import type { ChapterTrip } from '../chapterTrips';
 
 // Everything the chapter's tabs share, loaded once by the chapter page

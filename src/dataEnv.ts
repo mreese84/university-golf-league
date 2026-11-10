@@ -1,7 +1,7 @@
-// Which copy of the data this build reads and writes. The live site uses the live data; the dev
-// server (npm run dev) and preview links use the dev data (today's "-dev" collections), so trying
-// something out never changes what the live site shows. VITE_DATA=live or VITE_DATA=dev overrides
-// the default; the preview workflow sets dev.
+// Which copy of the data this build reads and writes. The live site uses the live data (envs/live);
+// the dev server (npm run dev) and preview links use the dev data (envs/dev, and the old "-dev"
+// collections), so trying something out never changes what the live site shows. VITE_DATA=live or
+// VITE_DATA=dev overrides the default; the preview workflow sets dev.
 
 import type { DataEnv } from './data/types';
 

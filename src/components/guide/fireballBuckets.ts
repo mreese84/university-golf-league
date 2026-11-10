@@ -1,9 +1,11 @@
 // Where Fireball shots are counted: each round of golf, then everything else
 
-import { OFF_COURSE } from '../../fireball';
 import type { PlayerGuide } from '../../types';
 import { clockHours, fmt } from './dates';
 import { zonedParts } from './timeZones';
+
+// Shots logged away from golf (nights out, the game) go in this bucket; the others are round IDs
+export const OFF_COURSE = 'off';
 
 export interface Bucket {
   id: string; // a round id, or OFF_COURSE

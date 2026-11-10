@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { isDevData } from '../dataEnv';
-import { followLink, mePath, nextHomePath } from '../routes';
+import { followLink, mePath, homePath } from '../routes';
 import UserAvatar from '../components/UserAvatar';
 import { useSession } from './sessionContext';
 
@@ -45,7 +45,7 @@ export function NextLayout({ children }: { children: ReactNode }) {
       {user && (
         <header className="bg-white border-b border-gray-100 shadow-sm">
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <a href={nextHomePath()} onClick={(e) => followLink(e, nextHomePath())} className="flex items-center gap-3 min-w-0 flex-1">
+            <a href={homePath()} onClick={(e) => followLink(e, homePath())} className="flex items-center gap-3 min-w-0 flex-1">
               <Badge size="small" />
               <span className="font-bold text-gray-900 tracking-tight truncate">University Golf League</span>
             </a>

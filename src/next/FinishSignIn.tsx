@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { emailLinkError, finishSignIn, isSignInLink, rememberedEmail } from '../emailLink';
-import { followLink, navigate, nextHomePath } from '../routes';
+import { followLink, navigate, homePath } from '../routes';
 import { safeContinuePath } from './continuePath';
 import { Notice, Waiting, buttonClass, inputClass } from './parts';
 
@@ -12,7 +12,7 @@ export default function FinishSignIn() {
   const [{ link, remembered, continuePath }] = useState(() => ({
     link: isSignInLink(),
     remembered: rememberedEmail(),
-    continuePath: safeContinuePath(new URLSearchParams(window.location.search).get('continue'), nextHomePath()),
+    continuePath: safeContinuePath(new URLSearchParams(window.location.search).get('continue'), homePath()),
   }));
   const [state, setState] = useState<State>(() => (!link ? { kind: 'notALink' } : remembered ? { kind: 'working' } : { kind: 'askEmail', error: null }));
   const [email, setEmail] = useState('');
@@ -50,7 +50,7 @@ export default function FinishSignIn() {
     return (
       <Notice title="Nothing to sign in with here">
         <p>This page finishes signing in from an email link, and this address isn't one.</p>
-        <a href={nextHomePath()} onClick={(e) => followLink(e, nextHomePath())} className="text-green-700 font-medium">
+        <a href={homePath()} onClick={(e) => followLink(e, homePath())} className="text-green-700 font-medium">
           Go to sign-in
         </a>
       </Notice>

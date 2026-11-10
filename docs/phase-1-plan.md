@@ -128,7 +128,7 @@ How the database enforces it:
 /admin                                chapters, requests and co-admins (admins only)
 ```
 
-Old addresses (`/2026-columbia/guide`, `/history/…`, `/players/…`, `/superlatives`) go to the same page in The Founder's Chapter. Chapter IDs can't be words the app uses (`history`, `players`, `admin`, `me` and so on).
+Old addresses (`/2026-columbia/guide`, `/history/…`, `/players/…`, `/superlatives`) go to the same page in The Founder's Chapter; the oldest guide links (`#/guide/<trip>`) go to `/founders`, since the old trip IDs aren't kept. Chapter IDs can't be words the app uses (`history`, `players`, `admin`, `me` and so on).
 
 ## Moving today's data into The Founder's Chapter
 
@@ -193,7 +193,7 @@ History pages read the database, per chapter, members only. Player pages, the Pl
 **9. The switch.**
 In three parts:
 - **9a, freeze.** Today's live data goes read-only (the `-dev` copies stay writable), and today's pages say changes are paused. Once it's deployed, Mark runs the Move-over on the live site, which writes The Founder's Chapter into the live data, and checks its counts.
-- **9b, switch.** The new pages go on for everyone and `/` becomes the new home; old addresses redirect into `/founders`; Export downloads the whole chapter as a backup; today's app code goes.
+- **9b, switch**, after the live Move-over. The new pages go on for everyone and `/` becomes the new home; old addresses redirect into `/founders`; organizers' Export chapter downloads everything in the chapter as a backup; today's app code goes. The Move-over page stays, commissioner only, at `/move-over`. Lint runs on every pull request.
 - **9c, cleanup**, once Mark is happy with 9b. The old rules, the history files and their build step, the Move-over page and today's `-dev` collections go. Dev data lives under `envs/dev` from then on.
 History is members-only now, so the repo goes private and the history files leave it. Profile photos stay in the repo until Phase 2 moves them to uploaded storage. The `ugl-selector` forwarder switches to the new address, since GitHub Pages stops with the repo private.
 

@@ -24,6 +24,7 @@ import {
   type Firestore,
 } from 'firebase/firestore';
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
+import { exportChapter } from '../../src/data/backup';
 import { pathsFor } from '../../src/data/paths';
 import type { DataEnv, Person, RosterEntry } from '../../src/data/types';
 import {
@@ -324,6 +325,38 @@ describe('Delete a trip, with everything in it', () => {
         if ((await getDoc(doc(db, path))).exists()) throw new Error(`${path} is still there`);
       }
     });
+  });
+});
+
+describe('Export the chapter as a backup', () => {
+  it('organizers and admins get everything in it, invitees, drafts and emails too', async () => {
+    const strip = (path: string) => path.slice(L.root.length + 1);
+    const expected = [
+      L.chapter('founders'),
+      L.rosterEntry('founders', id('ivy')),
+      L.person(id('ivy')),
+      L.contact(id('fred')),
+      L.trip('founders', TRIP),
+      L.guide('founders', TRIP),
+      L.draft('founders', TRIP),
+      L.match('founders', TRIP, 'fourball-1'),
+      L.handicap('founders', TRIP, id('fred')),
+      L.rsvp('founders', TRIP, id('fred')),
+      L.fireballEntry('founders', TRIP, id('fred')),
+      L.invite('founders', TRIP, id('ivy')),
+    ].map(strip);
+    for (const who of ['oscar', 'mark', 'jeff'] as const) {
+      const backup = await exportChapter(as(who), 'live', 'founders');
+      for (const path of expected) if (!(path in backup.docs)) throw new Error(`${who}'s export is missing ${path}`);
+      // Nothing from another chapter
+      if (Object.keys(backup.docs).some((path) => path.includes('second') || path.includes(id('sam')))) throw new Error(`${who}'s export has another chapter's data`);
+      if (backup.docs[strip(L.contact(id('fred')))] === undefined) throw new Error('no emails');
+    }
+  });
+
+  it('members and other chapters’ organizers can’t', async () => {
+    await no(exportChapter(as('fred'), 'live', 'founders'));
+    await no(exportChapter(as('olive'), 'live', 'founders'));
   });
 });
 
