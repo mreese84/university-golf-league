@@ -21,6 +21,8 @@ describe('addresses', () => {
     expect(parseRoute('/founders/members')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'members' });
     expect(parseRoute('/founders/trips')).toEqual({ page: 'home' }); // the trips tab is the chapter's own address
     expect(parseRoute('/me')).toEqual({ page: 'me' });
+    expect(parseRoute('/founders/2026-columbia/guide')).toEqual({ page: 'tripGuide', chapterId: 'founders', tripId: '2026-columbia' });
+    expect(parseRoute('/2026-columbia/guide')).toEqual({ page: 'guide', slug: '2026-columbia' }); // today's guide address, unchanged
   });
 
   it('never read a reserved word or an unknown address as a chapter', () => {

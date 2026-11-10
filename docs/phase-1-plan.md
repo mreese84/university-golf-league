@@ -185,7 +185,7 @@ Mark does, once: upgrade to Blaze and set a $5 budget alert (done), and turn on 
 Trips, Selection (active members), Members (roster with statuses and roles; organizers invite by email and see invitees, members don't), and My profile (bio, college, GHIN number). At `/founders`, `/founders/selection`, `/founders/members` and `/me`, on dev data until the switch. Adding someone sends no email: the organizer tells them which address to sign in with.
 
 **7. Guide in the chapter.**
-The guide, pairings, Fireball (it knows who's signed in, so no more "pick yourself") and player profiles. Importing a guide file stays until step 10.
+The guide, pairings, Fireball (it knows who's signed in, so no more "pick yourself") and player profiles. Importing a guide file stays until step 10. At `/founders/2026-columbia/guide`, linked from each trip on the Trips tab, on dev data until the switch.
 
 **8. History in the chapter.**
 History pages read the database, per chapter, members only. Player pages, the Players list and superlatives drop team logos; event and match pages keep that year's teams.
