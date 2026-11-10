@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { isDevData } from './dataEnv';
 import { db } from './firebase';
 import type { Member, Trip } from './types';
 
@@ -20,7 +21,8 @@ interface AppState {
   importData: (json: string) => void;
 }
 
-const DOC_REF = doc(db, 'app', import.meta.env.DEV ? 'data-dev' : 'data');
+// Trips and members: app/data in the live data, app/data-dev in the dev data
+const DOC_REF = doc(db, 'app', isDevData ? 'data-dev' : 'data');
 
 function generateId(): string {
   return crypto.randomUUID();

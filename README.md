@@ -1,80 +1,35 @@
-# React + TypeScript + Vite
+# University Golf League
 
-## Running Locally
+College Football. Average Golf. Unlimited Fireball.
+
+The league's web app: trips, the selection draw, the Player's Guide (with the Fireball tracker) and the competition history. Live at https://university-golf-league.web.app.
+
+## Running it locally
 
 ```sh
 npm install
 npm run dev
 ```
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The dev server needs the Firebase settings in `.env.local` (`VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID` and `VITE_GOOGLE_CLIENT_ID`).
 
-Currently, two official plugins are available:
+It uses the **dev data**, a separate copy in the same Firebase project, so nothing you do there changes the live site. A "Dev data" banner across the top is the reminder. Sign-in uses the same Google accounts as the live site.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tests
 
-## React Compiler
+| Command | What it checks | Where it runs |
+| --- | --- | --- |
+| `npm test` | Code: the selection draw, trip addresses, pairings, and that the history files load and add up | Anywhere |
+| `npm run test:rules` | The database rules (`firestore.rules`): who can read and change what | GitHub, on every pull request. It runs Firebase's local emulator, a throwaway database, which needs Java 21 or newer, so there's no need to run it on your own computer |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Neither one touches the live data.
 
-## Expanding the ESLint configuration
+## Deploys
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Merging to `main`** publishes the site to Firebase Hosting together with `firestore.rules`, and keeps the old GitHub Pages address forwarding to the new one. One-time setup: [docs/firebase-hosting-setup.md](docs/firebase-hosting-setup.md).
+- **Each pull request** publishes a preview, using the dev data, and comments its address on the pull request.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## More
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- [Phase 1 decisions](docs/phase-1-decisions.md) and [Phase 1 plan](docs/phase-1-plan.md)
+- [History data](history/README.md): the competition record and the Squabbit converter

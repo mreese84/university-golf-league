@@ -1,14 +1,15 @@
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collectionName } from './dataEnv';
 import { db } from './firebase';
 import { useLiveDoc } from './guides';
 import { history } from './history/data';
 import type { HistoryPlayer } from './history/types';
 
 // Player bios, written by the admin in the guide and readable by members only (see
-// firestore.rules), at profiles/{playerId}. Local dev uses profiles-dev. The rest of a profile comes
+// firestore.rules), at profiles/{playerId}. The dev data uses profiles-dev. The rest of a profile comes
 // from elsewhere: photo from the repo's history/players.json, college from the member list (Members
 // page), record and superlatives from the match data.
-const PROFILES = import.meta.env.DEV ? 'profiles-dev' : 'profiles';
+const PROFILES = collectionName('profiles');
 
 interface ProfileDoc {
   bio?: string;

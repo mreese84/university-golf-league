@@ -31,12 +31,14 @@ Mark switches the plan before step 5, when email-link sign-in arrives.
 - **Address:** a Hosting site named `university-golf-league` gives `https://university-golf-league.web.app` (if the name is free), with no `ugl-selector` in it. A custom domain can be added later.
 - **Clean addresses:** one rewrite rule serves the app at every address. Today the build writes a copy of the page for every guide and history address, and once trips and history are members-only, the build can't read them to write those copies anyway.
 - **Rules deploy with the site** from the repo, instead of being pasted into the Firebase console.
-- **Preview link:** pull requests publish to a preview address to try on a phone before merging.
+- **Preview link:** pull requests publish to a preview address to try on a phone before merging. From step 2, previews use dev data.
 - **Free** on either plan at this size.
 - **The repo can go private**, which it will at the switch (step 9). GitHub Pages needs a paid GitHub plan for private repos; Firebase Hosting doesn't care.
 - **Old links keep working:** until the switch, the GitHub Pages address forwards to the new one. When the repo goes private, GitHub Pages stops, so the `ugl-selector` forwarder points straight at the new address instead. The `mreese84.github.io/university-golf-league` address only went up on 2026-11-09, so few links use it.
 
 ## Database layout
+
+Everything below sits under `envs/live` for the live site, or `envs/dev` for development and previews (see [Live data, dev data and tests](#live-data-dev-data-and-tests)).
 
 ```
 config/admins                     { personIds }                  co-admins (the commissioner is fixed in the rules)
@@ -66,6 +68,23 @@ chapters/{chapterId}              { name, createdAt }
 - **Handicaps are their own records** so a player can enter their own. Members of the chapter can see them.
 - **Offline:** the app keeps a local copy of what it has read, so the guide opens with no signal and Fireball shots save when the phone reconnects (today that only works while the page stays open).
 
+## Live data, dev data and tests
+
+Nothing in Phase 1 needs Java on Mark's Mac, and no test touches the live data.
+
+| | Data it uses |
+| --- | --- |
+| The live site | Live data |
+| `npm run dev` on Mark's Mac | Dev data in the same Firebase project, as with today's `-dev` collections |
+| Preview links | Dev data, from step 2 |
+| Code tests (`npm test`) | None: made-up data in memory. They run anywhere, Mark's Mac included |
+| Rules tests (`npm run test:rules`) | None: a throwaway copy of the database (Firebase's emulator) on the computer running the tests, emptied every run. The emulator needs Java, so these run in GitHub on every pull request and in Claude's cloud sessions |
+
+- **Live and dev data stay apart.** In the new layout, everything sits under one of two roots: `envs/live` for the live site and `envs/dev` for development and previews. Today's layout keeps its `-dev` collections until the switch.
+- **The same rules cover both**, so dev data is just as protected, and what works on dev works live.
+- **Dev data starts as a copy of the live data.** On the dev server, the move-over reads today's live data and writes The Founder's Chapter into `envs/dev`. It only reads the live data, so the move can be rehearsed on real names and results without touching what the live site uses.
+- **Sign-in is shared:** the dev server and previews sign in with the same Google accounts as the live site, as today.
+
 ## Who can do what
 
 |  | Commissioner | Co-admin | Organizer | Member | Signed in, no chapter | Signed out |
@@ -89,7 +108,7 @@ How the database enforces it:
 - The email's `logins` record gives the person; the roster gives their chapters and role.
 - The commissioner is fixed in the rules by email, as today, so the league can never lock itself out. Co-admins come from `config/admins`, which only the commissioner can change.
 - Each check reads at most a few records, well inside Firestore's limit of 10.
-- Every cell of the table becomes a test, allowed and denied, run against Firebase's local emulator on each pull request.
+- Every cell of the table becomes a test, allowed and denied, run against a throwaway copy of the database on each pull request.
 
 ## Addresses
 
@@ -139,20 +158,19 @@ Firebase Hosting with one rewrite rule; `firebase.json`; GitHub Actions deploys 
 Mark does, once ([setup steps](firebase-hosting-setup.md)): create the Hosting site, create the deploy account, allow sign-in on the new address, and check that the rules in the console match `firestore.rules`.
 Done when the site serves from the new address, old links forward, and a pull request shows a preview link.
 
-**2. Tests and a local database.**
-Vitest, the Firebase emulators (database and sign-in), `npm test`, and tests on every pull request. Local development can run against the emulators with sample data instead of the `-dev` collections.
-Mark does, once: install Java (the emulator needs it).
+**2. Tests and dev data.**
+Vitest and `npm test` for code checks, which run anywhere. `npm run test:rules` for the database rules, which runs in GitHub on every pull request and in Claude's cloud sessions (it needs Java, which Mark's Mac won't have). Previews switch to dev data, and the deploy workflow's GitHub Actions move to current versions. Mark installs nothing.
 
 **3. Data model and rules.**
-Types and data hooks for the new layout, and rules for it, with a test for every cell of the role table. Today's rules stay as they are.
+Types and data hooks for the new layout, under `envs/live` and `envs/dev`, and rules for it, with a test for every cell of the role table. Today's rules stay as they are.
 
 **4. Move-over.**
 The move as plain code with the UGL2 comparison test, then the admin-only Move-over page.
-Done when The Founder's Chapter is in the database and the test passes.
+Done when the test passes and The Founder's Chapter is in the dev data, copied from the live data, for Mark to look over on the dev server.
 
 ### B. The Founder's Chapter goes live
 
-Steps 5 to 8 build the new pages at `/founders/…`, linked for admins only, while everyone else keeps using today's pages.
+Steps 5 to 8 build the new pages at `/founders/…` and try them on dev data, on the dev server and preview links. The live site doesn't link to them until the switch, so everyone keeps using today's pages.
 
 **5. Sign-in and landing page.**
 Email-link sign-in next to Google; the signed-out landing page (logo, tagline, sign-in); a sign-in finds its person, and an invitee's first sign-in completes their join; a "you're not in a chapter yet" page.
@@ -168,7 +186,7 @@ The guide, pairings, Fireball (it knows who's signed in, so no more "pick yourse
 History pages read the database, per chapter, members only. Player pages, the Players list and superlatives drop team logos; event and match pages keep that year's teams.
 
 **9. The switch.**
-Today's data goes read-only; a final move-over; old addresses redirect; everyone lands in The Founder's Chapter; Export downloads the whole chapter as a backup. Then the old code, old rules, history build step and `-dev` collections go.
+Today's data goes read-only; the move-over writes The Founder's Chapter into the live data; old addresses redirect; everyone lands in The Founder's Chapter; Export downloads the whole chapter as a backup. Then the old code, old rules, history build step and today's `-dev` collections go. Dev data lives under `envs/dev` from then on.
 History is members-only now, so the repo goes private and the history files leave it. Profile photos stay in the repo until Phase 2 moves them to uploaded storage. The `ugl-selector` forwarder switches to the new address, since GitHub Pages stops with the repo private.
 
 ### C. Edit everything in the app

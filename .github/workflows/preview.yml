@@ -2,8 +2,9 @@ name: Preview
 
 # Builds each pull request and publishes it to the site's "preview" channel, a separate address
 # that stays the same from one pull request to the next, so Google sign-in can be allowed on it
-# once. The workflow comments the address on the pull request. Previews use the live database,
-# like the live site. Setup: docs/firebase-hosting-setup.md
+# once. The workflow comments the address on the pull request. Previews use the dev data (see
+# src/dataEnv.ts), so trying a change never alters what the live site shows.
+# Setup: docs/firebase-hosting-setup.md
 
 on: pull_request
 
@@ -22,8 +23,8 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -35,6 +36,7 @@ jobs:
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_DATA: dev
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
