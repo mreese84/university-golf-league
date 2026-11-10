@@ -170,8 +170,8 @@ Vitest and `npm test` for code checks, which run anywhere. `npm run test:rules` 
 Types and data hooks for the new layout, under `envs/live` and `envs/dev`, and rules for it, with a test for every cell of the role table. Today's rules stay as they are.
 
 **4. Move-over.**
-The move as plain code with the UGL2 comparison test, then the admin-only Move-over page.
-Done when the test passes and The Founder's Chapter is in the dev data, copied from the live data, for Mark to look over on the dev server.
+The move as plain code with the UGL2 comparison test, then the commissioner-only Move-over page at `/move-over` (linked from the admin footer). Run from a preview link or the dev server, it writes the dev copy; it only reads today's data, and each run replaces the chapter with a fresh copy.
+Done when the test passes and The Founder's Chapter is in the dev data, copied from the live data, for Mark to look over.
 
 ### B. The Founder's Chapter goes live
 
