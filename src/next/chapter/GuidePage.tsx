@@ -1,15 +1,16 @@
-import { useRef, useState, type ReactNode } from 'react';
-import { doc, setDoc, writeBatch } from 'firebase/firestore';
+import { useState, type ReactNode } from 'react';
+import { deleteField, doc, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { FireballBoard } from '../../components/guide/Fireball';
 import { bucketsFor, currentBucket } from '../../components/guide/fireballBuckets';
-import GuideView from '../../components/guide/GuideView';
+import GuideView, { type GuideSection } from '../../components/guide/GuideView';
 import PairingsAdmin from '../../components/guide/PairingsAdmin';
 import { ProfileSheet } from '../../components/guide/PlayerProfile';
 import { tripTimeZone } from '../../components/guide/timeZones';
-import { applyDraftToContent, contentFromGuideFile, contentFromView, draftForView, guideForView } from '../../data/guide';
+import { applyDraftToContent, contentFromView, draftForView, guideForView } from '../../data/guide';
+import { applyFormat, applyRounds, applyTeams, emptyGuide, isEmptyGuide, withoutUndefined } from '../../data/guideEdit';
 import { useLiveCollection, useLiveDoc } from '../../data/hooks';
 import { pathsFor } from '../../data/paths';
-import type { Draft, FireballEntry, GuideContent, Handicap } from '../../data/types';
+import type { Draft, FireballEntry, GuideContent, Handicap, Match } from '../../data/types';
 import { addShots, saveDraft, updateProfile } from '../../data/writes';
 import { dataEnv } from '../../dataEnv';
 import { db } from '../../firebase';
@@ -18,23 +19,19 @@ import type { HistoryModel } from '../../history/model';
 import { chapterPath, followLink } from '../../routes';
 import type { PlayerGuide } from '../../types';
 import type { ChapterTrip } from '../chapterTrips';
-import { downloadJson } from '../download';
 import { Notice, Waiting, buttonClass } from '../parts';
 import { useChapterHistory } from './chapterHistory';
 import { joinedPeople, nameOf, photoUrl, type ChapterData } from './data';
+import DetailsEditor, { type TripDetails } from './guide/DetailsEditor';
+import FlightsEditor from './guide/FlightsEditor';
+import FootballEditor from './guide/FootballEditor';
+import FormatEditor from './guide/FormatEditor';
+import RoundsEditor from './guide/RoundsEditor';
+import TeamsEditor from './guide/TeamsEditor';
 
 const P = pathsFor(dataEnv);
 
 type Counts = Record<string, Record<string, number>>;
-
-// Light shape check so a wrong file can't be imported as a guide
-function isGuideFile(data: unknown): data is PlayerGuide {
-  const g = data as PlayerGuide;
-  return (
-    !!g && typeof g.title === 'string' && typeof g.location === 'string' && !!g.theme && !!g.format && !!g.football &&
-    [g.flights, g.teams, g.rounds, g.nightlife, g.format.sessions].every(Array.isArray)
-  );
-}
 
 // Fireball shots for the trip. Players log their own (the page knows who's signed in); organizers can
 // log for anyone.
@@ -113,7 +110,8 @@ function PlayerSheet({ data, history, personId, view, counts, onClose }: {
   );
 }
 
-// A trip's Player's Guide in the chapter: the guide, organizers' pairings and tools, Fireball and profiles
+// A trip's Player's Guide in the chapter: the guide, organizers' pairings and section editors,
+// Fireball and profiles
 export default function GuidePage({ data, tripId }: { data: ChapterData; tripId: string }) {
   const c = data.chapterId;
   const trip = data.trips.find((t) => t.id === tripId);
@@ -123,15 +121,20 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
   const { status: draftStatus, data: draft, retry } = useLiveDoc<Draft>(`${tripPath}/private`, 'draft', data.canManage ? key : null);
   const { items: handicapDocs } = useLiveCollection<Handicap>(P.handicaps(c, tripId), key);
   const { items: fireballDocs } = useLiveCollection<FireballEntry>(P.fireball(c, tripId), key);
+  const { items: matches } = useLiveCollection<Match>(P.matches(c, tripId), data.canManage ? key : null);
   const [profileOf, setProfileOf] = useState<string | null>(null);
+  const [editing, setEditing] = useState<GuideSection | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
   const { model: history } = useChapterHistory(data);
 
   const handicaps = Object.fromEntries(handicapDocs.map((h) => [h.id, h.index]));
   const counts: Counts = Object.fromEntries(fireballDocs.map((f) => [f.id, f.counts ?? {}]));
   const members = joinedPeople(data).map((p) => ({ id: p.id, name: p.name, college: data.people[p.id]?.college ?? undefined }));
+  // With results, what the record is built on (teams, rounds, sessions, scoring) is locked
+  const locked = matches.length > 0;
+  // Every round ID the trip has used, so a new round never takes an old one's Fireball counts
+  const usedRoundIds = [...new Set(Object.values(counts).flatMap((byRound) => Object.keys(byRound)))];
 
   const work = async (task: () => Promise<unknown>) => {
     setBusy(true);
@@ -140,28 +143,13 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
       await task();
     } catch (err) {
       console.error(err);
-      setError(err instanceof Error && err.message.startsWith('That file') ? err.message : "That didn't save. Check your connection and try again.");
+      setError("That didn't save. Check your connection and try again.");
     } finally {
       setBusy(false);
     }
   };
 
-  // Organizers import a guide file until the guide editors arrive (step 10). Published teams and
-  // groups are kept, from the draft.
-  const importFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file || !trip) return;
-    void work(async () => {
-      const parsed: unknown = JSON.parse(await file.text());
-      if (!isGuideFile(parsed)) throw new Error("That file isn't a Player's Guide.");
-      const imported = contentFromGuideFile(parsed);
-      const batch = writeBatch(db);
-      batch.set(doc(db, P.guide(c, tripId)), draft?.published ? applyDraftToContent(imported, draft) : imported);
-      batch.update(doc(db, tripPath), { title: parsed.title, theme: parsed.theme, ...(parsed.timeZone ? { timeZone: parsed.timeZone } : {}) });
-      await batch.commit();
-    });
-  };
+  const createGuide = () => void work(() => setDoc(doc(db, P.guide(c, tripId)), emptyGuide()));
 
   const deleteGuide = () => {
     if (!trip || !confirm(`Delete the Player's Guide for ${trip.location} (${trip.year})? Its pairings draft goes too.`)) return;
@@ -173,7 +161,25 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
     });
   };
 
-  const importInput = <input ref={fileInput} type="file" accept=".json" onChange={importFile} className="hidden" />;
+  // An editor's save: the guide, and the draft when teams or tee times moved its players
+  const saveContent = async (next: GuideContent, nextDraft?: Draft | null) => {
+    const batch = writeBatch(db);
+    batch.set(doc(db, P.guide(c, tripId)), withoutUndefined(next));
+    if (nextDraft && draft) batch.set(doc(db, P.draft(c, tripId)), withoutUndefined(nextDraft));
+    await batch.commit();
+    setEditing(null);
+  };
+
+  const saveDetails = async (details: TripDetails) => {
+    await updateDoc(doc(db, tripPath), {
+      title: details.title,
+      dates: details.dates,
+      theme: details.theme,
+      timeZone: details.timeZone ?? deleteField(),
+    });
+    setEditing(null);
+  };
+
   const back = (
     <a href={chapterPath(c)} onClick={(e) => followLink(e, chapterPath(c))} className="text-sm text-gray-500 hover:text-green-700 transition-colors">
       ← Trips
@@ -184,14 +190,13 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
   if (data.tripsStatus === 'loading' || status === 'loading') body = <Waiting>Loading…</Waiting>;
   else if (!trip) body = <Notice title="Trip not found"><p>Check the link, or pick the trip from the Trips tab.</p></Notice>;
   else if (status === 'denied' || status === 'error') body = <Notice title="Couldn't load the guide"><p>Check your connection and reload.</p></Notice>;
-  else if (!content) {
+  else if (!content || (!data.canManage && isEmptyGuide(content))) {
     body = data.canManage ? (
       <Notice title="No Player's Guide yet">
-        <p>Import a guide file (JSON) to create one for this trip. Editing guides in the app comes in a later step.</p>
-        <button onClick={() => fileInput.current?.click()} disabled={busy} className={buttonClass}>
-          {busy ? 'Importing…' : 'Import guide'}
+        <p>Start one, then fill in each part: details, flights, teams and houses, rounds and tee times, the format and points, football and nightlife.</p>
+        <button onClick={createGuide} disabled={busy} className={buttonClass}>
+          {busy ? 'Starting…' : "Start the Player's Guide"}
         </button>
-        {importInput}
       </Notice>
     ) : (
       <Notice title="The guide isn't ready yet"><p>Check back closer to the trip.</p></Notice>
@@ -200,20 +205,57 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
     // Organizers see the draft's teams and groups; members see them once published
     const shown = data.canManage && draft ? applyDraftToContent(content, draft) : content;
     const view = guideForView(trip, shown, handicaps);
+    const close = () => setEditing(null);
+    const editor = (section: GuideSection): ReactNode => {
+      switch (section) {
+        case 'details':
+          return <DetailsEditor trip={trip} onSave={saveDetails} onCancel={close} />;
+        case 'travel':
+          return <FlightsEditor flights={content.flights} onSave={(flights) => saveContent({ ...content, flights })} onCancel={close} />;
+        case 'lodging':
+          return (
+            <TeamsEditor
+              content={content}
+              locked={locked}
+              onSave={(teams) => {
+                const next = applyTeams(content, draft, teams);
+                return saveContent(next.content, next.draft);
+              }}
+              onCancel={close}
+            />
+          );
+        case 'rounds':
+          return (
+            <RoundsEditor
+              content={content}
+              locked={locked}
+              usedIds={usedRoundIds}
+              firstDay={trip.dates?.[0]}
+              onSave={(rounds) => {
+                const next = applyRounds(content, draft, rounds, locked);
+                return saveContent(next.content, next.draft);
+              }}
+              onCancel={close}
+            />
+          );
+        case 'format':
+          return <FormatEditor content={content} locked={locked} onSave={(format) => saveContent(applyFormat(content, format, locked))} onCancel={close} />;
+        case 'football':
+          return <FootballEditor football={content.football} onSave={(football) => saveContent({ ...content, football })} onCancel={close} />;
+      }
+    };
     body = (
       <>
+        {data.canManage && isEmptyGuide(content) && (
+          <p className="text-sm text-amber-800 bg-amber-50 rounded-xl px-4 py-2">
+            Members see “The guide isn't ready yet” until something's filled in. Use each part's Edit button.
+          </p>
+        )}
         {data.canManage && (
           <div className="flex items-center justify-end gap-4 text-xs text-gray-400">
-            <button onClick={() => downloadJson(guideForView(trip, content, handicaps), `ugl-guide-${tripId}.json`)} className="hover:text-green-600 cursor-pointer">
-              Export JSON
-            </button>
-            <button onClick={() => fileInput.current?.click()} disabled={busy} className="hover:text-green-600 cursor-pointer">
-              Replace from file
-            </button>
             <button onClick={deleteGuide} disabled={busy} className="hover:text-red-500 cursor-pointer">
               Delete guide
             </button>
-            {importInput}
           </div>
         )}
         {data.canManage && (
@@ -234,6 +276,7 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
           onOpenPlayer={setProfileOf}
           fireball={<ChapterFireball data={data} trip={trip} view={view} counts={counts} />}
           onSave={data.canManage ? (edited) => setDoc(doc(db, P.guide(c, tripId)), contentFromView(edited, content)) : undefined}
+          edit={data.canManage ? { open: editing, onOpen: setEditing, render: editor } : undefined}
         />
         {profileOf && (
           <PlayerSheet key={profileOf} data={data} history={history} personId={profileOf} view={view} counts={counts} onClose={() => setProfileOf(null)} />

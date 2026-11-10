@@ -1,12 +1,10 @@
 // The Player's Guide between the Phase 1 layout and today's guide components (src/data/guide.ts),
-// on UGL2 as the move-over left it (tests/fixtures/founders.ts), and on a guide imported from a file.
+// on UGL2 as the move-over left it (tests/fixtures/founders.ts).
 
 import { describe, expect, it } from 'vitest';
-import { applyDraftToContent, clearPairingsInContent, contentFromGuideFile, contentFromView, draftForView, guideForView, sessionTotal } from '../src/data/guide.ts';
+import { applyDraftToContent, clearPairingsInContent, contentFromView, draftForView, guideForView } from '../src/data/guide.ts';
 import type { GuideContent, Trip } from '../src/data/types.ts';
-import type { PlayerGuide } from '../src/types.ts';
 import { doc } from './fixtures/founders.ts';
-import guideFile from './fixtures/guide-file.json';
 
 const trip = doc<Trip>('chapters/founders/trips/2026-columbia');
 const content = doc<GuideContent>('chapters/founders/trips/2026-columbia/content/guide');
@@ -21,15 +19,6 @@ describe('the guide as the guide components read it', () => {
     ]);
     expect(view.format.pointsToWin).toBe(6);
     expect(view).toMatchObject({ title: '2026 UGL Invitational', location: 'Columbia, SC', timeZone: 'America/New_York', handicaps: { 'mark-reese': 16.6 } });
-  });
-
-  it('keeps an imported guide’s session points as the file had them', () => {
-    const file = guideFile as unknown as PlayerGuide;
-    const imported = contentFromGuideFile(file);
-    expect(imported.teams.every((t) => t.memberIds.length === 0)).toBe(true);
-    const view = guideForView(trip, imported, {});
-    expect(view.format.sessions.map((s) => [s.day, s.name, s.points])).toEqual(file.format.sessions.map((s) => [s.day, s.name, s.points]));
-    expect(imported.format.sessions.map(sessionTotal)).toEqual(file.format.sessions.map((s) => s.points));
   });
 });
 

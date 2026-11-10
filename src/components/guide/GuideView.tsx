@@ -1,8 +1,8 @@
-import { Fragment, useState, type CSSProperties, type ReactNode } from 'react';
+import { Fragment, type CSSProperties, type ReactNode } from 'react';
 import type { GuideFlight, GuideGroup, GuideRound, GuideTeam, Member, PlayerGuide } from '../../types';
 import Emblem, { EmblemDefs } from './Emblem';
 import FootballCard from './FootballCard';
-import { Card, Disclosure, Field, GlobeIcon, IconLink, MapPinIcon, Tbd, ZonedTime, inputClass } from './parts';
+import { Card, Disclosure, Field, GlobeIcon, IconLink, MapPinIcon, Tbd, ZonedTime } from './parts';
 import { airportTimeZone, tripTimeZone, zoneLabel } from './timeZones';
 import { dateRange, fmt, parseDate } from './dates';
 import { mapsUrl } from './links';
@@ -50,75 +50,27 @@ function trackingUrl(f: GuideFlight) {
   return new Date() < opens ? null : flightAwareUrl(f);
 }
 
-function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+function Section({ id, title, action, children }: { id: string; title: string; action?: ReactNode; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-16 space-y-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-(--guide)">{title}</h3>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-(--guide)">{title}</h3>
+        {action}
+      </div>
       {children}
     </section>
   );
 }
 
-// Admin-only form for a house's name and address
-function TeamEditor({
-  team,
-  onSave,
-  onCancel,
-}: {
-  team: GuideTeam;
-  onSave: (patch: Pick<GuideTeam, 'house' | 'address'>) => Promise<void>;
-  onCancel: () => void;
-}) {
-  const [house, setHouse] = useState(team.house);
-  const [address, setAddress] = useState(team.address);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const canSave = house.trim() && address.trim() && !saving;
-
-  const handleSave = async () => {
-    if (!canSave) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await onSave({ house: house.trim(), address: address.trim() });
-    } catch {
-      setError('Save failed. Check your connection and try again.');
-      setSaving(false);
-    }
-  };
-
+function EditButton({ onClick, label = 'Edit', className = 'text-(--guide)' }: { onClick: () => void; label?: string; className?: string }) {
   return (
-    <div className="space-y-3">
-      <label className="block">
-        <span className="block text-xs font-medium text-gray-500 mb-1">House name</span>
-        <input value={house} onChange={(e) => setHouse(e.target.value)} className={inputClass} />
-      </label>
-      <label className="block">
-        <span className="block text-xs font-medium text-gray-500 mb-1">Address</span>
-        <textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} className={inputClass} />
-      </label>
-      {error && <p className="text-xs text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleSave}
-          disabled={!canSave}
-          className="px-4 py-2 bg-green-600 text-white rounded-xl font-medium text-sm hover:bg-green-700
-                     disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-        >
-          {saving ? 'Saving…' : 'Save'}
-        </button>
-        <button
-          onClick={onCancel}
-          disabled={saving}
-          className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors cursor-pointer"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
+    <button onClick={onClick} className={`text-xs font-medium hover:underline cursor-pointer shrink-0 ${className}`}>
+      {label}
+    </button>
   );
 }
+
+const Empty = ({ children }: { children: ReactNode }) => <Card className="text-sm text-gray-400">{children}</Card>;
 
 // A player's name tag: a button that opens their profile when profiles are on, else plain text
 function NameTag({
@@ -157,32 +109,46 @@ function NameTag({
 
 // ── Main view ───────────────────────────────────────────────────
 
+// The parts of the guide organizers edit, each with its own editor (src/next/chapter/guide)
+export type GuideSection = 'details' | 'travel' | 'lodging' | 'format' | 'rounds' | 'football';
+
+export interface GuideEditing {
+  open: GuideSection | null; // the section being edited, shown in place of the section
+  onOpen: (section: GuideSection | null) => void;
+  render: (section: GuideSection) => ReactNode;
+}
+
 interface GuideViewProps {
   guide: PlayerGuide;
   members: Member[];
   attendeeCount: number;
-  onSave?: (guide: PlayerGuide) => Promise<void>; // admin only; enables editing
+  onSave?: (guide: PlayerGuide) => Promise<void>; // organizers: nightlife
+  edit?: GuideEditing; // organizers: an Edit button on each section
   fireball?: ReactNode; // the live Fireball tracker, placed after Golf
   onOpenPlayer?: (memberId: string) => void; // makes player names open their profile
 }
 
-export default function GuideView({ guide, members, attendeeCount, onSave, fireball, onOpenPlayer }: GuideViewProps) {
-  const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
+export default function GuideView({ guide, members, attendeeCount, onSave, edit, fireball, onOpenPlayer }: GuideViewProps) {
+  // One section at a time: the Edit buttons hide while one is open
+  const editing = (section: GuideSection) => edit?.open === section;
+  const editButton = (section: GuideSection, label?: string, className?: string) =>
+    edit && edit.open === null ? <EditButton onClick={() => edit.onOpen(section)} label={label} className={className} /> : null;
   const nameOf = (id: string) => members.find((m) => m.id === id)?.name ?? 'Unknown';
   const timeZone = tripTimeZone(guide);
   const teamOf = (id: string) => guide.teams.find((t) => t.memberIds.includes(id));
   const rosterSize = guide.teams.length ? Math.ceil(attendeeCount / guide.teams.length) : 0;
 
+  const hasGame = !!(guide.football.away.trim() || guide.football.home.trim() || guide.football.espnEventId);
   const sections = [
-    { id: 'travel', label: 'Travel', show: guide.flights.length > 0 },
-    { id: 'lodging', label: 'Lodging', show: guide.teams.length > 0 },
+    { id: 'travel', label: 'Travel', show: guide.flights.length > 0 || !!edit },
+    { id: 'lodging', label: 'Lodging', show: guide.teams.length > 0 || !!edit },
     { id: 'golf', label: 'Golf', show: true },
     { id: 'fireball', label: 'Fireball', show: !!fireball },
-    { id: 'football', label: 'Football', show: true },
+    { id: 'football', label: 'Football', show: hasGame || !!edit },
     { id: 'nightlife', label: 'Nightlife', show: guide.nightlife.length > 0 || !!onSave },
   ].filter((s) => s.show);
 
-  const allDates = [...guide.flights.map((f) => f.date), ...guide.rounds.map((r) => r.date)];
+  const allDates = guide.dates ?? [...guide.flights.map((f) => f.date), ...guide.rounds.map((r) => r.date)];
   const emblems = guide.teams.flatMap((t) => (t.emblem ? [t.emblem] : []));
 
   // Player pill in their team's color, with the team emblem so teams differ by shape too,
@@ -305,13 +271,17 @@ export default function GuideView({ guide, members, attendeeCount, onSave, fireb
           {emblems.includes('crescent') && <Emblem name="crescent" className="w-12 h-12 mt-2" />}
           {emblems.includes('palmetto') && <Emblem name="palmetto" className="w-32 h-32" />}
         </div>
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] opacity-70">Player's Guide</p>
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] opacity-70">Player's Guide</p>
+          {editButton('details', 'Edit details', 'text-(--guide-on) opacity-80 hover:opacity-100 relative')}
+        </div>
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mt-1">{guide.title}</h2>
         <p className="text-sm mt-1 opacity-85">
           {guide.location}
           {allDates.length > 0 && ` · ${dateRange(allDates)}`}
         </p>
       </div>
+      {editing('details') && edit!.render('details')}
 
       {/* Section menu */}
       <nav className="sticky top-0 z-10 -mx-4 px-4 py-2 bg-gray-50/90 backdrop-blur">
@@ -330,8 +300,13 @@ export default function GuideView({ guide, members, attendeeCount, onSave, fireb
       </nav>
 
       {/* Travel */}
-      {guide.flights.length > 0 && (
-        <Section id="travel" title="Official UGL Flights">
+      {(guide.flights.length > 0 || edit) && (
+        <Section id="travel" title="Official UGL Flights" action={editButton('travel')}>
+          {editing('travel') ? (
+            edit!.render('travel')
+          ) : guide.flights.length === 0 ? (
+            <Empty>No flights yet.</Empty>
+          ) : (
           <div className="grid sm:grid-cols-2 gap-3">
             {guide.flights.map((f) => {
               const trackUrl = trackingUrl(f);
@@ -383,41 +358,27 @@ export default function GuideView({ guide, members, attendeeCount, onSave, fireb
               );
             })}
           </div>
+          )}
         </Section>
       )}
 
       {/* Lodging */}
-      {guide.teams.length > 0 && (
-        <Section id="lodging" title="Team Houses">
+      {(guide.teams.length > 0 || edit) && (
+        <Section id="lodging" title="Team Houses" action={editButton('lodging')}>
+          {editing('lodging') ? (
+            edit!.render('lodging')
+          ) : guide.teams.length === 0 ? (
+            <Empty>No teams yet.</Empty>
+          ) : (
           <div className="grid sm:grid-cols-2 gap-3">
             {guide.teams.map((team: GuideTeam) => (
               <Card key={team.id} className="overflow-hidden !p-0">
                 <div className="flex items-center gap-3 px-5 py-4 text-white" style={{ background: team.color }}>
                   {team.emblem && <Emblem name={team.emblem} className="w-9 h-9 shrink-0" />}
-                  <p className="flex-1 min-w-0 font-semibold leading-tight">{team.house}</p>
-                  {onSave && editingTeamId !== team.id && (
-                    <button
-                      onClick={() => setEditingTeamId(team.id)}
-                      className="text-xs font-medium opacity-80 hover:opacity-100 shrink-0 cursor-pointer"
-                    >
-                      Edit
-                    </button>
-                  )}
+                  <p className="flex-1 min-w-0 font-semibold leading-tight">{team.house || team.name}</p>
                 </div>
                 <div className="p-5 space-y-4">
-                  {onSave && editingTeamId === team.id ? (
-                    <TeamEditor
-                      team={team}
-                      onCancel={() => setEditingTeamId(null)}
-                      onSave={async (patch) => {
-                        await onSave({
-                          ...guide,
-                          teams: guide.teams.map((t) => (t.id === team.id ? { ...t, ...patch } : t)),
-                        });
-                        setEditingTeamId(null);
-                      }}
-                    />
-                  ) : (
+                  {team.address && (
                     <a
                       href={mapsUrl(team.address)}
                       target="_blank"
@@ -475,20 +436,36 @@ export default function GuideView({ guide, members, attendeeCount, onSave, fireb
               </Card>
             ))}
           </div>
+          )}
         </Section>
       )}
 
       {/* Golf: format overview, each day's card with its rules, then points */}
       <Section id="golf" title="Golf">
-        <Card>
-          <h4 className="text-lg font-semibold text-gray-800">{format.name}</h4>
-          <p className="text-sm text-gray-600 mt-1">{format.summary}</p>
-          {format.notes.map((note, i) => (
-            <p key={i} className="text-sm text-gray-500 mt-2">{note}</p>
-          ))}
-        </Card>
+        {editing('format') ? (
+          edit!.render('format')
+        ) : (
+          <Card>
+            <div className="flex items-start justify-between gap-3">
+              <h4 className="text-lg font-semibold text-gray-800">{format.name || <Tbd>No format yet</Tbd>}</h4>
+              {editButton('format', 'Edit format and points')}
+            </div>
+            {format.summary && <p className="text-sm text-gray-600 mt-1">{format.summary}</p>}
+            {format.notes.map((note, i) => (
+              <p key={i} className="text-sm text-gray-500 mt-2">{note}</p>
+            ))}
+          </Card>
+        )}
 
-        {guide.rounds.map((round) => {
+        {edit && !editing('rounds') && (guide.rounds.length === 0 || edit.open === null) && (
+          <div className="flex items-center justify-between gap-3 px-1">
+            <p className="text-sm text-gray-400">{guide.rounds.length === 0 ? 'No rounds yet.' : ''}</p>
+            {editButton('rounds', guide.rounds.length === 0 ? 'Add rounds' : 'Edit rounds and tee times')}
+          </div>
+        )}
+        {editing('rounds') && edit!.render('rounds')}
+
+        {!editing('rounds') && guide.rounds.map((round) => {
           const sessions = sessionsFor(round);
           return (
             <Fragment key={round.id}>
@@ -594,15 +571,17 @@ export default function GuideView({ guide, members, attendeeCount, onSave, fireb
       )}
 
       {/* Football */}
-      <Section id="football" title="Football">
-        <FootballCard
-          football={guide.football}
-          timeZone={timeZone}
-          onSaveEventId={
-            onSave && ((espnEventId) => onSave({ ...guide, football: { ...guide.football, espnEventId } }))
-          }
-        />
-      </Section>
+      {(hasGame || edit) && (
+        <Section id="football" title="Football" action={editButton('football')}>
+          {editing('football') ? (
+            edit!.render('football')
+          ) : hasGame ? (
+            <FootballCard football={guide.football} timeZone={timeZone} />
+          ) : (
+            <Empty>No game yet.</Empty>
+          )}
+        </Section>
+      )}
 
       {/* Nightlife (admins can add and edit nights here) */}
       {(guide.nightlife.length > 0 || onSave) && (
