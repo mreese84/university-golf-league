@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useAuth } from '../auth';
+import { isDevData } from '../dataEnv';
 import GoogleSignInButton from './GoogleSignInButton';
 import UserAvatar from './UserAvatar';
 
@@ -25,6 +26,13 @@ export default function Layout({ activeTab, onTabChange, showHistory, children }
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* On the dev server and preview links, so they're never mistaken for the live site */}
+      {isDevData && (
+        <p className="bg-amber-100 text-amber-900 text-xs text-center px-4 py-1.5">
+          <span className="font-semibold">Dev data.</span> Changes here don't affect the live site.
+        </p>
+      )}
+
       {/* Header */}
       <header className="bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-5 flex items-center gap-4">

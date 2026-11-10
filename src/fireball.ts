@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { collection, doc, increment, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collectionName } from './dataEnv';
 import { db } from './firebase';
 import { retryDelay, statusFor, type LoadStatus } from './guides';
 
 // Fireball shots per player per trip, members only (see firestore.rules): one document per
 // player at fireball/{tripId}/players/{memberId}, so players logging at once never collide.
-// Local dev uses fireball-dev.
-const FIREBALL = import.meta.env.DEV ? 'fireball-dev' : 'fireball';
+// The dev data uses fireball-dev.
+const FIREBALL = collectionName('fireball');
 
 // Shots logged away from golf (nights out, the game) go in this bucket; the others are round ids
 export const OFF_COURSE = 'off';

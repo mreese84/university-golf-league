@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { deleteField, doc, onSnapshot, setDoc, writeBatch } from 'firebase/firestore';
+import { collectionName } from './dataEnv';
 import { db } from './firebase';
 import type { GuideDraft, PlayerGuide } from './types';
 
 // Guides are members-only, so they live outside the public app/data doc (see firestore.rules)
-const GUIDES = import.meta.env.DEV ? 'guides-dev' : 'guides';
+const GUIDES = collectionName('guides');
 // Draft teams and pairings are admin-only until published into the guide
-const DRAFTS = import.meta.env.DEV ? 'guideDrafts-dev' : 'guideDrafts';
+const DRAFTS = collectionName('guideDrafts');
 const ACCESS = ['access', 'members'] as const;
 
 export type LoadStatus = 'loading' | 'ready' | 'missing' | 'denied' | 'error';

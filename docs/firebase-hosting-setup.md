@@ -44,6 +44,8 @@ From now on, every deploy publishes `firestore.rules` from the repo, replacing w
 
 The preview address stays the same as long as a preview is published at least every 30 days. If it changes, add the new one as in step 3.
 
+Previews use the dev data, not the live data, so trying something there never changes the live site. A "Dev data" banner across the top says so.
+
 ## Later: the `ugl-selector` forwarder
 
 The old `ugl-selector` repo forwards to the GitHub Pages address, which now forwards to the new one. That works, but when this repo goes private (step 9), GitHub Pages stops, so before then `ugl-selector` should point straight at `https://university-golf-league.web.app`.
