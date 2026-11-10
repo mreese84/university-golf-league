@@ -1,4 +1,4 @@
-import type { Member, Trip } from './types';
+import type { Trip } from './types';
 
 /**
  * Get entry count for a member at a given trip index.
@@ -43,33 +43,4 @@ export function buildWeightedPool(
     memberId,
     entries: getEntryCount(memberId, trips, currentTripIndex),
   }));
-}
-
-/** Names excluded from the actual draw (still shown as eligible in the UI). */
-const DRAW_EXCLUDED_NAMES: ReadonlySet<string> = new Set(['Adam C']);
-
-/**
- * Draw a winner from the weighted pool using a flat array approach.
- */
-export function drawWinner(
-  trips: Trip[],
-  currentTripIndex: number,
-  members: Member[] = []
-): string {
-  const pool = buildWeightedPool(trips, currentTripIndex);
-  const excludedIds = new Set(
-    members.filter((m) => DRAW_EXCLUDED_NAMES.has(m.name)).map((m) => m.id)
-  );
-  const flat: string[] = [];
-  for (const { memberId, entries } of pool) {
-    if (excludedIds.has(memberId)) continue;
-    for (let i = 0; i < entries; i++) {
-      flat.push(memberId);
-    }
-  }
-  if (flat.length === 0) {
-    throw new Error('No eligible members to draw from');
-  }
-  const index = Math.floor(Math.random() * flat.length);
-  return flat[index];
 }

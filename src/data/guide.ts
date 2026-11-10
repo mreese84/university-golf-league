@@ -2,7 +2,8 @@
 // the shape today's guide components read (PlayerGuide, GuideDraft), so those components carry over.
 
 import type { GuideDraft, GuideSession, PlayerGuide } from '../types';
-import type { Draft, GuideContent, Trip, TripSession } from './types';
+import { slugify } from './ids';
+import type { Draft, GuideContent, Trip, TripRound, TripSession } from './types';
 
 // The guide shows each session's total points; they're stored per match
 export const sessionTotal = (s: TripSession) => (s.matches > 0 ? s.points * s.matches : s.points);
@@ -78,5 +79,32 @@ export function clearPairingsInContent(content: GuideContent): GuideContent {
     ...content,
     teams: content.teams.map((t) => ({ ...t, memberIds: [], captainId: null })),
     rounds: content.rounds.map((r) => ({ ...r, groups: r.groups.map((g) => ({ ...g, playerIds: [] })) })),
+  };
+}
+
+// A guide file (the Player's Guide JSON that Export JSON downloads) as a trip's guide, with no one on
+// a team or in a group yet: for organizers importing a guide until the guide editors arrive (step 10).
+// Sessions go on the rounds the guide shows them on: the first day's sessions on the first
+// competition round, and so on. The file gives each session's total points; they're stored per match.
+export function contentFromGuideFile(guide: PlayerGuide): GuideContent {
+  const rounds: TripRound[] = guide.rounds
+    .map((r) => ({ ...r, groups: r.groups.map((g) => ({ ...g, playerIds: g.playerIds.map(() => null) })) }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const sessionDays = [...new Set(guide.format.sessions.map((s) => s.day))];
+  const competitionRounds = rounds.filter((r) => r.matchType !== 'casual');
+  const sessions: TripSession[] = guide.format.sessions.map((s) => {
+    const round = competitionRounds[sessionDays.indexOf(s.day)] ?? rounds.find((r) => r.label.startsWith(s.day)) ?? rounds[0];
+    const id = slugify(s.name) || 'session';
+    const perGroup = round?.matchType === 'singles' ? 2 : round?.matchType === 'fourball' ? 1 : 0;
+    const matches = (round?.groups.length ?? 0) * perGroup;
+    return { id, round: round?.id ?? '', name: s.name, format: id, scoring: 'match', points: matches > 0 ? s.points / matches : s.points, matches, rules: s.rules };
+  });
+  return {
+    flights: guide.flights,
+    teams: guide.teams.map((t) => ({ ...t, memberIds: [], captainId: null })),
+    rounds,
+    format: { name: guide.format.name, summary: guide.format.summary, notes: guide.format.notes, sessions },
+    football: guide.football,
+    nightlife: guide.nightlife,
   };
 }

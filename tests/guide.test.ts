@@ -1,28 +1,15 @@
 // The Player's Guide between the Phase 1 layout and today's guide components (src/data/guide.ts),
-// on UGL2 as the move-over leaves it, and on a guide imported from a file.
+// on UGL2 as the move-over left it (tests/fixtures/founders.ts), and on a guide imported from a file.
 
-import { resolve } from 'node:path';
-import { beforeAll, describe, expect, it } from 'vitest';
-import { applyDraftToContent, clearPairingsInContent, contentFromView, draftForView, guideForView, sessionTotal } from '../src/data/guide.ts';
+import { describe, expect, it } from 'vitest';
+import { applyDraftToContent, clearPairingsInContent, contentFromGuideFile, contentFromView, draftForView, guideForView, sessionTotal } from '../src/data/guide.ts';
 import type { GuideContent, Trip } from '../src/data/types.ts';
-import type { HistoryData } from '../src/history/types.ts';
-import { buildFoundersChapter, contentFromGuideFile } from '../src/moveOver/transform.ts';
-import { loadHistory, publicHistory } from '../scripts/loadHistory.ts';
-import { oldData, readyPeople } from './fixtures/moveOver.ts';
+import type { PlayerGuide } from '../src/types.ts';
+import { doc } from './fixtures/founders.ts';
+import guideFile from './fixtures/guide-file.json';
 
-let history: HistoryData;
-let trip: Trip;
-let content: GuideContent;
-
-beforeAll(async () => {
-  const { data } = await loadHistory(resolve(import.meta.dirname, '..', 'history'));
-  history = publicHistory(data, false);
-  const old = oldData(history, true);
-  const { docs } = buildFoundersChapter(old, history, readyPeople(history, old), 'dev');
-  const at = (path: string) => docs.find((d) => d.path === path)!.data;
-  trip = at('envs/dev/chapters/founders/trips/2026-columbia') as unknown as Trip;
-  content = at('envs/dev/chapters/founders/trips/2026-columbia/content/guide') as unknown as GuideContent;
-});
+const trip = doc<Trip>('chapters/founders/trips/2026-columbia');
+const content = doc<GuideContent>('chapters/founders/trips/2026-columbia/content/guide');
 
 describe('the guide as the guide components read it', () => {
   it('shows each session’s total points on its day, and what wins', () => {
@@ -37,7 +24,7 @@ describe('the guide as the guide components read it', () => {
   });
 
   it('keeps an imported guide’s session points as the file had them', () => {
-    const file = oldData(history, true).guides['t-columbia'];
+    const file = guideFile as unknown as PlayerGuide;
     const imported = contentFromGuideFile(file);
     expect(imported.teams.every((t) => t.memberIds.length === 0)).toBe(true);
     const view = guideForView(trip, imported, {});

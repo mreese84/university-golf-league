@@ -1,0 +1,112 @@
+{
+  "title": "2026 UGL Invitational",
+  "location": "Columbia, SC",
+  "timeZone": "America/New_York",
+  "theme": {
+    "primary": "#041E42",
+    "onPrimary": "#ffffff"
+  },
+  "flights": [],
+  "teams": [
+    {
+      "id": "palmetto",
+      "name": "Team Palmetto",
+      "house": "The Palmetto House",
+      "address": "1 Palmetto Way",
+      "color": "#041E42",
+      "emblem": "palmetto",
+      "memberIds": [],
+      "captainId": null
+    },
+    {
+      "id": "crescent",
+      "name": "Team Crescent",
+      "house": "The Crescent House",
+      "address": "2 Crescent Rd",
+      "color": "#3A5A8C",
+      "emblem": "crescent",
+      "memberIds": [],
+      "captainId": null
+    }
+  ],
+  "rounds": [
+    {
+      "id": "r1",
+      "date": "2026-11-06",
+      "course": "Aiken Golf Club",
+      "label": "Day 1 · 2-Man Net Best Ball",
+      "matchType": "fourball",
+      "groups": [
+        {
+          "teeTime": "10:00 AM",
+          "playerIds": [
+            "m-mark-reese",
+            "m-justin-thompson",
+            "m-jeff-siarto",
+            "m-jason-sudan"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r2",
+      "date": "2026-11-07",
+      "course": "Columbia Country Club",
+      "label": "Day 2 · Singles",
+      "matchType": "singles",
+      "groups": [
+        {
+          "teeTime": "9:00 AM",
+          "playerIds": []
+        }
+      ]
+    },
+    {
+      "id": "r3",
+      "date": "2026-11-08",
+      "course": "Solina Golf Club",
+      "label": "Casual round",
+      "matchType": "casual",
+      "groups": []
+    }
+  ],
+  "format": {
+    "name": "Modified Ryder Cup",
+    "summary": "Two teams, two days.",
+    "notes": [],
+    "sessions": [
+      {
+        "day": "Day 1",
+        "name": "2-Man Net Best Ball",
+        "points": 1,
+        "rules": [
+          "Each side counts its best net score."
+        ]
+      },
+      {
+        "day": "Day 2",
+        "name": "Singles Match Play",
+        "points": 1,
+        "rules": [
+          "Strokes come off the low player."
+        ]
+      },
+      {
+        "day": "Day 2",
+        "name": "Team Aggregate",
+        "points": 2,
+        "rules": []
+      }
+    ],
+    "pointsToWin": 6
+  },
+  "football": {
+    "away": "Texas A&M",
+    "home": "South Carolina",
+    "date": "2026-11-07",
+    "kickoff": "7:30 PM ET",
+    "line": null,
+    "venue": "Williams-Brice Stadium"
+  },
+  "nightlife": []
+}

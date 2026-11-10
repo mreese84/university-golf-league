@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildWeightedPool, drawWinner, getEligibleMemberIds, getEntryCount } from './eligibility';
+import { buildWeightedPool, getEligibleMemberIds, getEntryCount } from './eligibility';
 import type { Trip } from './types';
 
 const trip = (id: string, attendeeIds: string[], selectedById: string): Trip => ({
@@ -33,9 +33,5 @@ describe('selection draw', () => {
       { memberId: 'c', entries: 3 },
       { memberId: 'd', entries: 1 },
     ]);
-  });
-
-  it('draws someone from the pool', () => {
-    for (let i = 0; i < 20; i++) expect(['b', 'c', 'd']).toContain(drawWinner(trips, 2));
   });
 });

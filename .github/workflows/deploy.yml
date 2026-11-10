@@ -1,8 +1,7 @@
 name: Deploy
 
 # On every merge to main: build the site and publish it to Firebase Hosting together with the
-# database rules (firestore.rules), then point the old GitHub Pages address at the new one.
-# Setup: docs/firebase-hosting-setup.md
+# database rules (firestore.rules). Setup: docs/firebase-hosting-setup.md
 
 on:
   push:
@@ -11,8 +10,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: deploy
@@ -47,22 +44,3 @@ jobs:
           --non-interactive
         env:
           PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-
-  # Runs only after the Firebase deploy succeeds, so the old address never forwards to an empty site
-  forward-old-address:
-    needs: firebase
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v7
-      - run: |
-          mkdir _site
-          cp forwarder/index.html _site/index.html
-          cp forwarder/index.html _site/404.html
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: _site
-      - id: deployment
-        uses: actions/deploy-pages@v5

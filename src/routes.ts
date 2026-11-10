@@ -7,7 +7,6 @@
 //   /founders/history                 the chapter's events; /founders/history/2026-columbia, and
 //                                     /founders/history/2026-columbia/singles-1 for one match
 //   /founders/players, /founders/players/jeff-siarto, /founders/superlatives
-//   /move-over                        moving the old data into The Founder's Chapter (admin only)
 // Addresses from before the switch (Phase 1, step 9) redirect into The Founder's Chapter:
 //   /2026-columbia/guide              → /founders/2026-columbia/guide
 //   /history…, /players…, /superlatives → the same under /founders
@@ -40,11 +39,9 @@ export type Route =
   | { page: 'me' }
   | { page: 'chapter'; chapterId: string; tab: ChapterTab; history?: HistoryRoute }
   | { page: 'tripGuide'; chapterId: string; tripId: string }
-  | { page: 'moveOver' }
   | { page: 'redirect'; to: string }; // an old or unknown address, replaced on arrival
 
 export const homePath = () => BASE;
-export const moveOverPath = () => `${BASE}move-over`;
 export const finishSignInPath = () => `${BASE}finish-sign-in`;
 export const chapterPath = (chapterId: string, tab: ChapterTab = 'trips') =>
   `${BASE}${encodeURIComponent(chapterId)}${tab === 'trips' ? '' : `/${tab}`}`;
@@ -100,7 +97,6 @@ export function parseRoute(pathname: string, hash = ''): Route {
 
   if (path === 'finish-sign-in') return { page: 'finishSignIn' };
   if (path === 'me') return { page: 'me' };
-  if (path === 'move-over') return { page: 'moveOver' };
 
   // Old addresses
   if (path === 'next') return redirect(homePath());

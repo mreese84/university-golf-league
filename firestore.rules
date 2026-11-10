@@ -1,82 +1,13 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'reese296@gmail.com';
-    }
-
-    // Signed in with a verified Google email that's on the member list (access/members)
-    function isMember() {
-      return request.auth != null
-        && request.auth.token.email_verified == true
-        && request.auth.token.email.lower() in get(/databases/$(database)/documents/access/members).data.byMember.values();
-    }
-
-    // The signed-in user is this member: their email is the one on the member list for that id
-    function isSelf(memberId) {
-      return request.auth != null
-        && request.auth.token.email_verified == true
-        && get(/databases/$(database)/documents/access/members).data.byMember.get(memberId, '') == request.auth.token.email.lower();
-    }
-
-    // ── Frozen for the switch (Phase 1, step 9) ──
-    // Today's live data can be read but not changed, so the move into The Founder's Chapter copies it
-    // exactly and nothing is lost afterwards. The local-dev (-dev) copies stay as they were.
-
-    // Public trip and member data (live site: data, frozen; local dev: data-dev)
-    match /app/{docId} {
-      allow read: if true;
-      allow write: if isAdmin() && docId != 'data';
-    }
-
-    // Member emails for guide access: admin only, frozen
-    match /access/members {
-      allow read: if isAdmin();
-    }
-
-    // Player's Guides, one per trip, members only (live site: guides, frozen; local dev: guides-dev)
-    match /guides/{tripId} {
-      allow read: if isAdmin() || isMember();
-    }
-    match /guides-dev/{tripId} {
-      allow read: if isAdmin() || isMember();
-      allow write: if isAdmin();
-    }
-
-    // Draft teams, pairings, and handicaps: admin only (live site: guideDrafts, frozen; local dev: guideDrafts-dev)
-    match /guideDrafts/{tripId} {
-      allow read: if isAdmin();
-    }
-    match /guideDrafts-dev/{tripId} {
-      allow read, write: if isAdmin();
-    }
-
-    // Fireball shots, one doc per player per trip: members see everyone's; each player changes
-    // only their own (the admin can fix anyone's). Live site: fireball, frozen; local dev: fireball-dev.
-    match /fireball/{tripId}/players/{memberId} {
-      allow read: if isAdmin() || isMember();
-    }
-    match /fireball-dev/{tripId}/players/{memberId} {
-      allow read: if isAdmin() || isMember();
-      allow create, update: if (isAdmin() || isSelf(memberId))
-        && request.resource.data.keys().hasOnly(['counts', 'updatedAt']);
-    }
-
-    // Player bios for the guide's profiles: members read, the admin writes.
-    // Live site: profiles, frozen; local dev: profiles-dev.
-    match /profiles/{playerId} {
-      allow read: if isAdmin() || isMember();
-    }
-    match /profiles-dev/{playerId} {
-      allow read: if isAdmin() || isMember();
-      allow create, update: if isAdmin() && request.resource.data.keys().hasOnly(['bio', 'updatedAt']);
-    }
-
-    // ══ Phase 1 layout ══════════════════════════════════════════════════════════════════════
-    // Everything below lives under envs/live (the live site) or envs/dev (the dev server and preview
-    // links), with the same rules for both. Who can do what: docs/phase-1-plan.md. Tests:
-    // tests/rules/chapters.rules.test.ts. The helpers in src/data/writes.ts make the saves that
-    // touch several documents at once, which these rules expect to arrive together.
+    // Everything lives under envs/live (the live site) or envs/dev (the dev server and preview
+    // links), with the same rules for both; anything else is closed. The collections from before
+    // chapters (app, access, guides, guideDrafts, fireball, profiles and their -dev copies) are
+    // closed too: their data stays in the database, readable in the Firebase console, until it's
+    // deleted there. Who can do what: docs/phase-1-plan.md. Tests: tests/rules/. The helpers in
+    // src/data/writes.ts make the saves that touch several documents at once, which these rules
+    // expect to arrive together.
     match /envs/{env} {
 
       // ── Paths ──

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import MoveOverPage from './components/MoveOverPage';
 import ChapterPage from './next/ChapterPage';
 import FinishSignIn from './next/FinishSignIn';
 import HomePage from './next/HomePage';
@@ -38,7 +37,6 @@ export default function App() {
         {route.page === 'me' && <ProfilePage />}
         {route.page === 'chapter' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab={route.tab} history={route.history} />}
         {route.page === 'tripGuide' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab="trips" guideTripId={route.tripId} />}
-        {route.page === 'moveOver' && <MoveOverPage />}
       </NextLayout>
     </SessionProvider>
   );

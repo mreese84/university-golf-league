@@ -1,0 +1,1389 @@
+{
+  "chapters/founders": {
+    "name": "The Founder's Chapter"
+  },
+  "people/adam-cowdin": {
+    "name": "Adam Cowdin",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": "profiles/adam-cowdin.jpg",
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/greg-dundas": {
+    "name": "Greg Dundas",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": "profiles/greg-dundas.jpg",
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/jason-sudan": {
+    "name": "Jason Sudan",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": null,
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/jeff-siarto": {
+    "name": "Jeff Siarto",
+    "college": null,
+    "bio": "Hits it straight.",
+    "ghin": null,
+    "photo": "profiles/jeff-siarto.jpg",
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/john-collins": {
+    "name": "John Collins",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": null,
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/justin-thompson": {
+    "name": "Justin Thompson",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": "profiles/justin-thompson.jpg",
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/mark-reese": {
+    "name": "Mark Reese",
+    "college": "Texas Tech",
+    "bio": null,
+    "ghin": null,
+    "photo": "profiles/mark-reese.jpg",
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": [
+      "founders"
+    ]
+  },
+  "people/patrick-bohac": {
+    "name": "Patrick Bohac",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": "profiles/patrick-bohac.jpg",
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/ricky-menchaca": {
+    "name": "Ricky Menchaca",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": "profiles/ricky-menchaca.jpg",
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/ross-gilbert": {
+    "name": "Ross Gilbert",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": null,
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/travis-vance": {
+    "name": "Travis Vance",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": "profiles/travis-vance.jpg",
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/zed-quincy": {
+    "name": "Zed Quincy",
+    "college": null,
+    "bio": "New this year.",
+    "ghin": null,
+    "photo": null,
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "people/nick-smith": {
+    "name": "Nick Smith",
+    "college": null,
+    "bio": null,
+    "ghin": null,
+    "photo": null,
+    "chapterIds": [
+      "founders"
+    ],
+    "invitedTo": [],
+    "organizerOf": []
+  },
+  "chapters/founders/members/adam-cowdin": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/greg-dundas": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/jason-sudan": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/jeff-siarto": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/john-collins": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/justin-thompson": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/mark-reese": {
+    "role": "organizer",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/patrick-bohac": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/ricky-menchaca": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/ross-gilbert": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/travis-vance": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/zed-quincy": {
+    "role": "member",
+    "status": "active",
+    "since": null
+  },
+  "chapters/founders/members/nick-smith": {
+    "role": "member",
+    "status": "guest",
+    "since": null
+  },
+  "chapters/founders/trips/2025-lubbock": {
+    "number": 1,
+    "title": "2025 UGL",
+    "year": 2025,
+    "month": 9,
+    "location": "Lubbock, TX",
+    "dates": null,
+    "theme": {
+      "primary": "#15803d",
+      "onPrimary": "#ffffff"
+    },
+    "competition": false,
+    "attendeeIds": [
+      "mark-reese",
+      "jeff-siarto",
+      "justin-thompson",
+      "ricky-menchaca",
+      "travis-vance",
+      "patrick-bohac",
+      "adam-cowdin"
+    ],
+    "selectedById": "mark-reese",
+    "nextSelectorId": "ricky-menchaca"
+  },
+  "chapters/founders/trips/2026-columbia": {
+    "number": 2,
+    "title": "2026 UGL Invitational",
+    "year": 2026,
+    "month": 11,
+    "location": "Columbia, SC",
+    "dates": [
+      "2026-11-05",
+      "2026-11-08"
+    ],
+    "timeZone": "America/New_York",
+    "theme": {
+      "primary": "#041E42",
+      "onPrimary": "#ffffff"
+    },
+    "competition": true,
+    "attendeeIds": [
+      "mark-reese",
+      "justin-thompson",
+      "jeff-siarto",
+      "jason-sudan",
+      "john-collins",
+      "greg-dundas",
+      "ricky-menchaca",
+      "travis-vance",
+      "ross-gilbert",
+      "patrick-bohac",
+      "adam-cowdin"
+    ],
+    "selectedById": "ricky-menchaca",
+    "nextSelectorId": null
+  },
+  "chapters/founders/trips/2026-columbia/content/guide": {
+    "flights": [],
+    "teams": [
+      {
+        "id": "palmetto",
+        "name": "Team Palmetto",
+        "house": "The Palmetto House",
+        "address": "1 Palmetto Way",
+        "color": "#041E42",
+        "emblem": "palmetto",
+        "memberIds": [
+          "mark-reese",
+          "justin-thompson",
+          "jeff-siarto",
+          "jason-sudan",
+          "john-collins",
+          "greg-dundas"
+        ],
+        "captainId": "mark-reese"
+      },
+      {
+        "id": "crescent",
+        "name": "Team Crescent",
+        "house": "The Crescent House",
+        "address": "2 Crescent Rd",
+        "color": "#3A5A8C",
+        "emblem": "crescent",
+        "memberIds": [
+          "ricky-menchaca",
+          "travis-vance",
+          "nick-smith",
+          "ross-gilbert",
+          "patrick-bohac",
+          "adam-cowdin"
+        ],
+        "captainId": "ricky-menchaca"
+      }
+    ],
+    "rounds": [
+      {
+        "id": "r1",
+        "date": "2026-11-06",
+        "course": "Aiken Golf Club",
+        "label": "Day 1 · 2-Man Net Best Ball",
+        "matchType": "fourball",
+        "groups": [
+          {
+            "teeTime": "10:00 AM",
+            "playerIds": [
+              "mark-reese",
+              "justin-thompson",
+              "jeff-siarto",
+              "jason-sudan"
+            ]
+          }
+        ],
+        "par": [
+          4,
+          5,
+          4,
+          3,
+          4,
+          4,
+          4,
+          4,
+          3,
+          5,
+          3,
+          4,
+          5,
+          4,
+          4,
+          3,
+          4,
+          3
+        ],
+        "strokeIndex": [
+          13,
+          17,
+          3,
+          15,
+          1,
+          7,
+          5,
+          9,
+          11,
+          14,
+          4,
+          12,
+          10,
+          18,
+          8,
+          16,
+          2,
+          6
+        ]
+      },
+      {
+        "id": "r2",
+        "date": "2026-11-07",
+        "course": "Columbia Country Club",
+        "label": "Day 2 · Singles",
+        "matchType": "singles",
+        "groups": [
+          {
+            "teeTime": "9:00 AM",
+            "playerIds": []
+          }
+        ],
+        "par": [
+          4,
+          4,
+          5,
+          4,
+          3,
+          4,
+          5,
+          3,
+          4,
+          4,
+          4,
+          5,
+          4,
+          3,
+          5,
+          4,
+          3,
+          4
+        ],
+        "strokeIndex": [
+          13,
+          7,
+          3,
+          15,
+          9,
+          5,
+          1,
+          17,
+          11,
+          12,
+          4,
+          2,
+          14,
+          16,
+          8,
+          6,
+          18,
+          10
+        ]
+      },
+      {
+        "id": "r3",
+        "date": "2026-11-08",
+        "course": "Solina Golf Club",
+        "label": "Casual round",
+        "matchType": "casual",
+        "groups": []
+      }
+    ],
+    "format": {
+      "name": "Modified Ryder Cup",
+      "summary": "Two teams, two days.",
+      "notes": [],
+      "sessions": [
+        {
+          "id": "fourball",
+          "round": "r1",
+          "name": "2-Man Net Best Ball",
+          "format": "fourball",
+          "scoring": "match",
+          "points": 1,
+          "matches": 3,
+          "rules": [
+            "Each side counts its best net score."
+          ]
+        },
+        {
+          "id": "singles",
+          "round": "r2",
+          "name": "Singles Net Match Play",
+          "format": "singles",
+          "scoring": "match",
+          "points": 1,
+          "matches": 6,
+          "strokes": "difference",
+          "rules": [
+            "Strokes come off the low player."
+          ]
+        },
+        {
+          "id": "aggregate",
+          "round": "r2",
+          "name": "Team Aggregate",
+          "format": "aggregate",
+          "scoring": "aggregate",
+          "points": 2,
+          "matches": 1,
+          "basis": "gross",
+          "rules": []
+        }
+      ]
+    },
+    "football": {
+      "away": "Texas A&M",
+      "home": "South Carolina",
+      "date": "2026-11-07",
+      "kickoff": "7:30 PM ET",
+      "line": null,
+      "venue": "Williams-Brice Stadium"
+    },
+    "nightlife": []
+  },
+  "chapters/founders/trips/2026-columbia/private/draft": {
+    "published": true,
+    "captains": {
+      "palmetto": "mark-reese",
+      "crescent": "ricky-menchaca"
+    },
+    "teams": {
+      "palmetto": [
+        "mark-reese",
+        "justin-thompson",
+        "jeff-siarto",
+        "jason-sudan",
+        "john-collins",
+        "greg-dundas"
+      ],
+      "crescent": [
+        "ricky-menchaca",
+        "travis-vance",
+        "nick-smith",
+        "ross-gilbert",
+        "patrick-bohac",
+        "adam-cowdin"
+      ]
+    },
+    "rounds": {
+      "r1": [
+        {
+          "playerIds": [
+            "mark-reese",
+            null,
+            "ricky-menchaca",
+            null
+          ]
+        }
+      ]
+    }
+  },
+  "chapters/founders/trips/2026-columbia/matches/fourball-1": {
+    "session": "fourball",
+    "match": 1,
+    "sides": {
+      "palmetto": [
+        "john-collins",
+        "greg-dundas"
+      ],
+      "crescent": [
+        "patrick-bohac",
+        "adam-cowdin"
+      ]
+    },
+    "result": {
+      "winner": "palmetto",
+      "margin": "4&3",
+      "points": {
+        "palmetto": 1,
+        "crescent": 0
+      }
+    },
+    "scores": [
+      {
+        "player": "john-collins",
+        "strokes": 20,
+        "gross": [
+          4,
+          8,
+          6,
+          3,
+          7,
+          6,
+          6,
+          6,
+          5,
+          5,
+          5,
+          5,
+          7,
+          4,
+          5,
+          4,
+          6,
+          6
+        ]
+      },
+      {
+        "player": "greg-dundas",
+        "strokes": 21,
+        "gross": [
+          6,
+          7,
+          6,
+          4,
+          7,
+          7,
+          7,
+          4,
+          5,
+          7,
+          6,
+          6,
+          7,
+          6,
+          7,
+          4,
+          6,
+          5
+        ]
+      },
+      {
+        "player": "patrick-bohac",
+        "strokes": 14,
+        "gross": [
+          6,
+          7,
+          7,
+          4,
+          6,
+          4,
+          6,
+          6,
+          4,
+          6,
+          5,
+          7,
+          6,
+          6,
+          5,
+          5,
+          5,
+          3
+        ]
+      },
+      {
+        "player": "adam-cowdin",
+        "strokes": 26,
+        "gross": [
+          6,
+          8,
+          8,
+          6,
+          4,
+          6,
+          8,
+          7,
+          6,
+          7,
+          7,
+          7,
+          8,
+          5,
+          7,
+          4,
+          7,
+          4
+        ]
+      }
+    ]
+  },
+  "chapters/founders/trips/2026-columbia/matches/fourball-2": {
+    "session": "fourball",
+    "match": 2,
+    "sides": {
+      "palmetto": [
+        "jeff-siarto",
+        "jason-sudan"
+      ],
+      "crescent": [
+        "ross-gilbert",
+        "ricky-menchaca"
+      ]
+    },
+    "result": {
+      "winner": "palmetto",
+      "margin": "2&1",
+      "points": {
+        "palmetto": 1,
+        "crescent": 0
+      }
+    },
+    "scores": [
+      {
+        "player": "jeff-siarto",
+        "strokes": 11,
+        "gross": [
+          5,
+          7,
+          5,
+          4,
+          6,
+          5,
+          6,
+          4,
+          3,
+          7,
+          5,
+          4,
+          5,
+          5,
+          3,
+          4,
+          5,
+          5
+        ]
+      },
+      {
+        "player": "jason-sudan",
+        "strokes": 17,
+        "gross": [
+          5,
+          5,
+          6,
+          4,
+          6,
+          5,
+          6,
+          5,
+          4,
+          6,
+          5,
+          5,
+          7,
+          3,
+          5,
+          5,
+          6,
+          4
+        ]
+      },
+      {
+        "player": "ross-gilbert",
+        "strokes": 11,
+        "gross": [
+          4,
+          5,
+          7,
+          5,
+          6,
+          6,
+          5,
+          6,
+          4,
+          6,
+          4,
+          4,
+          6,
+          5,
+          4,
+          3,
+          5,
+          4
+        ]
+      },
+      {
+        "player": "ricky-menchaca",
+        "strokes": 18,
+        "gross": [
+          5,
+          7,
+          7,
+          4,
+          6,
+          5,
+          6,
+          6,
+          5,
+          5,
+          4,
+          6,
+          7,
+          4,
+          6,
+          4,
+          6,
+          5
+        ]
+      }
+    ]
+  },
+  "chapters/founders/trips/2026-columbia/matches/fourball-3": {
+    "session": "fourball",
+    "match": 3,
+    "sides": {
+      "palmetto": [
+        "justin-thompson",
+        "mark-reese"
+      ],
+      "crescent": [
+        "nick-smith",
+        "travis-vance"
+      ]
+    },
+    "result": {
+      "winner": "palmetto",
+      "margin": "2&1",
+      "points": {
+        "palmetto": 1,
+        "crescent": 0
+      }
+    },
+    "scores": [
+      {
+        "player": "justin-thompson",
+        "strokes": 4,
+        "gross": [
+          6,
+          5,
+          6,
+          4,
+          4,
+          4,
+          4,
+          6,
+          4,
+          5,
+          3,
+          6,
+          6,
+          3,
+          3,
+          4,
+          4,
+          3
+        ]
+      },
+      {
+        "player": "mark-reese",
+        "strokes": 16,
+        "gross": [
+          5,
+          6,
+          7,
+          6,
+          5,
+          5,
+          6,
+          7,
+          3,
+          6,
+          4,
+          7,
+          5,
+          4,
+          5,
+          5,
+          6,
+          4
+        ]
+      },
+      {
+        "player": "nick-smith",
+        "strokes": 11,
+        "gross": [
+          4,
+          6,
+          5,
+          4,
+          3,
+          6,
+          6,
+          5,
+          6,
+          5,
+          6,
+          6,
+          7,
+          4,
+          7,
+          4,
+          5,
+          3
+        ]
+      },
+      {
+        "player": "travis-vance",
+        "strokes": 10,
+        "gross": [
+          4,
+          6,
+          6,
+          4,
+          7,
+          7,
+          5,
+          5,
+          5,
+          6,
+          4,
+          6,
+          5,
+          3,
+          4,
+          4,
+          6,
+          4
+        ]
+      }
+    ]
+  },
+  "chapters/founders/trips/2026-columbia/matches/singles-1": {
+    "session": "singles",
+    "match": 1,
+    "sides": {
+      "palmetto": [
+        "jason-sudan"
+      ],
+      "crescent": [
+        "adam-cowdin"
+      ]
+    },
+    "result": {
+      "winner": "palmetto",
+      "margin": "1 UP",
+      "points": {
+        "palmetto": 1,
+        "crescent": 0
+      }
+    },
+    "scores": [
+      {
+        "player": "jason-sudan",
+        "strokes": 0,
+        "gross": [
+          6,
+          4,
+          6,
+          4,
+          4,
+          6,
+          4,
+          5,
+          5,
+          6,
+          6,
+          6,
+          5,
+          4,
+          7,
+          6,
+          3,
+          6
+        ]
+      },
+      {
+        "player": "adam-cowdin",
+        "strokes": 7,
+        "gross": [
+          6,
+          6,
+          8,
+          4,
+          3,
+          6,
+          5,
+          5,
+          6,
+          6,
+          5,
+          8,
+          6,
+          3,
+          6,
+          7,
+          5,
+          6
+        ]
+      }
+    ]
+  },
+  "chapters/founders/trips/2026-columbia/matches/singles-2": {
+    "session": "singles",
+    "match": 2,
+    "sides": {
+      "palmetto": [
+        "justin-thompson"
+      ],
+      "crescent": [
+        "ross-gilbert"
+      ]
+    },
+    "result": {
+      "winner": null,
+      "margin": "AS",
+      "points": {
+        "palmetto": 0.5,
+        "crescent": 0.5
+      }
+    },
+    "scores": [
+      {
+        "player": "justin-thompson",
+        "strokes": 0,
+        "gross": [
+          4,
+          5,
+          6,
+          4,
+          3,
+          5,
+          4,
+          5,
+          5,
+          4,
+          3,
+          5,
+          5,
+          4,
+          4,
+          5,
+          2,
+          6
+        ]
+      },
+      {
+        "player": "ross-gilbert",
+        "strokes": 7,
+        "gross": [
+          6,
+          4,
+          7,
+          5,
+          4,
+          4,
+          4,
+          3,
+          5,
+          4,
+          5,
+          7,
+          4,
+          4,
+          6,
+          4,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  "chapters/founders/trips/2026-columbia/matches/singles-3": {
+    "session": "singles",
+    "match": 3,
+    "sides": {
+      "palmetto": [
+        "jeff-siarto"
+      ],
+      "crescent": [
+        "travis-vance"
+      ]
+    },
+    "result": {
+      "winner": "palmetto",
+      "margin": "4&2",
+      "points": {
+        "palmetto": 1,
+        "crescent": 0
+      }
+    },
+    "scores": [
+      {
+        "player": "jeff-siarto",
+        "strokes": 1,
+        "gross": [
+          6,
+          4,
+          7,
+          6,
+          3,
+          5,
+          4,
+          3,
+          6,
+          5,
+          5,
+          6,
+          5,
+          3,
+          4,
+          4,
+          4,
+          5
+        ]
+      },
+      {
+        "player": "travis-vance",
+        "strokes": 0,
+        "gross": [
+          6,
+          5,
+          7,
+          5,
+          4,
+          6,
+          4,
+          3,
+          5,
+          6,
+          5,
+          5,
+          5,
+          4,
+          4,
+          6,
+          3,
+          5
+        ]
+      }
+    ]
+  },
+  "chapters/founders/trips/2026-columbia/matches/singles-4": {
+    "session": "singles",
+    "match": 4,
+    "sides": {
+      "palmetto": [
+        "mark-reese"
+      ],
+      "crescent": [
+        "patrick-bohac"
+      ]
+    },
+    "result": {
+      "winner": "palmetto",
+      "margin": "4&3",
+      "points": {
+        "palmetto": 1,
+        "crescent": 0
+      }
+    },
+    "scores": [
+      {
+        "player": "mark-reese",
+        "strokes": 2,
+        "gross": [
+          5,
+          5,
+          6,
+          4,
+          5,
+          6,
+          4,
+          4,
+          5,
+          6,
+          6,
+          6,
+          5,
+          2,
+          5,
+          6,
+          4,
+          6
+        ]
+      },
+      {
+        "player": "patrick-bohac",
+        "strokes": 0,
+        "gross": [
+          6,
+          6,
+          6,
+          6,
+          3,
+          6,
+          5,
+          5,
+          4,
+          5,
+          6,
+          5,
+          6,
+          5,
+          5,
+          6,
+          5,
+          6
+        ]
+      }
+    ]
+  },
+  "chapters/founders/trips/2026-columbia/matches/singles-5": {
+    "session": "singles",
+    "match": 5,
+    "sides": {
+      "palmetto": [
+        "john-collins"
+      ],
+      "crescent": [
+        "nick-smith"
+      ]
+    },
+    "result": {
+      "winner": "palmetto",
+      "margin": "8&7",
+      "points": {
+        "palmetto": 1,
+        "crescent": 0
+      }
+    },
+    "scores": [
+      {
+        "player": "john-collins",
+        "strokes": 10,
+        "gross": [
+          6,
+          6,
+          5,
+          4,
+          4,
+          5,
+          5,
+          4,
+          5,
+          4,
+          6,
+          5,
+          4,
+          3,
+          4,
+          7,
+          3,
+          5
+        ]
+      },
+      {
+        "player": "nick-smith",
+        "strokes": 0,
+        "gross": [
+          6,
+          6,
+          7,
+          6,
+          5,
+          5,
+          5,
+          5,
+          5,
+          6,
+          5,
+          6,
+          5,
+          5,
+          5,
+          6,
+          3,
+          5
+        ]
+      }
+    ]
+  },
+  "chapters/founders/trips/2026-columbia/matches/singles-6": {
+    "session": "singles",
+    "match": 6,
+    "sides": {
+      "palmetto": [
+        "greg-dundas"
+      ],
+      "crescent": [
+        "ricky-menchaca"
+      ]
+    },
+    "result": {
+      "winner": "crescent",
+      "margin": "2 UP",
+      "points": {
+        "palmetto": 0,
+        "crescent": 1
+      }
+    },
+    "scores": [
+      {
+        "player": "greg-dundas",
+        "strokes": 4,
+        "gross": [
+          5,
+          6,
+          7,
+          6,
+          4,
+          6,
+          6,
+          3,
+          6,
+          6,
+          7,
+          7,
+          6,
+          5,
+          6,
+          6,
+          4,
+          6
+        ]
+      },
+      {
+        "player": "ricky-menchaca",
+        "strokes": 0,
+        "gross": [
+          6,
+          6,
+          5,
+          5,
+          5,
+          5,
+          7,
+          4,
+          6,
+          6,
+          6,
+          5,
+          6,
+          3,
+          3,
+          6,
+          5,
+          4
+        ]
+      }
+    ]
+  },
+  "chapters/founders/trips/2026-columbia/matches/aggregate-1": {
+    "session": "aggregate",
+    "match": 1,
+    "sides": {
+      "palmetto": [
+        "mark-reese",
+        "justin-thompson",
+        "jeff-siarto",
+        "jason-sudan",
+        "john-collins",
+        "greg-dundas"
+      ],
+      "crescent": [
+        "ricky-menchaca",
+        "travis-vance",
+        "nick-smith",
+        "ross-gilbert",
+        "patrick-bohac",
+        "adam-cowdin"
+      ]
+    },
+    "totals": {
+      "palmetto": 534,
+      "crescent": 557
+    },
+    "result": {
+      "winner": "palmetto",
+      "margin": "23 strokes",
+      "points": {
+        "palmetto": 2,
+        "crescent": 0
+      }
+    }
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/john-collins": {
+    "index": 19.3
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/greg-dundas": {
+    "index": 20
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/patrick-bohac": {
+    "index": 15.6
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/adam-cowdin": {
+    "index": 24
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/jeff-siarto": {
+    "index": 10.7
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/jason-sudan": {
+    "index": 18
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/ross-gilbert": {
+    "index": 11.2
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/ricky-menchaca": {
+    "index": 16.8
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/justin-thompson": {
+    "index": 4
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/mark-reese": {
+    "index": 16.6
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/nick-smith": {
+    "index": 11
+  },
+  "chapters/founders/trips/2026-columbia/handicaps/travis-vance": {
+    "index": 9.6
+  },
+  "chapters/founders/trips/2026-columbia/fireball/mark-reese": {
+    "counts": {
+      "r1": 3,
+      "off": 2
+    }
+  }
+}
