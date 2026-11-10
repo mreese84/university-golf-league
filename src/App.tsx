@@ -7,8 +7,9 @@ import TripsTab from './components/TripsTab';
 import SelectionTab from './components/SelectionTab';
 import GuidePage from './components/guide/GuidePage';
 import HistoryPages from './components/history/HistoryPages';
+import MoveOverPage from './components/MoveOverPage';
 import { history } from './history/data';
-import { currentRoute, guidePath, historyPath, homePath, isHistoryRoute, navigate, tripSlugs } from './routes';
+import { currentRoute, followLink, guidePath, historyPath, homePath, isHistoryRoute, moveOverPath, navigate, tripSlugs } from './routes';
 
 type Tab = 'members' | 'trips' | 'selection' | 'history';
 
@@ -99,6 +100,8 @@ function AppContent() {
     >
       {isHistoryRoute(route) ? (
         <HistoryPages route={route} />
+      ) : route.page === 'moveOver' ? (
+        <MoveOverPage />
       ) : !onHome ? (
         <GuidePage tripId={guideTripId} onBack={closeGuide} />
       ) : (
@@ -126,6 +129,10 @@ function AppContent() {
             onChange={handleImport}
             className="hidden"
           />
+          <span>·</span>
+          <a href={moveOverPath()} onClick={(e) => followLink(e, moveOverPath())} className="hover:text-green-600 transition-colors">
+            Move-over
+          </a>
         </div>
       )}
     </Layout>

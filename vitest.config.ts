@@ -4,6 +4,6 @@ import { defineConfig } from 'vitest/config'
 // Java, so they run anywhere. The database rules tests have their own config (vitest.rules.config.ts).
 export default defineConfig({
   test: {
-    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts', 'tests/*.test.ts'],
   },
 })

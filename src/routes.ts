@@ -6,6 +6,7 @@
 //   /history/2026-columbia/singles-1  one match's scorecard
 //   /players, /players/jeff-siarto    player records
 //   /superlatives
+//   /move-over                        moving today's data into The Founder's Chapter (admin only)
 // Firebase Hosting serves index.html at every address (firebase.json), and the app reads the path itself.
 
 const BASE = import.meta.env.BASE_URL;
@@ -21,7 +22,8 @@ export type Route =
   | { page: 'match'; eventId: string; matchId: string }
   | { page: 'players' }
   | { page: 'player'; playerId: string }
-  | { page: 'superlatives' };
+  | { page: 'superlatives' }
+  | { page: 'moveOver' };
 
 export type HistoryRoute = Extract<Route, { page: 'history' | 'event' | 'match' | 'players' | 'player' | 'superlatives' }>;
 
@@ -36,6 +38,7 @@ export const matchPath = (eventId: string, matchId: string) => `${eventPath(even
 export const playersPath = () => `${BASE}players`;
 export const playerPath = (playerId: string) => `${BASE}players/${encodeURIComponent(playerId)}`;
 export const superlativesPath = () => `${BASE}superlatives`;
+export const moveOverPath = () => `${BASE}move-over`;
 
 export function currentRoute(): Route {
   const legacy = window.location.hash.match(/^#\/guide\/(.+)$/);
@@ -54,6 +57,7 @@ export function currentRoute(): Route {
     if (parts.length === 2) return { page: 'player', playerId: parts[1] };
   }
   if (path === 'superlatives') return { page: 'superlatives' };
+  if (path === 'move-over') return { page: 'moveOver' };
   return { page: 'home' };
 }
 
