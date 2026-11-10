@@ -21,7 +21,7 @@ It uses the **dev data** (`envs/dev` in the database), a separate copy in the sa
 
 | Command | What it checks | Where it runs |
 | --- | --- | --- |
-| `npm test` | Code: the selection draw, addresses, pairings, the guide and history converters, and that the history files load and add up | Anywhere |
+| `npm test` | Code: the selection draw, addresses, pairings, the guide converters, and a chapter's history from the database (UGL2 adds up to 9½–1½, with the records and superlatives it had before the move) | Anywhere |
 | `npm run lint` | Code style and React mistakes (ESLint) | Anywhere, and on GitHub with every pull request |
 | `npm run test:rules` | The database rules (`firestore.rules`): who can read and change what | GitHub, on every pull request. It runs Firebase's local emulator, a throwaway database, which needs Java 21 or newer, so there's no need to run it on your own computer |
 
@@ -29,10 +29,9 @@ Neither one touches the live data.
 
 ## Deploys
 
-- **Merging to `main`** publishes the site to Firebase Hosting together with `firestore.rules`, and keeps the old GitHub Pages address forwarding to the new one. One-time setup: [docs/firebase-hosting-setup.md](docs/firebase-hosting-setup.md).
+- **Merging to `main`** publishes the site to Firebase Hosting together with `firestore.rules`. One-time setup: [docs/firebase-hosting-setup.md](docs/firebase-hosting-setup.md).
 - **Each pull request** publishes a preview, using the dev data, and comments its address on the pull request.
 
 ## More
 
 - [Phase 1 decisions](docs/phase-1-decisions.md) and [Phase 1 plan](docs/phase-1-plan.md)
-- [History data](history/README.md): the competition record and the Squabbit converter

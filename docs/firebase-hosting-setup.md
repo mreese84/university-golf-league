@@ -8,7 +8,7 @@ One-time steps for Phase 1, step 1. They're all done in web consoles, signed in 
 2. If Hosting has never been used, click **Get started** and click through (skip the command-line steps). This creates a default site named after the project ID.
 3. At the bottom of the Hosting page, under **Advanced**, click **Add another site** and enter `university-golf-league`.
 
-If that name is taken, pick another and tell Claude: it appears in `firebase.json`, `index.html` and `forwarder/index.html`.
+If that name is taken, pick another and tell Claude: it appears in `firebase.json` and `index.html`.
 
 ## 2. Create the deploy account
 
@@ -56,6 +56,12 @@ For people who'd rather not sign in with Google, Firebase emails them a sign-in 
 
 The links come back to `/finish-sign-in` on whichever address asked for them (the live site or the preview), and both are already authorized domains from step 3 above.
 
-## Later: the `ugl-selector` forwarder
+## Making the repo private (Phase 1, step 9c)
 
-The old `ugl-selector` repo forwards to the GitHub Pages address, which now forwards to the new one. That works, but when this repo goes private (step 9), GitHub Pages stops, so before then `ugl-selector` should point straight at `https://university-golf-league.web.app`.
+Until step 9c, the GitHub Pages address (`mreese84.github.io/university-golf-league`) forwarded to the new one, and the old `ugl-selector` repo forwarded to that. GitHub Pages stops when a repo goes private (on GitHub's free plan), so:
+
+1. Point `ugl-selector` straight at `https://university-golf-league.web.app`: replace its `index.html` and `404.html` (the same file) with a forwarder to the new address that keeps the path, query and hash. Check that `https://mreese84.github.io/ugl-selector/2026-columbia/guide` lands on the guide.
+2. Merge step 9c. Deploys stop republishing the GitHub Pages forwarder; the copy already published keeps working until the next step.
+3. In GitHub, open this repo's **Settings → General**, scroll to **Danger Zone**, click **Change visibility** and choose **Make private**. The `mreese84.github.io/university-golf-league` address stops working; it only went up on 2026-11-09, so few links use it.
+
+Deploys, previews and tests keep running in a private repo. GitHub's free plan includes 2,000 minutes of Actions a month for private repos, far more than these use.

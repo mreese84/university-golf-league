@@ -80,14 +80,14 @@ Nothing in Phase 1 needs Java on Mark's Mac, and no test touches the live data.
 | | Data it uses |
 | --- | --- |
 | The live site | Live data |
-| `npm run dev` on Mark's Mac | Dev data in the same Firebase project, as with today's `-dev` collections |
+| `npm run dev` on Mark's Mac | Dev data (`envs/dev`) in the same Firebase project |
 | Preview links | Dev data, from step 2 |
-| Code tests (`npm test`) | None: made-up data in memory. They run anywhere, Mark's Mac included |
+| Code tests (`npm test`) | None: made-up data, and a saved copy of The Founder's Chapter as the move left it, in memory. They run anywhere, Mark's Mac included |
 | Rules tests (`npm run test:rules`) | None: a throwaway copy of the database (Firebase's emulator) on the computer running the tests, emptied every run. The emulator needs Java, so these run in GitHub on every pull request and in Claude's cloud sessions |
 
-- **Live and dev data stay apart.** In the new layout, everything sits under one of two roots: `envs/live` for the live site and `envs/dev` for development and previews. Today's layout keeps its `-dev` collections until the switch.
+- **Live and dev data stay apart.** Everything sits under one of two roots: `envs/live` for the live site and `envs/dev` for development and previews.
 - **The same rules cover both**, so dev data is just as protected, and what works on dev works live.
-- **Dev data starts as a copy of the live data.** On the dev server, the move-over reads today's live data and writes The Founder's Chapter into `envs/dev`. It only reads the live data, so the move can be rehearsed on real names and results without touching what the live site uses.
+- **Dev data started as a copy of the live data.** Before the switch, the move-over wrote The Founder's Chapter into `envs/dev` from the live data, so the move could be rehearsed on real names and results. It's free to change.
 - **Sign-in is shared:** the dev server and previews sign in with the same Google accounts as the live site, as today.
 
 ## Who can do what
@@ -194,8 +194,8 @@ History pages read the database, per chapter, members only. Player pages, the Pl
 In three parts:
 - **9a, freeze.** Today's live data goes read-only (the `-dev` copies stay writable), and today's pages say changes are paused. Once it's deployed, Mark runs the Move-over on the live site, which writes The Founder's Chapter into the live data, and checks its counts.
 - **9b, switch**, after the live Move-over. The new pages go on for everyone and `/` becomes the new home; old addresses redirect into `/founders`; organizers' Export chapter downloads everything in the chapter as a backup; today's app code goes. The Move-over page stays, commissioner only, at `/move-over`. Lint runs on every pull request.
-- **9c, cleanup**, once Mark is happy with 9b. The old rules, the history files and their build step, the Move-over page and today's `-dev` collections go. Dev data lives under `envs/dev` from then on.
-History is members-only now, so the repo goes private and the history files leave it. Profile photos stay in the repo until Phase 2 moves them to uploaded storage. The `ugl-selector` forwarder switches to the new address, since GitHub Pages stops with the repo private.
+- **9c, cleanup**, once Mark is happy with 9b. The old rules go: the collections from before chapters, `-dev` copies included, are closed, and their data stays in the database (readable in the Firebase console) until it's deleted there. The history files and their build step, the Squabbit converter, the Move-over and the GitHub Pages forwarder go. Tests use The Founder's Chapter as the move left it, saved as a test fixture, and check UGL2 still comes out as the history files had it. Dev data lives under `envs/dev`.
+History is members-only now, so the repo goes private ([steps](firebase-hosting-setup.md#making-the-repo-private-phase-1-step-9c)). Profile photos stay in the repo until Phase 2 moves them to uploaded storage. The `ugl-selector` forwarder points straight at the new address, since GitHub Pages stops with the repo private.
 
 ### C. Edit everything in the app
 
@@ -206,7 +206,7 @@ Trip details, flights, houses and teams (name, color, emblem), rounds and tee ti
 One pre-trip index per player, entered by the player or the organizer, next to their GHIN number linked to the official lookup. Pairings use it. Invites and RSVPs replace the planning spreadsheet's Invites tab: organizers see everyone invited, and members see RSVPs from people who have joined.
 
 **12. Results.**
-A results editor to add or fix a match. The Squabbit converter writes straight to the database instead of to files.
+A results editor to add or fix a match. The Squabbit converter comes back writing straight to the database instead of to files: it left with the history files in 9c, and its CSV reading and checks are in `scripts/squabbit.ts` as of commit `b10a079`. Until then there's no way to add results, which is fine until the next trip.
 
 **13. Chapters.**
 Request a chapter (from the landing page, after signing in). Admins approve, and the requester becomes its organizer. An admin page for chapters, organizers and co-admins (co-admins: commissioner only).

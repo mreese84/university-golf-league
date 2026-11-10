@@ -9,7 +9,6 @@ describe('addresses', () => {
     expect(parseRoute('/')).toEqual({ page: 'home' });
     expect(parseRoute('/finish-sign-in')).toEqual({ page: 'finishSignIn' });
     expect(parseRoute('/me')).toEqual({ page: 'me' });
-    expect(parseRoute('/move-over')).toEqual({ page: 'moveOver' });
     expect(parseRoute('/founders')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'trips' });
     expect(parseRoute('/founders/selection')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'selection' });
     expect(parseRoute('/founders/members')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'members' });
@@ -34,6 +33,7 @@ describe('addresses', () => {
     expect(parseRoute('/superlatives')).toEqual(redirect('/founders/superlatives'));
     expect(parseRoute('/', '#/guide/abc123')).toEqual(redirect('/founders')); // the old trip IDs aren't kept
     expect(parseRoute('/next')).toEqual(redirect('/'));
+    expect(parseRoute('/move-over')).toEqual(redirect('/')); // gone after the move (step 9c)
   });
 
   it('tidy a trailing slash, then follow the address', () => {

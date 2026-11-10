@@ -1,0 +1,1210 @@
+{
+  "standings": [
+    {
+      "id": "2026-columbia",
+      "points": {
+        "palmetto": 9.5,
+        "crescent": 1.5
+      },
+      "total": 11,
+      "toWin": 6,
+      "played": 10,
+      "expected": 10,
+      "complete": true,
+      "winner": "palmetto",
+      "tied": false
+    }
+  ],
+  "players": [
+    {
+      "id": "mark-reese",
+      "record": {
+        "w": 2,
+        "l": 0,
+        "h": 0
+      },
+      "points": 2,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "partners": [
+        {
+          "id": "justin-thompson",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "opponents": [
+        {
+          "id": "nick-smith",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "travis-vance",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "patrick-bohac",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "palmetto",
+          "captain": true,
+          "record": {
+            "w": 2,
+            "l": 0,
+            "h": 0
+          },
+          "points": 2
+        }
+      ]
+    },
+    {
+      "id": "justin-thompson",
+      "record": {
+        "w": 1,
+        "l": 0,
+        "h": 1
+      },
+      "points": 1.5,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 0,
+            "l": 0,
+            "h": 1
+          },
+          "points": 0.5
+        }
+      ],
+      "partners": [
+        {
+          "id": "mark-reese",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "opponents": [
+        {
+          "id": "nick-smith",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "travis-vance",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "ross-gilbert",
+          "record": {
+            "w": 0,
+            "l": 0,
+            "h": 1
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "palmetto",
+          "captain": false,
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 1
+          },
+          "points": 1.5
+        }
+      ]
+    },
+    {
+      "id": "jeff-siarto",
+      "record": {
+        "w": 2,
+        "l": 0,
+        "h": 0
+      },
+      "points": 2,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "partners": [
+        {
+          "id": "jason-sudan",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "opponents": [
+        {
+          "id": "ross-gilbert",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "ricky-menchaca",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "travis-vance",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "palmetto",
+          "captain": false,
+          "record": {
+            "w": 2,
+            "l": 0,
+            "h": 0
+          },
+          "points": 2
+        }
+      ]
+    },
+    {
+      "id": "jason-sudan",
+      "record": {
+        "w": 2,
+        "l": 0,
+        "h": 0
+      },
+      "points": 2,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "partners": [
+        {
+          "id": "jeff-siarto",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "opponents": [
+        {
+          "id": "ross-gilbert",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "ricky-menchaca",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "adam-cowdin",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "palmetto",
+          "captain": false,
+          "record": {
+            "w": 2,
+            "l": 0,
+            "h": 0
+          },
+          "points": 2
+        }
+      ]
+    },
+    {
+      "id": "john-collins",
+      "record": {
+        "w": 2,
+        "l": 0,
+        "h": 0
+      },
+      "points": 2,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "partners": [
+        {
+          "id": "greg-dundas",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "opponents": [
+        {
+          "id": "patrick-bohac",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "adam-cowdin",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "nick-smith",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "palmetto",
+          "captain": false,
+          "record": {
+            "w": 2,
+            "l": 0,
+            "h": 0
+          },
+          "points": 2
+        }
+      ]
+    },
+    {
+      "id": "greg-dundas",
+      "record": {
+        "w": 1,
+        "l": 1,
+        "h": 0
+      },
+      "points": 1,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "partners": [
+        {
+          "id": "john-collins",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "opponents": [
+        {
+          "id": "patrick-bohac",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "adam-cowdin",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        },
+        {
+          "id": "ricky-menchaca",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "palmetto",
+          "captain": false,
+          "record": {
+            "w": 1,
+            "l": 1,
+            "h": 0
+          },
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "ricky-menchaca",
+      "record": {
+        "w": 1,
+        "l": 1,
+        "h": 0
+      },
+      "points": 1,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          },
+          "points": 1
+        }
+      ],
+      "partners": [
+        {
+          "id": "ross-gilbert",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "opponents": [
+        {
+          "id": "jeff-siarto",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "jason-sudan",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "greg-dundas",
+          "record": {
+            "w": 1,
+            "l": 0,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "crescent",
+          "captain": true,
+          "record": {
+            "w": 1,
+            "l": 1,
+            "h": 0
+          },
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "travis-vance",
+      "record": {
+        "w": 0,
+        "l": 2,
+        "h": 0
+      },
+      "points": 0,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "partners": [
+        {
+          "id": "nick-smith",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "opponents": [
+        {
+          "id": "justin-thompson",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "mark-reese",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "jeff-siarto",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "crescent",
+          "captain": false,
+          "record": {
+            "w": 0,
+            "l": 2,
+            "h": 0
+          },
+          "points": 0
+        }
+      ]
+    },
+    {
+      "id": "nick-smith",
+      "record": {
+        "w": 0,
+        "l": 2,
+        "h": 0
+      },
+      "points": 0,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "partners": [
+        {
+          "id": "travis-vance",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "opponents": [
+        {
+          "id": "justin-thompson",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "mark-reese",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "john-collins",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "crescent",
+          "captain": false,
+          "record": {
+            "w": 0,
+            "l": 2,
+            "h": 0
+          },
+          "points": 0
+        }
+      ]
+    },
+    {
+      "id": "ross-gilbert",
+      "record": {
+        "w": 0,
+        "l": 1,
+        "h": 1
+      },
+      "points": 0.5,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 0,
+            "l": 0,
+            "h": 1
+          },
+          "points": 0.5
+        }
+      ],
+      "partners": [
+        {
+          "id": "ricky-menchaca",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "opponents": [
+        {
+          "id": "jeff-siarto",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "jason-sudan",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "justin-thompson",
+          "record": {
+            "w": 0,
+            "l": 0,
+            "h": 1
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "crescent",
+          "captain": false,
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 1
+          },
+          "points": 0.5
+        }
+      ]
+    },
+    {
+      "id": "patrick-bohac",
+      "record": {
+        "w": 0,
+        "l": 2,
+        "h": 0
+      },
+      "points": 0,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "partners": [
+        {
+          "id": "adam-cowdin",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "opponents": [
+        {
+          "id": "john-collins",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "greg-dundas",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "mark-reese",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "crescent",
+          "captain": false,
+          "record": {
+            "w": 0,
+            "l": 2,
+            "h": 0
+          },
+          "points": 0
+        }
+      ]
+    },
+    {
+      "id": "adam-cowdin",
+      "record": {
+        "w": 0,
+        "l": 2,
+        "h": 0
+      },
+      "points": 0,
+      "byFormat": [
+        {
+          "format": "fourball",
+          "name": "2-Man Net Best Ball",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        },
+        {
+          "format": "singles",
+          "name": "Singles Net Match Play",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "partners": [
+        {
+          "id": "patrick-bohac",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          },
+          "points": 0
+        }
+      ],
+      "opponents": [
+        {
+          "id": "john-collins",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "greg-dundas",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        },
+        {
+          "id": "jason-sudan",
+          "record": {
+            "w": 0,
+            "l": 1,
+            "h": 0
+          }
+        }
+      ],
+      "events": [
+        {
+          "event": "2026-columbia",
+          "team": "crescent",
+          "captain": false,
+          "record": {
+            "w": 0,
+            "l": 2,
+            "h": 0
+          },
+          "points": 0
+        }
+      ]
+    }
+  ],
+  "awards": [
+    {
+      "id": "margin",
+      "entries": [
+        {
+          "players": [
+            "john-collins"
+          ],
+          "opponents": [
+            "nick-smith"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "match": "singles-5",
+          "value": "8&7"
+        }
+      ]
+    },
+    {
+      "id": "points",
+      "entries": [
+        {
+          "players": [
+            "mark-reese"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "value": "2 pts",
+          "note": "2-0-0"
+        },
+        {
+          "players": [
+            "jeff-siarto"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "value": "2 pts",
+          "note": "2-0-0"
+        },
+        {
+          "players": [
+            "jason-sudan"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "value": "2 pts",
+          "note": "2-0-0"
+        },
+        {
+          "players": [
+            "john-collins"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "value": "2 pts",
+          "note": "2-0-0"
+        }
+      ]
+    },
+    {
+      "id": "undefeated",
+      "entries": [
+        {
+          "players": [
+            "mark-reese"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "value": "2-0-0"
+        },
+        {
+          "players": [
+            "jeff-siarto"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "value": "2-0-0"
+        },
+        {
+          "players": [
+            "jason-sudan"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "value": "2-0-0"
+        },
+        {
+          "players": [
+            "john-collins"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "value": "2-0-0"
+        },
+        {
+          "players": [
+            "justin-thompson"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "value": "1-0-1"
+        }
+      ]
+    },
+    {
+      "id": "partnership",
+      "entries": [
+        {
+          "players": [
+            "greg-dundas",
+            "john-collins"
+          ],
+          "value": "1-0-0",
+          "note": "1 pt together"
+        }
+      ]
+    },
+    {
+      "id": "net-round",
+      "entries": [
+        {
+          "players": [
+            "jason-sudan"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "match": "fourball-2",
+          "value": "75 (+5)",
+          "note": "Aiken Golf Club"
+        }
+      ]
+    },
+    {
+      "id": "net-birdies",
+      "entries": [
+        {
+          "players": [
+            "justin-thompson"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "match": "fourball-3",
+          "value": "5",
+          "note": "Aiken Golf Club"
+        }
+      ]
+    },
+    {
+      "id": "holes-won",
+      "entries": [
+        {
+          "players": [
+            "john-collins",
+            "greg-dundas"
+          ],
+          "opponents": [
+            "patrick-bohac",
+            "adam-cowdin"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "match": "fourball-1",
+          "value": "8",
+          "note": "4&3"
+        },
+        {
+          "players": [
+            "john-collins"
+          ],
+          "opponents": [
+            "nick-smith"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "match": "singles-5",
+          "value": "8",
+          "note": "8&7"
+        }
+      ]
+    },
+    {
+      "id": "comeback",
+      "entries": []
+    },
+    {
+      "id": "clutch",
+      "entries": [
+        {
+          "players": [
+            "justin-thompson",
+            "mark-reese"
+          ],
+          "opponents": [
+            "nick-smith",
+            "travis-vance"
+          ],
+          "team": "palmetto",
+          "event": "2026-columbia",
+          "match": "fourball-3",
+          "value": "won 17",
+          "note": "2&1"
+        },
+        {
+          "players": [
+            "ricky-menchaca"
+          ],
+          "opponents": [
+            "greg-dundas"
+          ],
+          "team": "crescent",
+          "event": "2026-columbia",
+          "match": "singles-6",
+          "value": "won 18",
+          "note": "2 UP"
+        }
+      ]
+    }
+  ]
+}

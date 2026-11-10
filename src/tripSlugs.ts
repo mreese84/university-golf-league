@@ -1,6 +1,7 @@
 import type { Trip } from './types';
 
-// Each trip's guide address (routes.ts)
+// The start of each trip's address (/founders/2026-columbia/guide); newTripId in
+// src/next/chapterTrips.ts adds -2, -3… when a chapter already has one
 
 type SlugTrip = Pick<Trip, 'id' | 'year' | 'month' | 'location'>;
 
@@ -14,18 +15,4 @@ export function baseSlug(trip: SlugTrip) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
   return `${trip.year}-${city || 'trip'}`;
-}
-
-// One address per trip. Trips that share a year and city get -2, -3… in date order.
-export function tripSlugs(trips: SlugTrip[]): Map<string, string> {
-  const ordered = [...trips].sort((a, b) => a.year - b.year || (a.month ?? 0) - (b.month ?? 0) || a.id.localeCompare(b.id));
-  const seen = new Map<string, number>();
-  const slugs = new Map<string, string>();
-  for (const trip of ordered) {
-    const slug = baseSlug(trip);
-    const count = (seen.get(slug) ?? 0) + 1;
-    seen.set(slug, count);
-    slugs.set(trip.id, count === 1 ? slug : `${slug}-${count}`);
-  }
-  return slugs;
 }
