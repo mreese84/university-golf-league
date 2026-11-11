@@ -7,7 +7,7 @@
 // Winner and Fireball King carry the number on the badge itself; Snowman is earned once only.
 
 import { grossTotal, parseMargin } from './scoring';
-import { formatHandicap } from './format';
+import { eventLabel, formatHandicap, roundLabel } from './format';
 import { standings, type PlayerMatch, type PlayerStats } from './stats';
 import type { EventRound, HistoryEvent, HistoryMatch, ScoreRow } from './types';
 
@@ -70,11 +70,17 @@ export const BADGES: BadgeDef[] = [
 
 export const badgeDef = (id: BadgeId) => BADGES.find((b) => b.id === id)!;
 
-// Where a badge was earned: a match, or a trip
+// Where a badge was earned: a match, or a trip. The note says what happened; with an event, the
+// trip and round go in front of it (momentText).
 export interface BadgeMoment {
   event?: HistoryEvent;
   match?: HistoryMatch;
-  note?: string; // "UGL1 · Lubbock 2025", "2&1 on 17", "3 down, won 1 UP"
+  note?: string; // "2&1 on 17", "3 down, won 1 UP", "6 birdies"; or, with no event, "UGL1 · Lubbock 2025"
+}
+
+// A moment as the Badges page shows it: "UGL2 · Rd 1 · 2&1 on 17", "UGL2 · 6 birdies"
+export function momentText({ event, match, note }: BadgeMoment) {
+  return [event && eventLabel(event), event && match && roundLabel(event, match), note].filter(Boolean).join(' · ');
 }
 
 export interface EarnedBadge {
@@ -104,7 +110,6 @@ export function decidedOn(m: Pick<PlayerMatch, 'play' | 'match'>): number | null
 }
 
 const won = (m: PlayerMatch) => m.outcome === 'W';
-const label = (event: HistoryEvent) => `UGL${event.edition}`;
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
 export interface BadgeTrip {
@@ -206,7 +211,7 @@ export function earnedBadges({
   for (const event of [...events].reverse()) {
     const table = standings(event);
     const winner = event.teams.find((t) => t.id === table.winner);
-    if (winner) for (const id of winner.players) earn(id, 'cup-winner', { event, note: `${label(event)} · ${winner.name}` });
+    if (winner) for (const id of winner.players) earn(id, 'cup-winner', { event, note: winner.name });
 
     // Walk-Off: the last match of the last match-play session, won on the 18th, that took the
     // winners from short of the cup to it
@@ -239,13 +244,13 @@ export function earnedBadges({
         streak = 0;
         return;
       }
-      if (g === 1) earn(row.player, 'ace', { ...at, note: `${round.course}, hole ${h + 1}` });
-      if (g <= par[h] - 2) earn(row.player, 'eagle', { ...at, note: `${round.course}, hole ${h + 1}` });
+      if (g === 1) earn(row.player, 'ace', { ...at, note: `hole ${h + 1}` });
+      if (g <= par[h] - 2) earn(row.player, 'eagle', { ...at, note: `${g} on hole ${h + 1}` });
       if (g >= SNOWMAN_SCORE) earn(row.player, 'snowman', { ...at, note: `${g} on hole ${h + 1}` });
       streak = g <= par[h] ? streak + 1 : 0;
       if (streak >= PAR_TRAIN_HOLES && !trained) {
         trained = true;
-        earn(row.player, 'par-train', { ...at, note: `${round.course}, holes ${h + 2 - PAR_TRAIN_HOLES}–${h + 1}` });
+        earn(row.player, 'par-train', { ...at, note: `holes ${h + 2 - PAR_TRAIN_HOLES}–${h + 1}` });
       }
     });
     const key = `${event.id}:${row.player}`;
@@ -253,10 +258,10 @@ export function earnedBadges({
     birdies.set(key, { event, count: (birdies.get(key)?.count ?? 0) + made });
 
     const gross = grossTotal(row);
-    if (gross !== null && gross < sum(par)) earn(row.player, 'tour-pro', { ...at, note: `${gross} at ${round.course}` });
+    if (gross !== null && gross < sum(par)) earn(row.player, 'tour-pro', { ...at, note: `${gross}, ${sum(par) - gross} under par` });
   }
   for (const [key, { event, count }] of birdies) {
-    if (count >= BIRDIE_MACHINE_BIRDIES) earn(key.split(':')[1], 'birdie-machine', { event, note: `${label(event)} · ${count} birdies` });
+    if (count >= BIRDIE_MACHINE_BIRDIES) earn(key.split(':')[1], 'birdie-machine', { event, note: `${count} birdies` });
   }
 
   // The trips

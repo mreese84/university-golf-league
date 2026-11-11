@@ -1,5 +1,5 @@
 import { useHistory } from '../../history/historyContext';
-import { eventLabel } from '../../history/format';
+import { eventLabel, roundLabel } from '../../history/format';
 import type { Award, AwardEntry } from '../../history/stats';
 import { Card } from '../guide/parts';
 import { Link, Names, PlayerAvatar, SectionTitle } from './parts';
@@ -8,7 +8,7 @@ import { Link, Names, PlayerAvatar, SectionTitle } from './parts';
 function Entry({ entry }: { entry: AwardEntry }) {
   const { links } = useHistory();
   const { players, opponents, event, match, value, note } = entry;
-  const where = [event && `${eventLabel(event)} · ${event.year}`, note].filter(Boolean).join(' · ');
+  const where = [event && `${eventLabel(event)} · ${event.year}`, event && match && roundLabel(event, match), note].filter(Boolean).join(' · ');
   return (
     <li className="flex items-start gap-3 py-3">
       {players[0] ? <PlayerAvatar id={players[0]} className="w-8 h-8 mt-0.5" /> : <span className="w-8 shrink-0" />}

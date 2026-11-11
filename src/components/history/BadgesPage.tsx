@@ -1,6 +1,5 @@
 import { useHistory } from '../../history/historyContext';
-import { eventLabel } from '../../history/format';
-import { BADGES, holdersOf, type BadgeDef, type BadgeGroup, type BadgeMoment, type BadgeTier } from '../../history/badges';
+import { BADGES, holdersOf, momentText, type BadgeDef, type BadgeGroup, type BadgeMoment, type BadgeTier } from '../../history/badges';
 import BadgeArt from '../badges/BadgeArt';
 import { Card } from '../guide/parts';
 import { Link, PlayerAvatar, SectionTitle } from './parts';
@@ -11,18 +10,21 @@ const TIER: Record<BadgeTier, [string, string]> = {
   common: ['Common', 'bg-gray-100 text-gray-500'],
 };
 
-// Where it was earned: a link to the match ("UGL2 · 2&1 on 17"), or a note ("UGL1 · Lubbock 2025")
+// Where it was earned: a link to the match ("UGL2 · Rd 1 · 2&1 on 17") or the trip ("UGL2 · 6
+// birdies"), or a note ("UGL1 · Lubbock 2025")
 function Moment({ moment }: { moment: BadgeMoment }) {
   const { links } = useHistory();
-  const { event, match, note } = moment;
-  if (event && match) {
+  const { event, match } = moment;
+  const text = momentText(moment);
+  const to = event && (match ? links.match(event.id, match.id) : links.event(event.id));
+  if (to) {
     return (
-      <Link to={links.match(event.id, match.id)} className="font-medium text-green-700 hover:underline">
-        {eventLabel(event)} · {note}
+      <Link to={to} className="font-medium text-green-700 hover:underline">
+        {text}
       </Link>
     );
   }
-  return note ? <span>{note}</span> : null;
+  return text ? <span>{text}</span> : null;
 }
 
 function BadgeCard({ def }: { def: BadgeDef }) {
@@ -44,7 +46,7 @@ function BadgeCard({ def }: { def: BadgeDef }) {
       {holders.length > 0 ? (
         <ul className="mt-3 divide-y divide-gray-100">
           {holders.map((h) => {
-            const shown = h.moments.filter((m) => m.note);
+            const shown = h.moments.filter((m) => momentText(m));
             return (
               <li key={h.personId} className="flex items-start gap-3 py-2.5">
                 <PlayerAvatar id={h.personId} className="w-8 h-8" />
