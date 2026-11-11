@@ -217,6 +217,7 @@ Anyone signed in asks for a chapter at `/request`, linked from "You're not in a 
 
 **14. Installable app.**
 Manifest, icons and a service worker: add to Home Screen, opens offline. It's small and independent, so it can move earlier.
+The manifest (`public/manifest.json`) names it UGL, opens it full screen from `/`, and gives it the flag icon (`icon-192.png`, `icon-512.png`, and a maskable one with room for Android's shapes). The service worker (`public/sw.js`) keeps the app's own files: the page from the network when there's signal and saved for when there isn't, the built scripts and styles it asks for, the icons, and profile photos once seen; the database, sign-in and fonts always go to the network. The database keeps its own local copy of what the device has read (`src/firebase.ts`), so a guide opened before opens with no signal, and a Fireball shot logged with none saves when the signal's back. A banner says when there's no signal. Signing out deletes the local copy.
 
 ## Known issues
 

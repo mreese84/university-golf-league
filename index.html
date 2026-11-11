@@ -6,7 +6,13 @@
     <!-- iOS home screen: ugl-logo-v2.png on a white 180x180 square (iOS turns transparency black) -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="UGL" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Installable: added to a Home Screen, it opens full screen and works with no signal (public/sw.js) -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>University Golf League</title>
     <meta name="description" content="College Football. Average Golf. Unlimited Fireball." />
     <!-- Link previews (iMessage, Slack, etc.). The image needs a full URL; it's ugl-logo-v2.png on a white 1200x630 card -->
