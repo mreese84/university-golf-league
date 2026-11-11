@@ -57,6 +57,13 @@ export default function ResultsPage({ data, tripId }: { data: ChapterData; tripI
   }
   if (data.tripsStatus === 'loading' || status === 'loading' || matchesStatus === 'loading') return <Waiting>Loading…</Waiting>;
   if (!trip) return <Notice title="Trip not found"><p>Check the link, or pick the trip from the Trips tab.</p></Notice>;
+  if (trip.draft) {
+    return (
+      <Notice title="This trip is still a draft">
+        <p>Publish it from the Trips tab first: results go into the chapter's history, which everyone sees.</p>
+      </Notice>
+    );
+  }
   if (!guide || guide.format.sessions.length === 0) {
     return (
       <div className="space-y-4">

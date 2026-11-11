@@ -168,8 +168,17 @@ export function useRoster(chapterId: string | null, uid: string | null, includeI
   return { status, roster: items };
 }
 
-export function useTrips(chapterId: string | null, uid: string | null) {
+// A chapter's trips: the published ones, and the drafts this person may see (organizers and admins
+// all of them; anyone else only those they're picking the location for, which their query has to
+// ask for). Drafts come marked draft: true.
+export function useTrips(chapterId: string | null, uid: string | null, canManage = false, personId: string | null = null) {
   const key = chapterId && uid ? `${chapterId}:${uid}` : null;
-  const { status, items } = useLiveCollection<Trip>(chapterId ? P.trips(chapterId) : null, key);
-  return { status, trips: items };
+  const published = useLiveCollection<Trip>(chapterId ? P.trips(chapterId) : null, key);
+  const askDrafts = !!chapterId && (canManage || !!personId);
+  const filters: Filter[] = canManage ? [] : [['selectedById', '==', personId ?? '']];
+  const drafts = useLiveCollection<Trip>(askDrafts ? P.draftTrips(chapterId!) : null, askDrafts && key ? `${key}:${canManage}:${personId}` : null, filters);
+  // A trip list that waits for the drafts, but never fails for them
+  const status = published.status === 'ready' && askDrafts && drafts.status === 'loading' ? 'loading' : published.status;
+  const draftItems = drafts.status === 'ready' ? drafts.items.map((t) => ({ ...t, draft: true as const })) : [];
+  return { status, trips: [...published.items, ...draftItems] };
 }

@@ -20,7 +20,7 @@ import {
 import { applyDraftToContent, clearPairingsInContent } from './guide';
 import { normalizeEmail, pathsFor } from './paths';
 import type { GuideDraft } from '../types';
-import type { ChapterRequest, DataEnv, GuideContent, JoinedStatus, Match, Person, Response, Role, RosterEntry } from './types';
+import type { ChapterRequest, DataEnv, GuideContent, JoinedStatus, Match, Person, Response, Role, RosterEntry, Trip } from './types';
 
 // Today as YYYY-MM-DD, for `since`
 const today = () => new Date().toISOString().slice(0, 10);
@@ -252,16 +252,38 @@ export function setCoAdmins(db: Firestore, env: DataEnv, personIds: string[]) {
 // Everything a trip holds, beside the trip itself
 export const TRIP_PARTS = ['content', 'private', 'handicaps', 'rsvps', 'invites', 'fireball', 'matches'] as const;
 
+// A new trip: a draft (only organizers and the person picking its location see it, until it's
+// published) or published straight away. Organizers only.
+export function createTrip(db: Firestore, env: DataEnv, chapterId: string, tripId: string, trip: Trip, draft: boolean) {
+  return setDoc(doc(db, pathsFor(env).tripRecord(chapterId, tripId, draft)), trip);
+}
+
+// Changes a trip's own fields (where, when, who), wherever its record is
+export function updateTrip(db: Firestore, env: DataEnv, chapterId: string, tripId: string, draft: boolean | undefined, fields: Partial<Trip>) {
+  return updateDoc(doc(db, pathsFor(env).tripRecord(chapterId, tripId, draft)), fields);
+}
+
+// Publishes a draft trip: its record moves into trips, in one save, and everyone in the chapter
+// sees it and its guide from then on
+export function publishTrip(db: Firestore, env: DataEnv, chapterId: string, tripId: string, trip: Trip) {
+  const p = pathsFor(env);
+  const batch = writeBatch(db);
+  batch.set(doc(db, p.trip(chapterId, tripId)), trip);
+  batch.delete(doc(db, p.draftTrip(chapterId, tripId)));
+  return batch.commit();
+}
+
 // Deletes a trip and everything in it (guide, draft, handicaps, RSVPs, Fireball counts, results).
-// Organizers only. Saves go ten at a time, inside Firestore's limit on rule lookups per save.
-export async function deleteTrip(db: Firestore, env: DataEnv, chapterId: string, tripId: string) {
+// Organizers only. Saves go ten at a time, inside Firestore's limit on rule lookups per save. A
+// draft's record goes last, so what's in it stays hidden until it's all gone.
+export async function deleteTrip(db: Firestore, env: DataEnv, chapterId: string, tripId: string, draft = false) {
   const p = pathsFor(env);
   const paths: string[] = [];
   for (const part of TRIP_PARTS) {
     const inside = await getDocs(collection(db, `${p.trip(chapterId, tripId)}/${part}`));
     paths.push(...inside.docs.map((d) => d.ref.path));
   }
-  paths.push(p.trip(chapterId, tripId));
+  paths.push(p.tripRecord(chapterId, tripId, draft));
   for (let i = 0; i < paths.length; i += 10) {
     const batch = writeBatch(db);
     for (const path of paths.slice(i, i + 10)) batch.delete(doc(db, path));

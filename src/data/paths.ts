@@ -26,6 +26,12 @@ export function pathsFor(env: DataEnv) {
     rosterEntry: (c: string, p: string) => `${chapter(c)}/members/${p}`,
     trips: (c: string) => `${chapter(c)}/trips`,
     trip,
+    // A trip being planned (a draft): its record, until it's published into trips. Its guide and
+    // the rest live under trip() all along.
+    draftTrips: (c: string) => `${chapter(c)}/draftTrips`,
+    draftTrip: (c: string, t: string) => `${chapter(c)}/draftTrips/${t}`,
+    // Where a trip's record is: a draft's or a published one's
+    tripRecord: (c: string, t: string, draft: boolean | undefined) => (draft ? `${chapter(c)}/draftTrips/${t}` : trip(c, t)),
     guide: (c: string, t: string) => `${trip(c, t)}/content/guide`,
     draft: (c: string, t: string) => `${trip(c, t)}/private/draft`,
     handicaps: (c: string, t: string) => `${trip(c, t)}/handicaps`,

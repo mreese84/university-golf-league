@@ -35,7 +35,7 @@ function ChapterHome({ chapterId, tab, history, guideTripId, resultsTripId }: { 
   const canManage = isAdmin || (hasJoined(myEntry ?? undefined) && myEntry?.role === 'organizer');
   const { roster } = useRoster(status === 'ready' ? chapterId : null, uid, canManage);
   const people = usePeople(roster.map((e) => e.id), uid);
-  const { status: tripsStatus, trips } = useTrips(status === 'ready' ? chapterId : null, uid);
+  const { status: tripsStatus, trips } = useTrips(status === 'ready' ? chapterId : null, uid, canManage, personId);
 
   if (status === 'loading') return <Waiting>Loading…</Waiting>;
   if (status !== 'ready' || !chapter) {

@@ -98,6 +98,8 @@ Nothing in Phase 1 needs Java on Mark's Mac, and no test touches the live data.
 | Invite people; see invitees and their RSVPs | every chapter | every chapter | own chapters | | | |
 | Edit trips, guides, teams, results, roster | every chapter | every chapter | own chapters | | | |
 | See and edit the pairings draft | every chapter | every chapter | own chapters | | | |
+| See a draft trip and its guide (added after Phase 2) | every chapter | every chapter | own chapters | only the one they're selected by | | |
+| Publish a draft trip to the chapter | every chapter | every chapter | own chapters | | | |
 | Own profile (bio, college, GHIN), handicap, RSVP, Fireball | ✓ | ✓ | ✓ | ✓ | | |
 | Fix anyone's profile, handicap, RSVP, Fireball | every chapter | every chapter | own chapters | | | |
 | Request a chapter | ✓ | ✓ | ✓ | ✓ | ✓ | sign in first |
@@ -106,6 +108,8 @@ Nothing in Phase 1 needs Java on Mark's Mac, and no test touches the live data.
 | Landing page only | | | | | | ✓ |
 
 Everyone who has joined a chapter can see it: active members, alumni and guests. Invitees can't see the chapter, and members can't see them, until they join. Status also decides who's in the selection draw (active members).
+
+A new trip can start as a draft, so an organizer can fill it in before the chapter sees it. Its record sits in `draftTrips` instead of `trips`, and only organizers, admins and the person it's selected by can read it, or anything under the trip (its guide, handicaps, RSVPs, Fireball counts). Publishing moves the record into `trips` in one save; nothing else moves. Drafts stay out of the selection draw, Who's coming, results and the history.
 
 How the database enforces it:
 
