@@ -5,7 +5,7 @@ import type { EarnedBadge } from '../../history/badges';
 import { followLink } from '../../routes';
 import type { GuideTeam } from '../../types';
 import BadgeShelf from '../badges/BadgeShelf';
-import Emblem from './Emblem';
+import { TeamEmblem } from './Emblem';
 import { inputClass } from './parts';
 
 export interface ProfileView {
@@ -164,7 +164,7 @@ export function ProfileSheet({ profile: p, theme, onClose, onSaveBio }: ProfileS
                   className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold text-white"
                   style={{ background: p.team.color }}
                 >
-                  {p.team.emblem && <Emblem name={p.team.emblem} className="w-3.5 h-3.5" />}
+                  <TeamEmblem team={p.team} className="w-3.5 h-3.5" />
                   {p.team.name}
                   {p.captain && ' · Captain'}
                 </span>

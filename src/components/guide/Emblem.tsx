@@ -19,6 +19,22 @@ export function EmblemDefs() {
   );
 }
 
+// A team's mark: its uploaded logo (Phase 2), else its built-in emblem, else nothing. Sized by
+// className like the emblem. A logo keeps its own shape and colors, so it sits on a small white disc
+// to show on any team color; faint watermarks (plate false) leave it bare.
+export function TeamEmblem({ team, className = '', plate = true }: { team: { emblem?: EmblemName; logo?: string }; className?: string; plate?: boolean }) {
+  if (team.logo && !plate) return <img src={team.logo} alt="" className={`${className} object-contain`} />;
+  if (team.logo) {
+    return (
+      <span className={`${className} flex items-center justify-center rounded-full bg-white`}>
+        <img src={team.logo} alt="" className="w-[78%] h-[78%] object-contain" />
+      </span>
+    );
+  }
+  if (team.emblem) return <Emblem name={team.emblem} className={className} />;
+  return null;
+}
+
 export default function Emblem({ name, className }: { name: EmblemName; className?: string }) {
   return (
     <svg fill="currentColor" aria-hidden="true" className={className}>

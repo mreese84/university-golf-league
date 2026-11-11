@@ -74,7 +74,7 @@ Decided with Mark on 2026-11-09, after UGL2. These set the direction for Phase 1
   - the 2026 guide and draft
   - Fireball counts, bios and colleges
   - the history files, mapping today's member IDs to person records
-- **Squabbit import and photo upload in the app** are Phase 2. Until then, results keep coming in through the converter. (Step 12 brought the converter into the app's Results page, reading Squabbit's exported files, since a script writing to the database would need keys; pulling results from Squabbit without exports is still Phase 2.)
+- **Squabbit import and photo upload in the app** were Phase 2. Step 12 brought the converter into the app's Results page, reading Squabbit's exported files, since a script writing to the database would need keys. Squabbit has no API, so results keep coming from its exports (decided 2026-11-11); photo and logo upload came in Phase 2.
 
 ## Assumptions, confirmed with Mark on 2026-11-09
 

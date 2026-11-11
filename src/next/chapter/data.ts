@@ -1,3 +1,4 @@
+import { imageUrl } from '../../data/images';
 import type { Person, RosterEntry } from '../../data/types';
 import { JOINED_STATUSES } from '../../data/types';
 import type { LoadStatus } from '../../data/hooks';
@@ -19,7 +20,8 @@ export interface ChapterData {
 
 export const nameOf = (data: ChapterData, id: string | null | undefined) => (id ? (data.people[id]?.name ?? '…') : '—');
 
-export const photoUrl = (person: Person | undefined) => (person?.photo ? `${import.meta.env.BASE_URL}${person.photo}` : null);
+// A profile photo's address: an upload's own, or a built-in file's under the site's base path
+export const photoUrl = (person: Person | undefined) => imageUrl(person?.photo, import.meta.env.BASE_URL);
 
 export const hasJoined = (entry: RosterEntry | undefined) => !!entry && (JOINED_STATUSES as readonly string[]).includes(entry.status);
 

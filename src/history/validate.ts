@@ -2,6 +2,7 @@
 // result and scorecard. Results are checked with these before they're saved (src/data/results.ts),
 // so a slip can't put wrong records in the history.
 
+import { isUploaded } from '../data/images';
 import { grossTotal, isComplete, netTotal, parseMargin, playMatch } from './scoring.ts';
 import type { HistoryData, HistoryEvent, HistoryMatch } from './types.ts';
 
@@ -23,8 +24,8 @@ export function validateHistory(data: HistoryData): string[] {
     }
     if (known.has(p.id)) errors.push(`people: "${p.id}" is listed twice`);
     if (typeof p.name !== 'string' || !p.name.trim()) errors.push(`people: "${p.id}" needs a name`);
-    if (p.photo !== undefined && !/^profiles\/[a-z0-9-]+\.(jpg|jpeg|png|webp)$/.test(String(p.photo))) {
-      errors.push(`people: "${p.id}" photo should look like "profiles/${p.id}.jpg"`);
+    if (p.photo !== undefined && !isUploaded(String(p.photo)) && !/^profiles\/[a-z0-9-]+\.(jpg|jpeg|png|webp)$/.test(String(p.photo))) {
+      errors.push(`people: "${p.id}" photo should be an uploaded image or look like "profiles/${p.id}.jpg"`);
     }
     known.add(p.id);
   }
@@ -64,6 +65,7 @@ function checkEvent(event: HistoryEvent, known: Set<string>, errors: string[]) {
     if (team.emblem !== undefined && team.emblem !== 'palmetto' && team.emblem !== 'crescent') {
       err(`team "${team.id}" emblem should be "palmetto" or "crescent"`);
     }
+    if (team.logo !== undefined && !isUploaded(String(team.logo))) err(`team "${team.id}" logo should be an uploaded image's address`);
     for (const p of Array.isArray(team.players) ? team.players : []) {
       if (!known.has(p)) err(`team "${team.id}" has "${p}", who isn't in the league`);
       if (teamOf.has(p)) err(`"${p}" is on two teams`);
