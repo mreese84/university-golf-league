@@ -46,13 +46,19 @@ jobs:
           --non-interactive
         env:
           PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-      # Separate, so the site still goes out if Storage isn't turned on yet (docs/firebase-hosting-setup.md)
+      # Separate, so the site still goes out if Storage isn't set up (docs/firebase-hosting-setup.md).
+      # The bucket is named outright, the same one the app uses: asked for the project's default
+      # bucket, Firebase can answer that there's none even when the console shows it. firebase.json
+      # itself can't name it, since the emulators then want a deploy target instead.
       - name: Publish the storage rules
-        run: >
-          npx --yes firebase-tools@15.34.2 deploy
-          --only storage
-          --project "$PROJECT_ID"
-          --message "${{ github.sha }}"
-          --non-interactive
+        run: |
+          jq --arg bucket "$BUCKET" '.storage = [{bucket: $bucket, rules: "storage.rules"}]' firebase.json > firebase.storage.json
+          npx --yes firebase-tools@15.34.2 deploy \
+            --only storage \
+            --config firebase.storage.json \
+            --project "$PROJECT_ID" \
+            --message "${{ github.sha }}" \
+            --non-interactive
         env:
           PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET || format('{0}.firebasestorage.app', secrets.VITE_FIREBASE_PROJECT_ID) }}
