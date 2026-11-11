@@ -1,6 +1,6 @@
 import { useHistory } from '../../history/historyContext';
 import { eventLabel } from '../../history/format';
-import { BADGES, holdersOf, type BadgeDef, type BadgeMoment, type BadgeTier } from '../../history/badges';
+import { BADGES, holdersOf, type BadgeDef, type BadgeGroup, type BadgeMoment, type BadgeTier } from '../../history/badges';
 import BadgeArt from '../badges/BadgeArt';
 import { Card } from '../guide/parts';
 import { Link, PlayerAvatar, SectionTitle } from './parts';
@@ -78,6 +78,13 @@ function BadgeCard({ def }: { def: BadgeDef }) {
   );
 }
 
+const GROUPS: [BadgeGroup, string][] = [
+  ['league', 'The league'],
+  ['matches', 'Match play'],
+  ['scorecards', 'Scorecards'],
+  ['trips', 'On the trip'],
+];
+
 // Every badge, how it's earned, and who has it
 export default function BadgesPage() {
   return (
@@ -86,18 +93,14 @@ export default function BadgesPage() {
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Badges</h2>
         <p className="text-sm text-gray-500 mt-1">Earned on the course and on the trips. Worked out from the record, so they update as results come in.</p>
       </div>
-      <section className="space-y-3">
-        <SectionTitle>Legendary</SectionTitle>
-        {BADGES.filter((b) => b.tier === 'legendary').map((b) => (
-          <BadgeCard key={b.id} def={b} />
-        ))}
-      </section>
-      <section className="space-y-3">
-        <SectionTitle>Earned in matches</SectionTitle>
-        {BADGES.filter((b) => b.tier !== 'legendary').map((b) => (
-          <BadgeCard key={b.id} def={b} />
-        ))}
-      </section>
+      {GROUPS.map(([group, title]) => (
+        <section key={group} className="space-y-3">
+          <SectionTitle>{title}</SectionTitle>
+          {BADGES.filter((b) => b.group === group).map((b) => (
+            <BadgeCard key={b.id} def={b} />
+          ))}
+        </section>
+      ))}
     </div>
   );
 }

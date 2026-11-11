@@ -39,7 +39,7 @@ export default function PlayersPage() {
                   <span className="flex items-center gap-1 text-xs text-gray-500">
                     <span className="truncate mr-0.5">{s.events.map((e) => eventLabel(e.event)).join(', ')}</span>
                     {(badges.get(s.id) ?? []).map((b) => (
-                      <BadgeArt key={b.id} id={b.id} className="w-4 h-4" title={badgeDef(b.id).name} />
+                      <BadgeArt key={b.id} id={b.id} className="w-4 h-4" count={b.moments.length} title={badgeDef(b.id).name} />
                     ))}
                   </span>
                 </span>

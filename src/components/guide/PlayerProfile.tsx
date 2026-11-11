@@ -4,7 +4,7 @@ import type { WinLoss } from '../../history/stats';
 import type { EarnedBadge } from '../../history/badges';
 import { followLink } from '../../routes';
 import type { GuideTeam } from '../../types';
-import BadgeChips from '../badges/BadgeChips';
+import BadgeShelf from '../badges/BadgeShelf';
 import Emblem from './Emblem';
 import { inputClass } from './parts';
 
@@ -173,7 +173,7 @@ export function ProfileSheet({ profile: p, theme, onClose, onSaveBio }: ProfileS
             </div>
             {p.badges.list.length > 0 && (
               <div className="mt-3">
-                <BadgeChips badges={p.badges.list} href={p.badges.href} />
+                <BadgeShelf badges={p.badges.list} href={p.badges.href} />
               </div>
             )}
           </div>

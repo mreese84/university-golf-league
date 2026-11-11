@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useHistory } from '../../history/historyContext';
 import { eventLabel, formatHandicap, formatPoints, formatRecord } from '../../history/format';
 import type { PlayerMatch, WinLoss } from '../../history/stats';
-import BadgeChips from '../badges/BadgeChips';
+import BadgeShelf from '../badges/BadgeShelf';
 import { Card } from '../guide/parts';
 import { BackLink, Link, Names, NotFound, OutcomeBadge, SectionTitle } from './parts';
 
@@ -120,7 +120,7 @@ export default function PlayerPage({ playerId }: { playerId: string }) {
         </div>
         {badges.has(s.id) && (
           <div className="mt-3">
-            <BadgeChips badges={badges.get(s.id)!} href={links.badges} />
+            <BadgeShelf badges={badges.get(s.id)!} href={links.badges} />
           </div>
         )}
       </div>
