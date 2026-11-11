@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { espnGameUrl, parseEspnEventId, useEspnGame, type EspnGame, type EspnTeam } from '../../espn';
+import { useEspnGame, type EspnGame, type EspnTeam } from '../../espn';
 import type { GuideFootball } from '../../types';
 import { fmt } from './dates';
-import { Card, Field, Tbd, inputClass } from './parts';
+import { Card, Field, Tbd } from './parts';
 import { KickoffWeather } from './Weather';
 
 // The trip city's date. ESPN marks TBD kickoffs as midnight Eastern, so those read in Eastern time.
@@ -121,102 +120,17 @@ function SavedGame({ football }: { football: GuideFootball }) {
   );
 }
 
-// Admin-only: link the guide to an ESPN game
-function EspnLinkEditor({
-  eventId,
-  onSave,
-  onCancel,
-}: {
-  eventId: string | null;
-  onSave: (eventId: string | null) => Promise<void>;
-  onCancel: () => void;
-}) {
-  const [value, setValue] = useState(eventId ? espnGameUrl(eventId) : '');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSave = async () => {
-    const id = value.trim() ? parseEspnEventId(value) : null;
-    if (value.trim() && !id) {
-      setError("That doesn't look like an ESPN game link.");
-      return;
-    }
-    setSaving(true);
-    setError(null);
-    try {
-      await onSave(id);
-    } catch {
-      setError('Save failed. Check your connection and try again.');
-      setSaving(false);
-    }
-  };
-
-  return (
-    <div className="space-y-3">
-      <label className="block">
-        <span className="block text-xs font-medium text-gray-500 mb-1">ESPN game link</span>
-        <input
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="https://www.espn.com/college-football/game/_/gameId/…"
-          className={inputClass}
-        />
-      </label>
-      <p className="text-xs text-gray-400">
-        Open the game on espn.com and paste its address. Leave blank to show only the saved details.
-      </p>
-      {error && <p className="text-xs text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-4 py-2 bg-green-600 text-white rounded-xl font-medium text-sm hover:bg-green-700
-                     disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-        >
-          {saving ? 'Saving…' : 'Save'}
-        </button>
-        <button
-          onClick={onCancel}
-          disabled={saving}
-          className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors cursor-pointer"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
-
 interface FootballCardProps {
   football: GuideFootball;
   timeZone: string | null; // the trip city's
-  onSaveEventId?: (eventId: string | null) => Promise<void>; // admin only
 }
 
-export default function FootballCard({ football, timeZone, onSaveEventId }: FootballCardProps) {
+export default function FootballCard({ football, timeZone }: FootballCardProps) {
   const { status, game } = useEspnGame(football.espnEventId);
-  const [editing, setEditing] = useState(false);
 
   return (
-    <Card className="relative">
-      {onSaveEventId && !editing && (
-        <button
-          onClick={() => setEditing(true)}
-          className="absolute top-4 right-5 text-xs font-medium text-gray-400 hover:text-green-600 cursor-pointer"
-        >
-          Edit
-        </button>
-      )}
-      {editing && onSaveEventId ? (
-        <EspnLinkEditor
-          eventId={football.espnEventId ?? null}
-          onCancel={() => setEditing(false)}
-          onSave={async (id) => {
-            await onSaveEventId(id);
-            setEditing(false);
-          }}
-        />
-      ) : game ? (
+    <Card>
+      {game ? (
         <LiveGame game={game} timeZone={timeZone} />
       ) : (
         <div className={status === 'loading' ? 'opacity-60' : ''}>

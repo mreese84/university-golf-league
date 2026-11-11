@@ -201,6 +201,7 @@ History is members-only now, so the repo goes private ([steps](firebase-hosting-
 
 **10. Guide editors.**
 Trip details, flights, houses and teams (name, color, emblem), rounds and tee times (with par and stroke index), format and rules (with how each session is scored), and football. Nightlife already has one. Importing guide files goes away.
+Organizers start a trip's guide empty and fill in each part with its own Edit button; members see "The guide isn't ready yet" until something's in it. Teams and rounds keep their IDs, and the pairings draft follows them: removing a tee time takes its group with it, and a removed team leaves the draft. A session's matches are counted from its round's tee times (one per group in fourball, two in singles, one for a team total). For a trip with results, the teams, rounds, sessions and scoring are locked; names, houses, colors, rules and times can still change.
 
 **11. Handicaps, invites and RSVPs.**
 One pre-trip index per player, entered by the player or the organizer, next to their GHIN number linked to the official lookup. Pairings use it. Invites and RSVPs replace the planning spreadsheet's Invites tab: organizers see everyone invited, and members see RSVPs from people who have joined.

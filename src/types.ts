@@ -107,6 +107,7 @@ export interface PlayerGuide {
   location: string; // "Columbia, SC"
   timeZone?: string; // IANA zone for the trip's times; defaults from the location's state (see guide/timeZones.ts)
   theme: GuideTheme;
+  dates?: [string, string] | null; // the trip's first and last day; the header shows them when set
   flights: GuideFlight[];
   teams: GuideTeam[];
   rounds: GuideRound[];
