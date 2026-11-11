@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:rules": "npx --yes firebase-tools@15.34.2 emulators:exec --only firestore --project demo-ugl \"vitest run --config vitest.rules.config.ts\""
+    "test:rules": "npx --yes firebase-tools@15.34.2 emulators:exec --only firestore,storage --project demo-ugl \"vitest run --config vitest.rules.config.ts\""
   },
   "dependencies": {
     "firebase": "^12.13.0",

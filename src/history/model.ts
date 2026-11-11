@@ -3,6 +3,7 @@
 // pages build one from the repo's history files (data.ts); a chapter's pages build one from the
 // database (src/data/history.ts). Records belong to one chapter and are never combined.
 
+import { imageUrl } from '../data/images';
 import type { EarnedBadge } from './badges';
 import { playerStats, superlatives, type PlayerStats, type Superlatives } from './stats';
 import type { HistoryData, HistoryEvent } from './types';
@@ -30,10 +31,11 @@ export interface HistoryModel {
   findEvent: (id: string) => HistoryEvent | undefined;
 }
 
-// `photoBase` goes in front of a photo's path under public/ ("profiles/mark-reese.jpg")
+// `photoBase` goes in front of a built-in photo's path under public/ ("profiles/mark-reese.jpg");
+// uploaded photos are full addresses already
 export function makeHistoryModel(data: HistoryData, links: HistoryLinks, photoBase = '/'): HistoryModel {
   const names = new Map(data.players.map((p) => [p.id, p.name]));
-  const photos = new Map(data.players.flatMap((p) => (p.photo ? [[p.id, `${photoBase}${p.photo}`] as const] : [])));
+  const photos = new Map(data.players.flatMap((p) => (p.photo ? [[p.id, imageUrl(p.photo, photoBase)!] as const] : [])));
   const stats = playerStats(data);
   const nameOf = (id: string) => names.get(id) ?? id;
   return {

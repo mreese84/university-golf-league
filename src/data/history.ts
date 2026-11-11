@@ -43,6 +43,7 @@ function eventFor({ id, trip, guide, handicaps, matches }: ChapterTripRecord): H
       name: t.name,
       color: t.color,
       ...(t.emblem ? { emblem: t.emblem } : {}),
+      ...(t.logo ? { logo: t.logo } : {}),
       ...(t.captainId ? { captain: t.captainId } : {}),
       players: t.memberIds,
     })),

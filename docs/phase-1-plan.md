@@ -225,7 +225,7 @@ The manifest (`public/manifest.json`) names it UGL, opens it full screen from `/
 
 ## After Phase 1
 
-- **Phase 2:** results straight from Squabbit, without exporting files; photo and team logo upload.
+- **Phase 2:** profile photo and team logo upload, to Cloud Storage ([setup](firebase-hosting-setup.md#photos-and-logos-phase-2)). Results keep coming from Squabbit's exported files through the Results page: Squabbit has no API, and Mark chose on 2026-11-11 to keep it that way rather than switch apps.
 - **Later:** push notifications (Blaze and a server function); App Store or TestFlight by wrapping this codebase with Capacitor.
 
 ## Decided with Mark on 2026-11-09

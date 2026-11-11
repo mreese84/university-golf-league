@@ -1,6 +1,6 @@
 import { Fragment, type CSSProperties, type ReactNode } from 'react';
 import type { GuideFlight, GuideGroup, GuideRound, GuideTeam, Member, PlayerGuide } from '../../types';
-import Emblem, { EmblemDefs } from './Emblem';
+import Emblem, { EmblemDefs, TeamEmblem } from './Emblem';
 import FootballCard from './FootballCard';
 import { Card, Disclosure, Field, GlobeIcon, IconLink, MapPinIcon, Tbd, ZonedTime } from './parts';
 import { airportTimeZone, tripTimeZone, zoneLabel } from './timeZones';
@@ -173,7 +173,7 @@ export default function GuideView({ guide, members, attendeeCount, onSave, edit,
         style={team ? { background: team.color } : undefined}
         title={team?.name}
       >
-        {team?.emblem && <Emblem name={team.emblem} className="w-3.5 h-3.5 -ml-0.5 shrink-0" />}
+        {team && <TeamEmblem team={team} className="w-3.5 h-3.5 -ml-0.5 shrink-0" />}
         {nameOf(id)}
         {handicap !== undefined && (
           <span className="font-medium opacity-75 tabular-nums" title="Handicap">
@@ -374,7 +374,7 @@ export default function GuideView({ guide, members, attendeeCount, onSave, edit,
             {guide.teams.map((team: GuideTeam) => (
               <Card key={team.id} className="overflow-hidden !p-0">
                 <div className="flex items-center gap-3 px-5 py-4 text-white" style={{ background: team.color }}>
-                  {team.emblem && <Emblem name={team.emblem} className="w-9 h-9 shrink-0" />}
+                  <TeamEmblem team={team} className="w-9 h-9 shrink-0" />
                   <p className="flex-1 min-w-0 font-semibold leading-tight">{team.house || team.name}</p>
                 </div>
                 <div className="p-5 space-y-4">

@@ -3,7 +3,7 @@ import { grossTotal, netTotal } from '../../history/scoring';
 import { eventLabel, formatHandicap, formatPts } from '../../history/format';
 import { matchInfo, type MatchInfo } from '../../history/stats';
 import { fmt } from '../guide/dates';
-import Emblem from '../guide/Emblem';
+import { TeamEmblem } from '../guide/Emblem';
 import { Card } from '../guide/parts';
 import { BackLink, Names, NotFound } from './parts';
 import Scorecard from './Scorecard';
@@ -39,9 +39,7 @@ function ResultBanner({ info }: { info: MatchInfo }) {
       className="relative overflow-hidden rounded-2xl px-5 py-4 text-white"
       style={{ background: winner?.color ?? '#4b5563' }}
     >
-      {winner?.emblem && (
-        <Emblem name={winner.emblem} className="absolute -right-2 -bottom-3 w-20 h-20 opacity-20 pointer-events-none" />
-      )}
+      {winner && <TeamEmblem team={winner} plate={false} className="absolute -right-2 -bottom-3 w-20 h-20 opacity-20 pointer-events-none" />}
       <p className="text-xl font-bold tracking-tight">{headline}</p>
       <p className="text-sm opacity-80 mt-0.5">{points}</p>
     </div>
@@ -57,7 +55,7 @@ function Sides({ info }: { info: MatchInfo }) {
       {teams.map((team) => (
         <Card key={team.id} className="!p-4">
           <p className="flex items-center gap-1.5 text-sm font-semibold" style={{ color: team.color }}>
-            {team.emblem && <Emblem name={team.emblem} className="w-4 h-4 shrink-0" />}
+            <TeamEmblem team={team} className="w-4 h-4 shrink-0" />
             {team.name}
           </p>
           <ul className="mt-2 space-y-2">

@@ -65,3 +65,14 @@ Until step 9c, the GitHub Pages address (`mreese84.github.io/university-golf-lea
 3. In GitHub, open this repo's **Settings → General**, scroll to **Danger Zone**, click **Change visibility** and choose **Make private**. The `mreese84.github.io/university-golf-league` address stops working; it only went up on 2026-11-09, so few links use it.
 
 Deploys, previews and tests keep running in a private repo. GitHub's free plan includes 2,000 minutes of Actions a month for private repos, far more than these use.
+
+## Photos and logos (Phase 2)
+
+Profile photos and team logos are uploaded to Cloud Storage for Firebase, which the Blaze plan covers. Storage has to be turned on before the Phase 2 pull request is merged, since every deploy then publishes `storage.rules`:
+
+1. Firebase console → **Build → Storage → Get started**. Choose **production mode** (the repo's rules replace the console's on the next deploy). If it asks for a location, pick `us-central1`, `us-east1` or `us-west1`: those keep the bucket within Firebase's no-cost usage.
+2. At the top of Storage's **Files** tab is the bucket's name, like `gs://ugl-selector.firebasestorage.app`. If it isn't your project ID followed by `.firebasestorage.app`, add a GitHub secret `VITE_FIREBASE_STORAGE_BUCKET` with the name, leaving out `gs://`. Otherwise there's nothing to add.
+3. Merge. The **Deploy** workflow publishes the site and the database rules, then the storage rules in a step of its own. If that step fails with a permission error, add the role **Cloud Storage for Firebase Admin** to the `github-deploy` account (as in step 2 above) and re-run the workflow; the site has gone out either way.
+4. Move the photos that are built into the app: on the live site open **Admin → Profile photos** and press **Move all 8**. Do the same on the preview, which uses the dev data, if you want them there too. Then tell Claude, and the built-in copies come out of the repo.
+
+Who can change what: a person, their chapter's organizers and admins can change their profile photo (on **Your profile**, or the **Members** tab), and organizers upload team logos in the Player's Guide's **Teams and houses** editor. Uploads go into the uploader's own folder (`envs/live/uploads/…` or `envs/dev/uploads/…`); photos are cropped to 900×1200 and logos fitted into 512×512 before they go up, and anything over 2 MB, or that isn't a JPEG or PNG, is refused.

@@ -1,7 +1,8 @@
 name: Deploy
 
 # On every merge to main: build the site and publish it to Firebase Hosting together with the
-# database rules (firestore.rules). Setup: docs/firebase-hosting-setup.md
+# database rules (firestore.rules), then the storage rules for uploaded photos and logos
+# (storage.rules). Setup: docs/firebase-hosting-setup.md
 
 on:
   push:
@@ -31,6 +32,7 @@ jobs:
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }} # optional
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
       - uses: google-github-actions/auth@v3
         with:
@@ -39,6 +41,16 @@ jobs:
         run: >
           npx --yes firebase-tools@15.34.2 deploy
           --only hosting,firestore:rules
+          --project "$PROJECT_ID"
+          --message "${{ github.sha }}"
+          --non-interactive
+        env:
+          PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+      # Separate, so the site still goes out if Storage isn't turned on yet (docs/firebase-hosting-setup.md)
+      - name: Publish the storage rules
+        run: >
+          npx --yes firebase-tools@15.34.2 deploy
+          --only storage
           --project "$PROJECT_ID"
           --message "${{ github.sha }}"
           --non-interactive

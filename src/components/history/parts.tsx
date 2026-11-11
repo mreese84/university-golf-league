@@ -4,7 +4,7 @@ import { useHistory } from '../../history/historyContext';
 import { formatPoints } from '../../history/format';
 import type { MatchInfo, Outcome, Standings } from '../../history/stats';
 import type { EventTeam, HistoryEvent } from '../../history/types';
-import Emblem from '../guide/Emblem';
+import { TeamEmblem } from '../guide/Emblem';
 import { Card } from '../guide/parts';
 
 // In-app link (Cmd/Ctrl-click still opens a new tab)
@@ -28,7 +28,7 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   return <h3 className="text-xs font-semibold uppercase tracking-wider text-green-700">{children}</h3>;
 }
 
-// Team emblem on a circle of the team color
+// Team logo or emblem on a circle of the team color, or the team's initial
 export function TeamMark({ team, className = 'w-6 h-6' }: { team: EventTeam; className?: string }) {
   return (
     <span
@@ -36,7 +36,7 @@ export function TeamMark({ team, className = 'w-6 h-6' }: { team: EventTeam; cla
       style={{ background: team.color }}
       title={team.name}
     >
-      {team.emblem ? <Emblem name={team.emblem} className="w-[70%] h-[70%]" /> : team.name.replace(/^Team /, '')[0]}
+      {team.logo || team.emblem ? <TeamEmblem team={team} className="w-[70%] h-[70%]" /> : team.name.replace(/^Team /, '')[0]}
     </span>
   );
 }
@@ -129,7 +129,7 @@ export function MarginPill({ info }: { info: MatchInfo }) {
       style={{ background: team.color }}
       title={`${team.name} won`}
     >
-      {team.emblem && <Emblem name={team.emblem} className="w-3.5 h-3.5 -ml-0.5" />}
+      <TeamEmblem team={team} className="w-3.5 h-3.5 -ml-0.5" />
       {margin}
     </span>
   );
@@ -192,8 +192,8 @@ export function Scoreboard({ event, standings }: { event: HistoryEvent; standing
       <div className="grid grid-cols-2 gap-px rounded-2xl overflow-hidden">
         {event.teams.slice(0, 2).map((team) => (
           <div key={team.id} className="relative px-4 py-4 text-white overflow-hidden" style={{ background: team.color }}>
-            {team.emblem && (
-              <Emblem name={team.emblem} className="absolute -right-3 -bottom-3 w-20 h-20 opacity-15 pointer-events-none" />
+            {(team.logo || team.emblem) && (
+              <TeamEmblem team={team} plate={false} className="absolute -right-3 -bottom-3 w-20 h-20 opacity-15 pointer-events-none" />
             )}
             <p className="text-sm font-semibold leading-tight">{team.name}</p>
             <p className="text-4xl font-bold tabular-nums tracking-tight mt-1">{formatPoints(points[team.id])}</p>

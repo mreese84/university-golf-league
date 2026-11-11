@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { GuideTeam } from '../../types';
-import Emblem from './Emblem';
+import { TeamEmblem } from './Emblem';
 import { OFF_COURSE, type Bucket } from './fireballBuckets';
 import { Card, Tbd } from './parts';
 
@@ -169,7 +169,7 @@ export function FireballBoard({
         <div className="grid grid-cols-2 gap-px rounded-xl overflow-hidden">
           {teamTotals.map(({ team, total: n }) => (
             <div key={team.id} className="flex items-center gap-2 px-3 py-2.5 text-white" style={{ background: team.color }}>
-              {team.emblem && <Emblem name={team.emblem} className="w-5 h-5 shrink-0" />}
+              <TeamEmblem team={team} className="w-5 h-5 shrink-0" />
               <span className="flex-1 min-w-0 text-sm font-semibold truncate">{team.name.replace(/^Team /, '')}</span>
               <span className="text-xl font-bold tabular-nums">{n}</span>
             </div>
@@ -200,9 +200,9 @@ export function FireballBoard({
                   <td className="py-1.5 text-xs text-gray-400">{r.total > 0 ? rankOf(r.total) : ''}</td>
                   <td className="py-1.5 pr-2">
                     <span className="flex items-center gap-1.5 min-w-0">
-                      {r.team?.emblem && (
+                      {r.team && (r.team.logo || r.team.emblem) && (
                         <span title={r.team.name} className="shrink-0" style={{ color: r.team.color }}>
-                          <Emblem name={r.team.emblem} className="w-3.5 h-3.5" />
+                          <TeamEmblem team={r.team} className="w-3.5 h-3.5" />
                         </span>
                       )}
                       <span className="truncate text-gray-800">{r.name}</span>

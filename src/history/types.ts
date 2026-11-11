@@ -5,7 +5,7 @@ import type { Emblem } from '../types.ts';
 export interface HistoryPlayer {
   id: string; // "jeff-siarto"; permanent
   name: string;
-  photo?: string; // under public/, e.g. "profiles/jeff-siarto.jpg"
+  photo?: string; // an uploaded image's address, or a built-in file under public/ ("profiles/jeff-siarto.jpg")
 }
 
 export interface EventTeam {
@@ -13,6 +13,7 @@ export interface EventTeam {
   name: string;
   color: string; // hex
   emblem?: Emblem;
+  logo?: string; // an uploaded logo's address, shown in place of the emblem
   captain?: string;
   players: string[];
 }

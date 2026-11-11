@@ -20,6 +20,7 @@ import { dataEnv } from '../../dataEnv';
 import { db } from '../../firebase';
 import { buttonClass, inputClass } from '../parts';
 import { photoUrl, type ChapterData } from './data';
+import PhotoEditor from '../PhotoEditor';
 import ProfileForm from './ProfileForm';
 
 const P = pathsFor(dataEnv);
@@ -79,6 +80,7 @@ function ManagePerson({ data, id, entry, person, emails, onClose }: {
 
   return (
     <div className="mt-3 p-4 bg-gray-50 rounded-xl space-y-5">
+      <PhotoEditor personId={id} person={person} />
       <ProfileForm
         person={person}
         allowName

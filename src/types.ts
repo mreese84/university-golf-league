@@ -43,6 +43,7 @@ export interface GuideTeam {
   address: string;
   color: string; // hex
   emblem?: Emblem;
+  logo?: string; // an uploaded logo's address (Phase 2); shown in place of the emblem
   memberIds: string[]; // empty = teams not set yet
   captainId?: string | null;
 }

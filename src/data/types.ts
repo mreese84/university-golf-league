@@ -31,7 +31,7 @@ export interface Person {
   college: string | null;
   bio: string | null;
   ghin: string | null; // GHIN number, linked to the official lookup
-  photo: string | null; // a file under public/ for now ("profiles/mark-reese.jpg"); uploads come in Phase 2
+  photo: string | null; // an uploaded image's address (Storage), or a built-in file under public/ ("profiles/mark-reese.jpg")
   // These three mirror the rosters so the rules can check "shares a chapter" in one lookup. The rules
   // reject roster changes that would leave them out of step.
   chapterIds: string[]; // chapters they've joined

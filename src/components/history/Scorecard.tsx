@@ -3,7 +3,7 @@ import { useHistory } from '../../history/historyContext';
 import { netScores, statusText, strokesOnHole } from '../../history/scoring';
 import type { MatchInfo } from '../../history/stats';
 import type { EventTeam } from '../../history/types';
-import Emblem from '../guide/Emblem';
+import { TeamEmblem } from '../guide/Emblem';
 
 interface Column {
   id: string;
@@ -87,7 +87,7 @@ export default function Scorecard({ info }: { info: MatchInfo }) {
               <th className="py-2 font-medium">Par</th>
               {columns.map((c) => (
                 <th key={c.id} className="py-2 font-semibold normal-case tracking-normal" style={{ color: c.team.color }}>
-                  {c.team.emblem && <Emblem name={c.team.emblem} className="w-3.5 h-3.5 mx-auto mb-0.5" />}
+                  <TeamEmblem team={c.team} className="w-3.5 h-3.5 mx-auto mb-0.5" />
                   <span className="block truncate px-0.5">{firstName(c.id)}</span>
                 </th>
               ))}
@@ -139,7 +139,7 @@ export default function Scorecard({ info }: { info: MatchInfo }) {
                           style={{ background: leader.color }}
                           title={`${leader.name} ${statusText(hole.up)}`}
                         >
-                          {leader.emblem && <Emblem name={leader.emblem} className="w-3 h-3" />}
+                          <TeamEmblem team={leader} className="w-3 h-3" />
                           {statusText(hole.up)}
                         </span>
                       ) : (

@@ -1,0 +1,28 @@
+rules_version = '2';
+
+// Uploaded images (Phase 2): profile photos and team logos. Each signed-in person uploads only into
+// their own folder, envs/{live|dev}/uploads/{their sign-in ID}/, and only images of up to 2 MB
+// (the app shrinks them first: photos to 900×1200, logos to 512×512). Who may put a photo on a
+// profile or a logo on a team is the database's call (firestore.rules), when the image's address
+// is saved there. Reads need a sign-in; the app shows images by their download address, which
+// carries its own token. Tests: tests/rules/storage.rules.test.ts.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /envs/{env}/uploads/{uid}/{name} {
+      function owner() {
+        return env in ['live', 'dev']
+          && request.auth != null
+          && request.auth.uid == uid
+          && request.auth.token.email_verified == true;
+      }
+      allow read: if request.auth != null;
+      // A new file only: an upload never replaces another (each gets its own name)
+      allow create: if owner()
+        && resource == null
+        && name.matches('(photo|logo)-[a-z0-9-]+[.](jpg|png)')
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png)');
+      allow delete: if owner();
+    }
+  }
+}
