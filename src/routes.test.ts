@@ -24,6 +24,7 @@ describe('addresses', () => {
     expect(parseRoute('/founders/players')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'players' } });
     expect(parseRoute('/founders/players/mark-reese')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'player', playerId: 'mark-reese' } });
     expect(parseRoute('/founders/superlatives')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'superlatives' } });
+    expect(parseRoute('/founders/badges')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'badges' } });
   });
 
   it('send the addresses from before the switch into The Founder’s Chapter', () => {
@@ -37,6 +38,7 @@ describe('addresses', () => {
     expect(parseRoute('/', '#/guide/abc123')).toEqual(redirect('/founders')); // the old trip IDs aren't kept
     expect(parseRoute('/next')).toEqual(redirect('/'));
     expect(parseRoute('/move-over')).toEqual(redirect('/')); // gone after the move (step 9c)
+    expect(parseRoute('/badges')).toEqual(redirect('/')); // new since, so only under a chapter
   });
 
   it('tidy a trailing slash, then follow the address', () => {

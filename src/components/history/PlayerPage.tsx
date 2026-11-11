@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useHistory } from '../../history/historyContext';
 import { eventLabel, formatHandicap, formatPoints, formatRecord } from '../../history/format';
 import type { PlayerMatch, WinLoss } from '../../history/stats';
+import BadgeChips from '../badges/BadgeChips';
 import { Card } from '../guide/parts';
 import { BackLink, Link, Names, NotFound, OutcomeBadge, SectionTitle } from './parts';
 
@@ -78,7 +79,7 @@ function MatchLine({ m }: { m: PlayerMatch }) {
 // One player's record. History follows individuals, so each year's team is named but there are no
 // team logos here.
 export default function PlayerPage({ playerId }: { playerId: string }) {
-  const { stats, nameOf, photoOf, links } = useHistory();
+  const { stats, badges, nameOf, photoOf, links } = useHistory();
   const s = stats.get(playerId);
   if (!s) {
     return (
@@ -117,6 +118,11 @@ export default function PlayerPage({ playerId }: { playerId: string }) {
             </span>
           ))}
         </div>
+        {badges.has(s.id) && (
+          <div className="mt-3">
+            <BadgeChips badges={badges.get(s.id)!} href={links.badges} />
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-3">

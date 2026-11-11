@@ -20,7 +20,7 @@ export function personIdFor(name: string, taken: Iterable<string>) {
 
 // Words the app's addresses use, which a chapter's address can't be (/admin, /me, /profiles/…)
 const RESERVED = new Set([
-  'admin', 'api', 'assets', 'envs', 'finish-sign-in', 'guide', 'history', 'join', 'login', 'me', 'move-over',
+  'admin', 'api', 'assets', 'badges', 'envs', 'finish-sign-in', 'guide', 'history', 'join', 'login', 'me', 'move-over',
   'new', 'next', 'players', 'profiles', 'request', 'signin', 'superlatives',
 ]);
 

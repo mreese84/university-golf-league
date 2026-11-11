@@ -1,17 +1,20 @@
 import { useMemo } from 'react';
+import { COMMISSIONER_PERSON_ID } from '../../data/commissioner';
 import { historyFromChapter } from '../../data/history';
 import { useLiveCollections, useLiveDocs } from '../../data/hooks';
 import { pathsFor } from '../../data/paths';
 import type { GuideContent, Handicap, Match } from '../../data/types';
 import { dataEnv } from '../../dataEnv';
+import { earnedBadges } from '../../history/badges';
 import { makeHistoryModel } from '../../history/model';
 import { chapterHistoryLinks } from '../../routes';
-import type { ChapterData } from './data';
+import { hasJoined, type ChapterData } from './data';
 
 const P = pathsFor(dataEnv);
 
 // The chapter's competition record from the database: each competition trip's guide (teams, rounds,
-// sessions), handicaps and matches, in the shape the history pages read. Only this chapter's.
+// sessions), handicaps and matches, in the shape the history pages read, with the badges its people
+// have earned. Only this chapter's.
 export function useChapterHistory(data: ChapterData) {
   const c = data.chapterId;
   const trips = data.trips.filter((t) => t.competition);
@@ -33,10 +36,13 @@ export function useChapterHistory(data: ChapterData) {
       matches: matches[P.matches(c, trip.id)] ?? [],
     }));
     const people = Object.entries(data.people).map(([id, person]) => ({ id, person }));
-    return makeHistoryModel(historyFromChapter(people, records), chapterHistoryLinks(c), import.meta.env.BASE_URL);
+    const model = makeHistoryModel(historyFromChapter(people, records), chapterHistoryLinks(c), import.meta.env.BASE_URL);
+    const members = data.roster.filter(hasJoined).map((e) => e.id);
+    const badges = earnedBadges({ chapterId: c, stats: model.stats, trips: data.trips, members, commissionerId: COMMISSIONER_PERSON_ID });
+    return { ...model, badges };
     // trips is derived from data.trips
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [c, data.trips, data.people, guides, handicaps, matches]);
+  }, [c, data.trips, data.people, data.roster, guides, handicaps, matches]);
 
   return { ready, model };
 }

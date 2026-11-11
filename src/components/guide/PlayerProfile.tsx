@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { formatHandicap, formatPoints, formatRecord } from '../../history/format';
 import type { WinLoss } from '../../history/stats';
+import type { EarnedBadge } from '../../history/badges';
 import { followLink } from '../../routes';
 import type { GuideTeam } from '../../types';
+import BadgeChips from '../badges/BadgeChips';
 import Emblem from './Emblem';
 import { inputClass } from './parts';
 
@@ -18,6 +20,7 @@ export interface ProfileView {
   historyUrl: string | null; // the public record page
   fireball: number | null; // shots this trip; null when unavailable
   superlatives: { title: string; value: string; where: string }[];
+  badges: { list: EarnedBadge[]; href: string }; // linking to the chapter's Badges page
   bio: string | null;
   bioLoading: boolean;
 }
@@ -168,6 +171,11 @@ export function ProfileSheet({ profile: p, theme, onClose, onSaveBio }: ProfileS
               )}
               {p.college && <span>{p.college}</span>}
             </div>
+            {p.badges.list.length > 0 && (
+              <div className="mt-3">
+                <BadgeChips badges={p.badges.list} href={p.badges.href} />
+              </div>
+            )}
           </div>
 
           {/* Numbers */}
