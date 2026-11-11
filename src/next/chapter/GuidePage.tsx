@@ -16,7 +16,7 @@ import { dataEnv } from '../../dataEnv';
 import { db } from '../../firebase';
 import { eventLabel } from '../../history/format';
 import type { HistoryModel } from '../../history/model';
-import { chapterPath, followLink } from '../../routes';
+import { chapterPath, followLink, tripResultsPath } from '../../routes';
 import type { PlayerGuide } from '../../types';
 import type { ChapterTrip } from '../chapterTrips';
 import { Notice, Waiting, buttonClass } from '../parts';
@@ -253,12 +253,25 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
         )}
         {data.canManage && (
           <div className="flex items-center justify-end gap-4 text-xs text-gray-400">
+            <a href={tripResultsPath(c, tripId)} onClick={(e) => followLink(e, tripResultsPath(c, tripId))} className="font-medium text-green-700 hover:underline">
+              Results
+            </a>
             <button onClick={deleteGuide} disabled={busy} className="hover:text-red-500 cursor-pointer">
               Delete guide
             </button>
           </div>
         )}
-        {data.canManage && (
+        {/* With results, the teams and pairings are the record, so they stay as they are */}
+        {data.canManage && locked && (
+          <p className="text-xs text-gray-500 bg-gray-100 rounded-xl px-4 py-2">
+            Teams and pairings are locked: this trip has results. Fix a match on the{' '}
+            <a href={tripResultsPath(c, tripId)} onClick={(e) => followLink(e, tripResultsPath(c, tripId))} className="text-green-700 underline">
+              Results page
+            </a>
+            .
+          </p>
+        )}
+        {data.canManage && !locked && (
           <PairingsAdmin
             guide={guideForView(trip, content, handicaps)}
             draft={draftStatus === 'ready' || draftStatus === 'missing' ? draftForView(draft, handicaps) : null}

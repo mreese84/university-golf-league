@@ -37,6 +37,7 @@ export default function App() {
         {route.page === 'me' && <ProfilePage />}
         {route.page === 'chapter' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab={route.tab} history={route.history} />}
         {route.page === 'tripGuide' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab="trips" guideTripId={route.tripId} />}
+        {route.page === 'tripResults' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab="trips" resultsTripId={route.tripId} />}
       </NextLayout>
     </SessionProvider>
   );

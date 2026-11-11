@@ -20,7 +20,7 @@ import {
 import { applyDraftToContent, clearPairingsInContent } from './guide';
 import { normalizeEmail, pathsFor } from './paths';
 import type { GuideDraft } from '../types';
-import type { ChapterRequest, DataEnv, GuideContent, JoinedStatus, Person, Response, Role, RosterEntry } from './types';
+import type { ChapterRequest, DataEnv, GuideContent, JoinedStatus, Match, Person, Response, Role, RosterEntry } from './types';
 
 // Today as YYYY-MM-DD, for `since`
 const today = () => new Date().toISOString().slice(0, 10);
@@ -340,6 +340,35 @@ export function removeFromTripList(db: Firestore, env: DataEnv, c: string, t: st
   batch.delete(doc(db, p.rsvp(c, t, personId)));
   batch.delete(doc(db, p.invite(c, t, personId)));
   return batch.commit();
+}
+
+// Saves a trip's results: matches to put and to take out, plus what a Squabbit import fills in (the
+// round's par and stroke index, in the guide, and missing pre-trip handicaps). The trip becomes a
+// competition, so the History tab shows it. Organizers only; check the results first
+// (checkResults in src/data/results.ts). Saves go six at a time, inside Firestore's limit on rule
+// lookups per save.
+export async function saveResults(
+  db: Firestore,
+  env: DataEnv,
+  c: string,
+  t: string,
+  change: { put: (Match & { id: string })[]; remove: string[]; guide?: GuideContent; handicaps?: Record<string, number>; by: string },
+) {
+  const p = pathsFor(env);
+  const writes: ((batch: ReturnType<typeof writeBatch>) => void)[] = [
+    ...change.remove.map((id) => (b: ReturnType<typeof writeBatch>) => b.delete(doc(db, p.match(c, t, id)))),
+    ...change.put.map(({ id, ...m }) => (b: ReturnType<typeof writeBatch>) => b.set(doc(db, p.match(c, t, id)), JSON.parse(JSON.stringify(m)))),
+    ...Object.entries(change.handicaps ?? {}).map(([person, index]) => (b: ReturnType<typeof writeBatch>) =>
+      b.set(doc(db, p.handicap(c, t, person)), { index, updatedBy: change.by, updatedAt: serverTimestamp() }),
+    ),
+    ...(change.guide ? [(b: ReturnType<typeof writeBatch>) => b.set(doc(db, p.guide(c, t)), JSON.parse(JSON.stringify(change.guide)))] : []),
+    (b: ReturnType<typeof writeBatch>) => b.update(doc(db, p.trip(c, t)), { competition: true }),
+  ];
+  for (let i = 0; i < writes.length; i += 6) {
+    const batch = writeBatch(db);
+    for (const write of writes.slice(i, i + 6)) write(batch);
+    await batch.commit();
+  }
 }
 
 // Adds (or with -1, takes back) a Fireball shot

@@ -44,6 +44,7 @@ import {
   moveInviteToRsvp,
   removeFromTripList,
   clearHandicap,
+  saveResults,
   setRole,
   setRsvp,
   setStatus,
@@ -392,6 +393,26 @@ describe('Who’s coming: invite notes, RSVPs and handicaps', () => {
     await no(clearHandicap(as('alice'), 'live', 'founders', TRIP, id('fred')));
     await ok(clearHandicap(as('fred'), 'live', 'founders', TRIP, id('fred')));
     await ok(clearHandicap(as('oscar'), 'live', 'founders', TRIP, id('fred')));
+  });
+});
+
+describe('Save results', () => {
+  const match = { id: 'fourball-2', session: 'fourball', match: 2, sides: { palmetto: [id('fred')], crescent: [id('jeff')] }, result: { winner: null, margin: 'AS', points: { palmetto: 0.5, crescent: 0.5 } } };
+
+  it('an organizer saves matches, fills handicaps and the course, and the trip becomes a competition', async () => {
+    await ok(saveResults(as('oscar'), 'live', 'founders', TRIP, { put: [match], remove: ['fourball-1'], handicaps: { [id('fred')]: 11.2 }, guide: { flights: [] } as never, by: id('oscar') }));
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      const db = firestoreOf(ctx);
+      if (!(await getDoc(doc(db, L.match('founders', TRIP, 'fourball-2')))).exists()) throw new Error('match not saved');
+      if ((await getDoc(doc(db, L.match('founders', TRIP, 'fourball-1')))).exists()) throw new Error('match not removed');
+      if ((await getDoc(doc(db, L.trip('founders', TRIP)))).data()?.competition !== true) throw new Error('not a competition');
+      if ((await getDoc(doc(db, L.handicap('founders', TRIP, id('fred'))))).data()?.index !== 11.2) throw new Error('handicap not filled');
+    });
+  });
+
+  it('members and other chapters’ organizers can’t', async () => {
+    await no(saveResults(as('fred'), 'live', 'founders', TRIP, { put: [match], remove: [], by: id('fred') }));
+    await no(saveResults(as('olive'), 'live', 'founders', TRIP, { put: [match], remove: [], by: id('olive') }));
   });
 });
 
