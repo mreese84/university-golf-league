@@ -9,6 +9,8 @@ describe('addresses', () => {
     expect(parseRoute('/')).toEqual({ page: 'home' });
     expect(parseRoute('/finish-sign-in')).toEqual({ page: 'finishSignIn' });
     expect(parseRoute('/me')).toEqual({ page: 'me' });
+    expect(parseRoute('/request')).toEqual({ page: 'requestChapter' });
+    expect(parseRoute('/admin')).toEqual({ page: 'admin' });
     expect(parseRoute('/founders')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'trips' });
     expect(parseRoute('/founders/selection')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'selection' });
     expect(parseRoute('/founders/members')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'members' });

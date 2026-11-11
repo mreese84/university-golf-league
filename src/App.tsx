@@ -4,6 +4,8 @@ import FinishSignIn from './next/FinishSignIn';
 import HomePage from './next/HomePage';
 import { NextLayout } from './next/parts';
 import ProfilePage from './next/ProfilePage';
+import RequestChapterPage from './next/RequestChapterPage';
+import AdminPage from './next/AdminPage';
 import { SessionProvider } from './next/session';
 import { currentRoute, navigate } from './routes';
 
@@ -35,6 +37,8 @@ export default function App() {
         {route.page === 'home' && <HomePage />}
         {route.page === 'finishSignIn' && <FinishSignIn />}
         {route.page === 'me' && <ProfilePage />}
+        {route.page === 'requestChapter' && <RequestChapterPage />}
+        {route.page === 'admin' && <AdminPage />}
         {route.page === 'chapter' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab={route.tab} history={route.history} />}
         {route.page === 'tripGuide' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab="trips" guideTripId={route.tripId} />}
         {route.page === 'tripResults' && <ChapterPage key={route.chapterId} chapterId={route.chapterId} tab="trips" resultsTripId={route.tripId} />}

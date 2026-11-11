@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { isDevData } from '../dataEnv';
-import { followLink, mePath, homePath } from '../routes';
+import { adminPath, followLink, mePath, homePath } from '../routes';
 import UserAvatar from '../components/UserAvatar';
 import { useSession } from './sessionContext';
 
@@ -34,7 +34,7 @@ export function Badge({ size }: { size: 'small' | 'large' }) {
 
 // The frame around every Phase 1 page: the dev-data banner, and a header once someone is signed in
 export function NextLayout({ children }: { children: ReactNode }) {
-  const { user, logOut } = useSession();
+  const { user, logOut, isAdmin } = useSession();
   return (
     <div className="min-h-screen bg-gray-50">
       {isDevData && (
@@ -49,6 +49,11 @@ export function NextLayout({ children }: { children: ReactNode }) {
               <Badge size="small" />
               <span className="font-bold text-gray-900 tracking-tight truncate">University Golf League</span>
             </a>
+            {isAdmin && (
+              <a href={adminPath()} onClick={(e) => followLink(e, adminPath())} className="text-xs font-medium text-gray-500 hover:text-green-700">
+                Admin
+              </a>
+            )}
             <a href={mePath()} onClick={(e) => followLink(e, mePath())} title="Your profile">
               <UserAvatar key={user.uid} user={user} />
             </a>
