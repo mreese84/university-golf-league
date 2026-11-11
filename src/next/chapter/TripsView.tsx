@@ -10,7 +10,9 @@ import type { Trip as OldTrip } from '../../types';
 import { byDate, newTrip, newTripId, type ChapterTrip, type TripFields } from '../chapterTrips';
 import { followLink, tripGuidePath } from '../../routes';
 import { buttonClass } from '../parts';
+import { isUpcoming } from '../../data/rsvp';
 import { joinedPeople, nameOf, tripDate, type ChapterData } from './data';
+import WhosComing from './WhosComing';
 
 const P = pathsFor(dataEnv);
 
@@ -84,6 +86,7 @@ function TripCard({ data, trip, hasGuide, onEdit, onDelete }: { data: ChapterDat
           ))}
         </div>
       </div>
+      {isUpcoming(trip, new Date().toLocaleDateString('en-CA')) && <WhosComing data={data} trip={trip} />}
       {(hasGuide || (hasGuide === false && data.canManage)) && (
         <a
           href={guide}

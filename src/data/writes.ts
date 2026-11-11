@@ -7,6 +7,7 @@ import {
   arrayRemove,
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   getDocs,
   increment,
@@ -310,6 +311,35 @@ export function setHandicap(db: Firestore, env: DataEnv, c: string, t: string, p
 
 export function setRsvp(db: Firestore, env: DataEnv, c: string, t: string, personId: string, response: Response, note: string | null = null) {
   return setDoc(doc(db, pathsFor(env).rsvp(c, t, personId)), { response, note, updatedAt: serverTimestamp() });
+}
+
+// Takes a pre-trip handicap back out (the player or an organizer)
+export function clearHandicap(db: Firestore, env: DataEnv, c: string, t: string, personId: string) {
+  return deleteDoc(doc(db, pathsFor(env).handicap(c, t, personId)));
+}
+
+// An organizer's note on how someone answered who hasn't joined the chapter yet (hidden from members)
+export function setInviteNote(db: Firestore, env: DataEnv, c: string, t: string, personId: string, response: Response, note: string | null = null) {
+  return setDoc(doc(db, pathsFor(env).invite(c, t, personId)), { response, note, updatedAt: serverTimestamp() });
+}
+
+// Someone invited to the trip before they joined has joined since: their answer becomes an RSVP,
+// which members can see, and the organizers' note goes. Organizers only.
+export function moveInviteToRsvp(db: Firestore, env: DataEnv, c: string, t: string, personId: string, response: Response, note: string | null = null) {
+  const p = pathsFor(env);
+  const batch = writeBatch(db);
+  batch.set(doc(db, p.rsvp(c, t, personId)), { response, note, updatedAt: serverTimestamp() });
+  batch.delete(doc(db, p.invite(c, t, personId)));
+  return batch.commit();
+}
+
+// Takes someone off the trip's list: their RSVP and any organizers' note. Organizers only.
+export function removeFromTripList(db: Firestore, env: DataEnv, c: string, t: string, personId: string) {
+  const p = pathsFor(env);
+  const batch = writeBatch(db);
+  batch.delete(doc(db, p.rsvp(c, t, personId)));
+  batch.delete(doc(db, p.invite(c, t, personId)));
+  return batch.commit();
 }
 
 // Adds (or with -1, takes back) a Fireball shot
