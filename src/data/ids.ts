@@ -29,3 +29,14 @@ const RESERVED = new Set([
 export function isValidChapterId(id: string) {
   return /^[a-z][a-z0-9-]{1,39}$/.test(id) && !id.endsWith('-') && !RESERVED.has(id);
 }
+
+// A new chapter's address from its name ("Austin Crew" -> "austin-crew"): starts with a letter, at
+// most 40 characters, never one of the app's words, and unique (-2, -3… when taken)
+export function chapterIdFor(name: string, taken: Iterable<string>) {
+  const used = new Set(taken);
+  let base = slugify(name).slice(0, 34).replace(/-+$/, '');
+  if (!/^[a-z]/.test(base)) base = `chapter-${base}`.replace(/-+$/, '');
+  if (!isValidChapterId(base)) base = `${base}-chapter`;
+  if (!used.has(base)) return base;
+  for (let n = 2; ; n++) if (!used.has(`${base}-${n}`)) return `${base}-${n}`;
+}

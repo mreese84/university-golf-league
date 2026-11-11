@@ -1,7 +1,7 @@
 import { updateProfile } from '../data/writes';
 import { dataEnv } from '../dataEnv';
 import { db } from '../firebase';
-import { mePath } from '../routes';
+import { followLink, mePath, requestChapterPath } from '../routes';
 import { photoUrl } from './chapter/data';
 import ProfileForm from './chapter/ProfileForm';
 import { NotInLeague, SessionError, SessionWaiting } from './HomePage';
@@ -33,6 +33,9 @@ export default function ProfilePage() {
         <ProfileForm key={personId} person={person} allowName={false} onSave={(changes) => updateProfile(db, dataEnv, personId, changes)} />
       </div>
       <p className="text-xs text-gray-400">To change your name, ask your chapter's organizer.</p>
+      <a href={requestChapterPath()} onClick={(e) => followLink(e, requestChapterPath())} className="block text-sm font-medium text-green-700">
+        Start a new chapter →
+      </a>
     </div>
   );
 }

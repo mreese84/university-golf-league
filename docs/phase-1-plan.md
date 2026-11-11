@@ -213,6 +213,7 @@ Each trip has a Results page for organizers (`/founders/2026-columbia/results`, 
 
 **13. Chapters.**
 Request a chapter (from the landing page, after signing in). Admins approve, and the requester becomes its organizer. An admin page for chapters, organizers and co-admins (co-admins: commissioner only).
+Anyone signed in asks for a chapter at `/request`, linked from "You're not in a chapter yet" and from their profile, and sees how it's going there. Admins get an Admin link in the header, to `/admin`: pending requests, approved with an address (suggested from the name, checked to be valid and free) and an organizer (the requester's existing record, or a new one with a sign-in for their email), or declined; every chapter with its members and organizers, linking to its Members tab, where admins change roles; and co-admins, which the commissioner adds by sign-in email or removes, and co-admins see.
 
 **14. Installable app.**
 Manifest, icons and a service worker: add to Home Screen, opens offline. It's small and independent, so it can move earlier.

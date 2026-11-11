@@ -23,8 +23,9 @@ import {
   where,
   type Firestore,
 } from 'firebase/firestore';
-import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { exportChapter } from '../../src/data/backup';
+import { organizerFor } from '../../src/data/chapters';
 import { pathsFor } from '../../src/data/paths';
 import type { DataEnv, Person, RosterEntry } from '../../src/data/types';
 import {
@@ -502,6 +503,21 @@ describe('Request a chapter', () => {
     await no(requestChapter(as('stranger'), 'live', { ...stan, uid: 'fred-uid' }, 'Denver Divots', null));
     await no(requestChapter(as('stranger'), 'live', { ...stan, email: 'fred@example.com' }, 'Denver Divots', null));
     await no(setDoc(doc(as('stranger'), L.chapterRequest('sneaky')), { name: 'X', note: null, requestedBy: stan, status: 'approved' }));
+  });
+
+  it('a requester lists their own requests, asking for just theirs', async () => {
+    const mine = (who: Who, uid: string) => getDocs(query(collection(as(who), L.chapterRequests), where('requestedBy.uid', '==', uid)));
+    await ok(mine('sam', 'sam-uid'));
+    await no(mine('fred', 'sam-uid'));
+    await no(list('sam', L.chapterRequests));
+  });
+
+  it('an admin finds who’ll organize: someone already in the league, or someone new', async () => {
+    const request = (email: string, name: string | null) => ({ name: 'X', note: null, status: 'pending' as const, requestedBy: { uid: 'u', email, name } });
+    expect(await organizerFor(as('jeff'), 'live', request('Sam@Example.com', 'Sammy'))).toEqual({ personId: id('sam'), isNew: false, name: 'Sam Second', email: 'sam@example.com' });
+    expect(await organizerFor(as('jeff'), 'live', request('new@example.com', 'Fred Member'))).toEqual({ personId: 'fred-member-2', isNew: true, name: 'Fred Member', email: 'new@example.com' });
+    expect((await organizerFor(as('jeff'), 'live', request('pat@example.com', null))).name).toBe('pat');
+    await no(organizerFor(as('fred'), 'live', request('sam@example.com', null)));
   });
 
   it('requesters see their own requests; admins see them all', async () => {

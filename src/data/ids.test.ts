@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isValidChapterId, personIdFor, slugify } from './ids';
+import { chapterIdFor, isValidChapterId, personIdFor, slugify } from './ids';
 import { normalizeEmail, pathsFor } from './paths';
 
 describe('person IDs', () => {
@@ -24,6 +24,19 @@ describe('chapter IDs', () => {
     for (const id of ['admin', 'history', 'players', 'profiles', 'me', '2026-columbia', 'Founders', 'a', 'x-']) {
       expect(isValidChapterId(id)).toBe(false);
     }
+  });
+});
+
+describe('a new chapter’s address', () => {
+  it('comes from its name, and is always a valid chapter ID', () => {
+    expect(chapterIdFor('Austin Crew', [])).toBe('austin-crew');
+    expect(chapterIdFor('Austin Crew', ['austin-crew'])).toBe('austin-crew-2');
+    expect(chapterIdFor('2027 Crew', [])).toBe('chapter-2027-crew');
+    expect(chapterIdFor('Admin', [])).toBe('admin-chapter');
+    expect(chapterIdFor('!!!', [])).toBe('chapter');
+    const long = chapterIdFor('The Very Long Name of a Golf Chapter in Dallas Fort Worth', []);
+    expect(long.length).toBeLessThanOrEqual(40);
+    for (const id of ['austin-crew', 'chapter-2027-crew', 'admin-chapter', 'chapter', long]) expect(isValidChapterId(id)).toBe(true);
   });
 });
 

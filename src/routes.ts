@@ -2,6 +2,8 @@
 //   /                                 the landing page, or your chapter once you're signed in
 //   /finish-sign-in                   where email sign-in links land
 //   /me                               your profile
+//   /request                          asking for a new chapter
+//   /admin                            chapters, their requests and co-admins (admins only)
 //   /founders                         a chapter's trips; /founders/selection, /founders/members
 //   /founders/2026-columbia/guide     a trip's Player's Guide
 //   /founders/2026-columbia/results   entering a trip's results (organizers)
@@ -38,6 +40,8 @@ export type Route =
   | { page: 'home' }
   | { page: 'finishSignIn' }
   | { page: 'me' }
+  | { page: 'requestChapter' }
+  | { page: 'admin' }
   | { page: 'chapter'; chapterId: string; tab: ChapterTab; history?: HistoryRoute }
   | { page: 'tripGuide'; chapterId: string; tripId: string }
   | { page: 'tripResults'; chapterId: string; tripId: string }
@@ -48,6 +52,8 @@ export const finishSignInPath = () => `${BASE}finish-sign-in`;
 export const chapterPath = (chapterId: string, tab: ChapterTab = 'trips') =>
   `${BASE}${encodeURIComponent(chapterId)}${tab === 'trips' ? '' : `/${tab}`}`;
 export const mePath = () => `${BASE}me`;
+export const requestChapterPath = () => `${BASE}request`;
+export const adminPath = () => `${BASE}admin`;
 export const tripGuidePath = (chapterId: string, tripId: string) => `${BASE}${encodeURIComponent(chapterId)}/${encodeURIComponent(tripId)}/guide`;
 export const tripResultsPath = (chapterId: string, tripId: string) => `${BASE}${encodeURIComponent(chapterId)}/${encodeURIComponent(tripId)}/results`;
 
@@ -100,6 +106,8 @@ export function parseRoute(pathname: string, hash = ''): Route {
 
   if (path === 'finish-sign-in') return { page: 'finishSignIn' };
   if (path === 'me') return { page: 'me' };
+  if (path === 'request') return { page: 'requestChapter' };
+  if (path === 'admin') return { page: 'admin' };
 
   // Old addresses
   if (path === 'next') return redirect(homePath());

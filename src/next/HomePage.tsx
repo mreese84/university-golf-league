@@ -3,7 +3,7 @@ import { useChapter, useLiveDoc } from '../data/hooks';
 import { pathsFor } from '../data/paths';
 import type { RosterEntry } from '../data/types';
 import { dataEnv } from '../dataEnv';
-import { chapterPath, followLink, navigate, homePath } from '../routes';
+import { chapterPath, followLink, navigate, homePath, requestChapterPath } from '../routes';
 import { describeEntry } from './labels';
 import Landing from './Landing';
 import { Notice, Waiting, buttonClass } from './parts';
@@ -41,6 +41,13 @@ export function NotInLeague() {
         You're signed in as <span className="font-medium text-gray-700">{user?.email}</span>, but no chapter has added that email.
       </p>
       <p>Ask your chapter's organizer to add it, or sign out and sign in with the email they have.</p>
+      <p>
+        Starting a chapter of your own?{' '}
+        <a href={requestChapterPath()} onClick={(e) => followLink(e, requestChapterPath())} className="text-green-700 font-medium">
+          Ask for one
+        </a>
+        .
+      </p>
       {joinError && <p className="text-red-600">{joinError}</p>}
       <button onClick={logOut} className={buttonClass}>
         Sign out
