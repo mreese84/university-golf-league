@@ -4,13 +4,11 @@ import { organizerFor, type RequestOrganizer } from '../data/chapters';
 import { COMMISSIONER_EMAIL } from '../data/commissioner';
 import { useLiveCollection, useLiveCollections, useLiveDoc, usePeople } from '../data/hooks';
 import { chapterIdFor, isValidChapterId } from '../data/ids';
-import { imageUrl, isUploaded } from '../data/images';
 import { normalizeEmail, pathsFor } from '../data/paths';
-import { JOINED_STATUSES, type AdminsConfig, type Chapter, type ChapterRequest, type Login, type Person, type RosterEntry } from '../data/types';
-import { uploadImage } from '../data/uploads';
-import { approveChapterRequest, declineChapterRequest, setCoAdmins, updateProfile } from '../data/writes';
+import { JOINED_STATUSES, type AdminsConfig, type Chapter, type ChapterRequest, type Login, type RosterEntry } from '../data/types';
+import { approveChapterRequest, declineChapterRequest, setCoAdmins } from '../data/writes';
 import { dataEnv } from '../dataEnv';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
 import { adminPath, chapterPath, followLink } from '../routes';
 import { SessionError, SessionWaiting } from './HomePage';
 import Landing from './Landing';
@@ -186,56 +184,6 @@ function CoAdmins({ ids, names, canChange }: { ids: string[]; names: Record<stri
   );
 }
 
-// The profile photos from before Phase 2 are files the app carries (public/profiles/). This moves
-// each into Storage, as if uploaded, so it can be changed from the app like any other; once the
-// live and dev data have both been moved, the files can leave the repo.
-function BuiltInPhotos({ uid }: { uid: string }) {
-  const { items: people, status } = useLiveCollection<Person>(P.people, `admin-people:${uid}`);
-  const [moving, setMoving] = useState<{ at: number; of: number } | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const builtIn = people.filter((p) => p.photo && !isUploaded(p.photo)).sort((a, b) => a.name.localeCompare(b.name));
-  const uploaded = people.filter((p) => p.photo && isUploaded(p.photo)).length;
-
-  const move = async () => {
-    setError(null);
-    const all = [...builtIn]; // the list shrinks as each moves
-    for (const [i, person] of all.entries()) {
-      setMoving({ at: i + 1, of: all.length });
-      try {
-        const file = await fetch(imageUrl(person.photo, import.meta.env.BASE_URL)!);
-        if (!file.ok) throw new Error(`${file.status}`);
-        const url = await uploadImage(storage, dataEnv, uid, 'photo', person.id, await file.blob());
-        await updateProfile(db, dataEnv, person.id, { photo: url });
-      } catch (err) {
-        console.error(err);
-        setError(`${person.name}'s photo didn't move. Check your connection and try again; the ones already moved stay moved.`);
-        break;
-      }
-    }
-    setMoving(null);
-  };
-
-  if (status === 'loading') return <p className="text-sm text-gray-400">Loading…</p>;
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
-      {builtIn.length === 0 ? (
-        <p className="text-sm text-gray-600">Every profile photo is an upload{uploaded ? ` (${uploaded})` : ''}, so each can be changed from its profile.</p>
-      ) : (
-        <>
-          <p className="text-sm text-gray-600">
-            {builtIn.length === 1 ? '1 photo is' : `${builtIn.length} photos are`} still built into the app: {builtIn.map((p) => p.name).join(', ')}. Move them to
-            Storage so they can be changed from profiles like the rest.
-          </p>
-          <button onClick={() => void move()} disabled={moving !== null} className={buttonClass}>
-            {moving ? `Moving ${moving.at} of ${moving.of}…` : `Move ${builtIn.length === 1 ? 'it' : `all ${builtIn.length}`}`}
-          </button>
-        </>
-      )}
-      {error && <p className="text-sm text-red-600">{error}</p>}
-    </div>
-  );
-}
-
 function AdminHome() {
   const { user, personId } = useSession();
   const uid = user!.uid;
@@ -256,7 +204,7 @@ function AdminHome() {
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Admin</h2>
-        <p className="text-sm text-gray-500 mt-1">Chapters, the requests for new ones, who helps run the league, and profile photos.</p>
+        <p className="text-sm text-gray-500 mt-1">Chapters, the requests for new ones, and who helps run the league.</p>
       </div>
 
       <Section title={`Chapter requests${pending.length ? ` (${pending.length})` : ''}`}>
@@ -314,10 +262,6 @@ function AdminHome() {
 
       <Section title="Co-admins">
         <CoAdmins ids={coAdminIds} names={names} canChange={isCommissioner} />
-      </Section>
-
-      <Section title="Profile photos">
-        <BuiltInPhotos uid={uid} />
       </Section>
     </div>
   );
