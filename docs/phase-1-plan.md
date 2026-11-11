@@ -205,6 +205,7 @@ Organizers start a trip's guide empty and fill in each part with its own Edit bu
 
 **11. Handicaps, invites and RSVPs.**
 One pre-trip index per player, entered by the player or the organizer, next to their GHIN number linked to the official lookup. Pairings use it. Invites and RSVPs replace the planning spreadsheet's Invites tab: organizers see everyone invited, and members see RSVPs from people who have joined.
+On the Trips tab, each upcoming trip has a "Who's coming" list. Organizers invite people from the roster (all active members in one click), change anyone's answer, note and handicap, take people off, and make the yeses the trip's attendees. Members see everyone who's joined and their answers, and answer for themselves (yes, maybe or no, with a note); a player who's coming enters their handicap index there, beside their GHIN number. Invitees' answers are organizers' notes, hidden from members, until they join; then an organizer's next save turns the note into an RSVP.
 
 **12. Results.**
 A results editor to add or fix a match. The Squabbit converter comes back writing straight to the database instead of to files: it left with the history files in 9c, and its CSV reading and checks are in `scripts/squabbit.ts` as of commit `b10a079`. Until then there's no way to add results, which is fine until the next trip.

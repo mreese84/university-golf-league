@@ -40,6 +40,10 @@ import {
   requestChapter,
   setCoAdmins,
   setHandicap,
+  setInviteNote,
+  moveInviteToRsvp,
+  removeFromTripList,
+  clearHandicap,
   setRole,
   setRsvp,
   setStatus,
@@ -357,6 +361,37 @@ describe('Export the chapter as a backup', () => {
   it('members and other chapters’ organizers can’t', async () => {
     await no(exportChapter(as('fred'), 'live', 'founders'));
     await no(exportChapter(as('olive'), 'live', 'founders'));
+  });
+});
+
+describe('Who’s coming: invite notes, RSVPs and handicaps', () => {
+  it('organizers keep notes on invitees’ answers; members can’t', async () => {
+    await ok(setInviteNote(as('oscar'), 'live', 'founders', TRIP, id('ivy'), 'yes', 'Booked flights'));
+    await no(setInviteNote(as('fred'), 'live', 'founders', TRIP, id('ivy'), 'no'));
+    await no(setInviteNote(as('olive'), 'live', 'founders', TRIP, id('ivy'), 'no'));
+  });
+
+  it('once an invitee has joined, an organizer turns the note into an RSVP members can see', async () => {
+    await no(moveInviteToRsvp(as('oscar'), 'live', 'founders', TRIP, id('ivy'), 'maybe')); // not joined yet
+    await ok(completeJoin(as('ivy'), 'live', 'founders', id('ivy'), 'active'));
+    await no(moveInviteToRsvp(as('fred'), 'live', 'founders', TRIP, id('ivy'), 'maybe'));
+    await ok(moveInviteToRsvp(as('oscar'), 'live', 'founders', TRIP, id('ivy'), 'maybe', 'From the text'));
+    await ok(get('fred', L.rsvp('founders', TRIP, id('ivy'))));
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      if ((await getDoc(doc(firestoreOf(ctx), L.invite('founders', TRIP, id('ivy'))))).exists()) throw new Error('the note is still there');
+    });
+  });
+
+  it('organizers take people off the list; members can’t, even themselves', async () => {
+    await no(removeFromTripList(as('fred'), 'live', 'founders', TRIP, id('fred')));
+    await ok(removeFromTripList(as('oscar'), 'live', 'founders', TRIP, id('fred')));
+    await ok(removeFromTripList(as('oscar'), 'live', 'founders', TRIP, id('ivy')));
+  });
+
+  it('a player takes back their own handicap, and an organizer anyone’s; another member can’t', async () => {
+    await no(clearHandicap(as('alice'), 'live', 'founders', TRIP, id('fred')));
+    await ok(clearHandicap(as('fred'), 'live', 'founders', TRIP, id('fred')));
+    await ok(clearHandicap(as('oscar'), 'live', 'founders', TRIP, id('fred')));
   });
 });
 
