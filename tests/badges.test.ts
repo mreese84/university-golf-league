@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { historyFromChapter } from '../src/data/history.ts';
-import { decidedOn, earnedBadges, holdersOf, type BadgeId } from '../src/history/badges.ts';
+import { decidedOn, earnedBadges, holdersOf, momentText, type BadgeId } from '../src/history/badges.ts';
 import { playerStats } from '../src/history/stats.ts';
 import type { HistoryData, HistoryEvent, HistoryMatch } from '../src/history/types.ts';
 import { foundersChapter } from './fixtures/founders.ts';
@@ -51,7 +51,8 @@ describe('badges', () => {
       ['mark-reese', ['fourball-3']],
       ['ricky-menchaca', ['singles-6']],
     ]);
-    expect(badges.get('jason-sudan')!.find((b) => b.id === 'clutch')!.moments.map((m) => m.note)).toEqual(['2&1 on 17', '1 UP on 18']);
+    // Fourball was the first round at UGL2, singles the second
+    expect(badges.get('jason-sudan')!.find((b) => b.id === 'clutch')!.moments.map(momentText)).toEqual(['UGL2 · Rd 1 · 2&1 on 17', 'UGL2 · Rd 2 · 1 UP on 18']);
   });
 
   it('reads the hole a match ended on from its scorecard, or from its margin without one', () => {
@@ -77,13 +78,14 @@ describe('badges', () => {
     // John Collins won 8&7, at 19.3 against Nick Smith's 11.0
     expect(holders(badges, 'blowout')).toEqual(['john-collins']);
     expect(holders(badges, 'sandbagger')).toEqual(['john-collins']);
-    expect(badges.get('john-collins')!.find((b) => b.id === 'sandbagger')!.moments[0].note).toBe('19.3 over 11.0, 8&7');
+    expect(momentText(badges.get('john-collins')!.find((b) => b.id === 'sandbagger')!.moments[0])).toBe('UGL2 · Rd 2 · 19.3 over 11.0, 8&7');
     // Nobody won three at UGL2; three wins at one trip earns it once
     expect(holders(badges, 'hat-trick')).toEqual([]);
     const mark = stats.get('mark-reese')!;
     const three = { ...mark, matches: [...mark.matches, mark.matches[0]] };
     const after = earnedBadges({ chapterId: 'x', stats: new Map([['mark-reese', three]]), trips: [], members: [], commissionerId: 'x' });
     expect(ids('mark-reese', after)).toContain('hat-trick');
+    expect(momentText(after.get('mark-reese')!.find((b) => b.id === 'hat-trick')!.moments[0])).toBe('UGL2 · 3 wins');
   });
 
   it('Cup Winner: everyone on the winning team, counted on the badge', () => {
@@ -110,7 +112,11 @@ describe('badges', () => {
   it('Scorecards: Eagle, Birdie Machine, and Snowman only once', () => {
     expect(holders(badges, 'eagle')).toEqual(['ricky-menchaca']);
     expect(holders(badges, 'birdie-machine')).toEqual(['justin-thompson']); // 6 birdies; the next most was 3
-    expect(badges.get('justin-thompson')!.find((b) => b.id === 'birdie-machine')!.moments[0].note).toBe('UGL2 · 6 birdies');
+    expect(momentText(badges.get('justin-thompson')!.find((b) => b.id === 'birdie-machine')!.moments[0])).toBe('UGL2 · 6 birdies');
+    expect(momentText(badges.get('ricky-menchaca')!.find((b) => b.id === 'eagle')!.moments[0])).toMatch(/^UGL2 · Rd 2 · \d on hole 15$/);
+    expect(momentText(badges.get('adam-cowdin')!.find((b) => b.id === 'snowman')!.moments[0])).toMatch(/^UGL2 · Rd \d · \d+ on hole \d+$/);
+    expect(momentText(badges.get('mark-reese')!.find((b) => b.id === 'cup-winner')!.moments[0])).toBe('UGL2 · Team Palmetto');
+    expect(momentText(badges.get('mark-reese')!.find((b) => b.id === 'founder')!.moments[0])).toBe('UGL1 · Lubbock 2025');
     expect(holders(badges, 'snowman').sort()).toEqual(['adam-cowdin', 'john-collins']);
     expect(ids('adam-cowdin')).toContain('snowman'); // six 8s, one badge
   });
