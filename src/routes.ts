@@ -4,6 +4,7 @@
 //   /me                               your profile
 //   /founders                         a chapter's trips; /founders/selection, /founders/members
 //   /founders/2026-columbia/guide     a trip's Player's Guide
+//   /founders/2026-columbia/results   entering a trip's results (organizers)
 //   /founders/history                 the chapter's events; /founders/history/2026-columbia, and
 //                                     /founders/history/2026-columbia/singles-1 for one match
 //   /founders/players, /founders/players/jeff-siarto, /founders/superlatives
@@ -39,6 +40,7 @@ export type Route =
   | { page: 'me' }
   | { page: 'chapter'; chapterId: string; tab: ChapterTab; history?: HistoryRoute }
   | { page: 'tripGuide'; chapterId: string; tripId: string }
+  | { page: 'tripResults'; chapterId: string; tripId: string }
   | { page: 'redirect'; to: string }; // an old or unknown address, replaced on arrival
 
 export const homePath = () => BASE;
@@ -47,6 +49,7 @@ export const chapterPath = (chapterId: string, tab: ChapterTab = 'trips') =>
   `${BASE}${encodeURIComponent(chapterId)}${tab === 'trips' ? '' : `/${tab}`}`;
 export const mePath = () => `${BASE}me`;
 export const tripGuidePath = (chapterId: string, tripId: string) => `${BASE}${encodeURIComponent(chapterId)}/${encodeURIComponent(tripId)}/guide`;
+export const tripResultsPath = (chapterId: string, tripId: string) => `${BASE}${encodeURIComponent(chapterId)}/${encodeURIComponent(tripId)}/results`;
 
 // A chapter's history addresses
 export function chapterHistoryLinks(chapterId: string) {
@@ -113,6 +116,7 @@ export function parseRoute(pathname: string, hash = ''): Route {
       return { page: 'chapter', chapterId, tab: parts[1] as ChapterTab };
     }
     if (parts.length === 3 && parts[1] && parts[2] === 'guide') return { page: 'tripGuide', chapterId, tripId: parts[1] };
+    if (parts.length === 3 && parts[1] && parts[2] === 'results') return { page: 'tripResults', chapterId, tripId: parts[1] };
   }
   return redirect(homePath());
 }

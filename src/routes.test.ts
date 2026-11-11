@@ -13,6 +13,7 @@ describe('addresses', () => {
     expect(parseRoute('/founders/selection')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'selection' });
     expect(parseRoute('/founders/members')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'members' });
     expect(parseRoute('/founders/2026-columbia/guide')).toEqual({ page: 'tripGuide', chapterId: 'founders', tripId: '2026-columbia' });
+    expect(parseRoute('/founders/2026-columbia/results')).toEqual({ page: 'tripResults', chapterId: 'founders', tripId: '2026-columbia' });
     expect(parseRoute('/founders/history')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'history' } });
     expect(parseRoute('/founders/history/2026-columbia')).toEqual({ page: 'chapter', chapterId: 'founders', tab: 'history', history: { page: 'event', eventId: '2026-columbia' } });
     expect(parseRoute('/founders/history/2026-columbia/singles-1')).toEqual({

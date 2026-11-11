@@ -208,7 +208,8 @@ One pre-trip index per player, entered by the player or the organizer, next to t
 On the Trips tab, each upcoming trip has a "Who's coming" list. Organizers invite people from the roster (all active members in one click), change anyone's answer, note and handicap, take people off, and make the yeses the trip's attendees. Members see everyone who's joined and their answers, and answer for themselves (yes, maybe or no, with a note); a player who's coming enters their handicap index there, beside their GHIN number. Invitees' answers are organizers' notes, hidden from members, until they join; then an organizer's next save turns the note into an RSVP.
 
 **12. Results.**
-A results editor to add or fix a match. The Squabbit converter comes back writing straight to the database instead of to files: it left with the history files in 9c, and its CSV reading and checks are in `scripts/squabbit.ts` as of commit `b10a079`. Until then there's no way to add results, which is fine until the next trip.
+A results editor to add or fix a match. The Squabbit converter comes back writing straight to the database instead of to files.
+Each trip has a Results page for organizers (`/founders/2026-columbia/results`, linked from its trip card and guide). Each session lists its matches: add one by typing its players and result (the players start from the guide's groups), fix or delete one, or type a team total. The Squabbit converter is part of the page rather than a script, so it needs no database keys: pick a session's group exports (CSV) and it reads them as the old script did (same checks against Squabbit's own net scores, singles pairs suggested from the guide's groups, names Squabbit spells differently picked from a list), fills in the round's par and stroke index and any missing handicaps, and shows the results before saving them in place of the session's. Every save is first checked as the history would be, and nothing is saved if a check fails. The first result makes the trip a competition, so the History tab shows it. Once a trip has results its teams and pairings are locked, like its guide's structure.
 
 **13. Chapters.**
 Request a chapter (from the landing page, after signing in). Admins approve, and the requester becomes its organizer. An admin page for chapters, organizers and co-admins (co-admins: commissioner only).
@@ -222,7 +223,7 @@ Manifest, icons and a service worker: add to Home Screen, opens offline. It's sm
 
 ## After Phase 1
 
-- **Phase 2:** Squabbit import in the app; photo and team logo upload.
+- **Phase 2:** results straight from Squabbit, without exporting files; photo and team logo upload.
 - **Later:** push notifications (Blaze and a server function); App Store or TestFlight by wrapping this codebase with Capacitor.
 
 ## Decided with Mark on 2026-11-09

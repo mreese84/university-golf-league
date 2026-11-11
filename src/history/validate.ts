@@ -1,5 +1,6 @@
-// Checks the history files agree with each other. Runs in the build (and dev server), which
-// stops with these messages, so a typo can't publish wrong records.
+// Checks a chapter's history agrees with itself: teams, handicaps, sessions, and each match's sides,
+// result and scorecard. Results are checked with these before they're saved (src/data/results.ts),
+// so a slip can't put wrong records in the history.
 
 import { grossTotal, isComplete, netTotal, parseMargin, playMatch } from './scoring.ts';
 import type { HistoryData, HistoryEvent, HistoryMatch } from './types.ts';
@@ -12,18 +13,18 @@ const isHalfStep = (n: number) => Number.isInteger(n * 2);
 export function validateHistory(data: HistoryData): string[] {
   const errors: string[] = [];
   const players = Array.isArray(data.players) ? data.players : [];
-  if (!Array.isArray(data.players)) errors.push('history/players.json: should be a list of players');
+  if (!Array.isArray(data.players)) errors.push('people: should be a list');
 
   const known = new Set<string>();
   for (const p of players) {
     if (!p || typeof p.id !== 'string' || !ID.test(p.id)) {
-      errors.push(`history/players.json: "${p?.id}" isn't a valid id (use first-last, lowercase)`);
+      errors.push(`people: "${p?.id}" isn't a valid ID (use first-last, lowercase)`);
       continue;
     }
-    if (known.has(p.id)) errors.push(`history/players.json: "${p.id}" is listed twice`);
-    if (typeof p.name !== 'string' || !p.name.trim()) errors.push(`history/players.json: "${p.id}" needs a name`);
+    if (known.has(p.id)) errors.push(`people: "${p.id}" is listed twice`);
+    if (typeof p.name !== 'string' || !p.name.trim()) errors.push(`people: "${p.id}" needs a name`);
     if (p.photo !== undefined && !/^profiles\/[a-z0-9-]+\.(jpg|jpeg|png|webp)$/.test(String(p.photo))) {
-      errors.push(`history/players.json: "${p.id}" photo should look like "profiles/${p.id}.jpg"`);
+      errors.push(`people: "${p.id}" photo should look like "profiles/${p.id}.jpg"`);
     }
     known.add(p.id);
   }
@@ -33,10 +34,10 @@ export function validateHistory(data: HistoryData): string[] {
 }
 
 function checkEvent(event: HistoryEvent, known: Set<string>, errors: string[]) {
-  const file = `history/${event.id}/event.json`;
+  const file = event.id;
   const err = (msg: string) => errors.push(`${file}: ${msg}`);
 
-  if (!/^\d{4}-[a-z0-9-]+$/.test(event.id)) err('the folder should be named <year>-<city>, e.g. 2026-columbia');
+  if (!/^\d{4}-[a-z0-9-]+$/.test(event.id)) err('the trip ID should be <year>-<city>, e.g. 2026-columbia');
   if (!isNum(event.edition)) err('needs an edition number (2 for UGL2)');
   for (const key of ['title', 'location', 'format'] as const) {
     if (typeof event[key] !== 'string' || !event[key].trim()) err(`needs a ${key}`);
@@ -44,7 +45,7 @@ function checkEvent(event: HistoryEvent, known: Set<string>, errors: string[]) {
   if (!Array.isArray(event.dates) || event.dates.length !== 2 || !event.dates.every((d) => DATE.test(d))) {
     err('dates should be ["YYYY-MM-DD", "YYYY-MM-DD"] (first and last day)');
   } else if (!event.id.startsWith(event.dates[0].slice(0, 4))) {
-    err(`the folder year doesn't match the first date (${event.dates[0]})`);
+    err(`the trip ID's year doesn't match its first day (${event.dates[0]})`);
   }
 
   // Teams
@@ -64,7 +65,7 @@ function checkEvent(event: HistoryEvent, known: Set<string>, errors: string[]) {
       err(`team "${team.id}" emblem should be "palmetto" or "crescent"`);
     }
     for (const p of Array.isArray(team.players) ? team.players : []) {
-      if (!known.has(p)) err(`team "${team.id}" has "${p}", who isn't in players.json`);
+      if (!known.has(p)) err(`team "${team.id}" has "${p}", who isn't in the league`);
       if (teamOf.has(p)) err(`"${p}" is on two teams`);
       teamOf.set(p, team.id);
     }
@@ -138,17 +139,17 @@ function checkMatch(
   teamOf: Map<string, string>,
   errors: string[],
 ) {
-  const file = `history/${event.id}/matches/${match.id}.json`;
+  const file = `${event.id} ${match.id}`;
   const err = (msg: string) => errors.push(`${file}: ${msg}`);
   const session = event.sessions?.find((s) => s.id === match.session);
   if (!session) {
-    err(`session "${match.session}" isn't in event.json`);
+    err(`session "${match.session}" isn't one of the trip's sessions`);
     return;
   }
   if (!Number.isInteger(match.match) || match.match < 1 || match.match > session.matches) {
     err(`match should be a number from 1 to ${session.matches}`);
   }
-  if (match.id !== `${match.session}-${match.match}`) err(`the file should be named ${match.session}-${match.match}.json`);
+  if (match.id !== `${match.session}-${match.match}`) err(`should be saved as ${match.session}-${match.match}`);
 
   // Sides
   const sides = match.sides ?? {};

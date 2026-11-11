@@ -8,7 +8,7 @@ import { dataEnv } from '../../dataEnv';
 import { db } from '../../firebase';
 import type { Trip as OldTrip } from '../../types';
 import { byDate, newTrip, newTripId, type ChapterTrip, type TripFields } from '../chapterTrips';
-import { followLink, tripGuidePath } from '../../routes';
+import { followLink, tripGuidePath, tripResultsPath } from '../../routes';
 import { buttonClass } from '../parts';
 import { isUpcoming } from '../../data/rsvp';
 import { joinedPeople, nameOf, tripDate, type ChapterData } from './data';
@@ -96,6 +96,15 @@ function TripCard({ data, trip, hasGuide, onEdit, onDelete }: { data: ChapterDat
         >
           <span>{hasGuide ? "Player's Guide" : "+ Add Player's Guide"}</span>
           <span aria-hidden="true">→</span>
+        </a>
+      )}
+      {hasGuide && data.canManage && (
+        <a
+          href={tripResultsPath(data.chapterId, trip.id)}
+          onClick={(e) => followLink(e, tripResultsPath(data.chapterId, trip.id))}
+          className="block text-right text-xs font-medium text-green-700 hover:underline"
+        >
+          Results →
         </a>
       )}
     </div>
