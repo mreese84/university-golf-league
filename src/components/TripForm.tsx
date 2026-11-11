@@ -5,11 +5,13 @@ interface TripFormProps {
   members: { id: string; name: string }[];
   trips: Trip[];
   editTrip?: Trip;
-  onSave: (trip: Omit<Trip, 'id'>) => void;
+  // A new trip can start as a draft, seen only by organizers and its selector until it's published
+  draftChoice?: boolean;
+  onSave: (trip: Omit<Trip, 'id'>, draft: boolean) => void;
   onCancel: () => void;
 }
 
-export default function TripForm({ members, trips, editTrip, onSave, onCancel }: TripFormProps) {
+export default function TripForm({ members, trips, editTrip, draftChoice = false, onSave, onCancel }: TripFormProps) {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(editTrip?.year ?? currentYear);
   const [month, setMonth] = useState(editTrip?.month ?? new Date().getMonth() + 1);
@@ -17,6 +19,7 @@ export default function TripForm({ members, trips, editTrip, onSave, onCancel }:
   const [selectedById, setSelectedById] = useState(editTrip?.selectedById ?? '');
   const [attendeeIds, setAttendeeIds] = useState<string[]>(editTrip?.attendeeIds ?? []);
   const [nextSelectorId, setNextSelectorId] = useState(editTrip?.nextSelectorId ?? '');
+  const [draft, setDraft] = useState(true);
 
   const toggleAttendee = (id: string) => {
     setAttendeeIds((prev) =>
@@ -38,7 +41,7 @@ export default function TripForm({ members, trips, editTrip, onSave, onCancel }:
       selectedById,
       attendeeIds,
       nextSelectorId: nextSelectorId || null,
-    });
+    }, draftChoice && draft);
   };
 
   // Determine who's likely the selector (previous trip's nextSelectorId)
@@ -177,6 +180,16 @@ export default function TripForm({ members, trips, editTrip, onSave, onCancel }:
             })}
         </select>
       </div>
+
+      {draftChoice && (
+        <label className="flex items-start gap-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 cursor-pointer">
+          <input type="checkbox" checked={draft} onChange={(e) => setDraft(e.target.checked)} className="mt-0.5 accent-amber-600" />
+          <span>
+            <span className="font-medium">Start it as a draft.</span> Only organizers and whoever it's selected by see it, guide and all,
+            until you publish it to the chapter.
+          </span>
+        </label>
+      )}
 
       <div className="flex gap-3 pt-2">
         <button

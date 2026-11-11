@@ -15,6 +15,8 @@ service cloud.firestore {
       function personPath(p) { return /databases/$(database)/documents/envs/$(env)/people/$(p); }
       function rosterPath(c, p) { return /databases/$(database)/documents/envs/$(env)/chapters/$(c)/members/$(p); }
       function adminsPath() { return /databases/$(database)/documents/envs/$(env)/config/admins; }
+      function tripPath(c, t) { return /databases/$(database)/documents/envs/$(env)/chapters/$(c)/trips/$(t); }
+      function draftTripPath(c, t) { return /databases/$(database)/documents/envs/$(env)/chapters/$(c)/draftTrips/$(t); }
 
       // ── Who's asking ──
       // Signed in with a verified email (Google and email links both verify), in one of the two copies
@@ -52,6 +54,17 @@ service cloud.firestore {
       function joinedChapter(c, p) {
         return exists(rosterPath(c, p)) && get(rosterPath(c, p)).data.status in joinedStatuses();
       }
+
+      // ── Trips ──
+      // A trip being planned is a draft: its record sits in draftTrips, not trips, and only the
+      // chapter's organizers, admins and the person picking its location (selectedById) see it.
+      // Publishing moves the record into trips; the guide and the rest stay where they are, under
+      // trips/{t}, hidden while the draft exists.
+      function isDraft(c, t) { return exists(draftTripPath(c, t)); }
+      // For someone already known to have joined: a published trip, or a draft they pick for. (Kept
+      // apart from canManage so a member's own saves stay within Firestore's limit on lookups.)
+      function joinedSeesTrip(c, t) { return !isDraft(c, t) || get(draftTripPath(c, t)).data.selectedById == me(); }
+      function canSeeTrip(c, t) { return canManage(c) || (canSee(c) && joinedSeesTrip(c, t)); }
 
       // ── People ──
       // Every chapter a person's record names, joined or invited
@@ -222,13 +235,23 @@ service cloud.firestore {
           allow delete: if (isAdmin() || (isOrganizer(c) && resource.data.role == 'member')) && goneFromRecord(c, p);
         }
 
+        // Draft trips: organizers and admins see and edit them all; the person picking a draft's
+        // location sees it too, and their queries must ask for selectedById == their person ID. A
+        // draft can't take the address of a published trip.
+        match /draftTrips/{t} {
+          allow get: if canManage(c) || (hasJoined(c) && resource.data.selectedById == me());
+          allow list: if canManage(c) || (hasJoined(c) && resource.data.selectedById == me());
+          allow create: if canManage(c) && !exists(tripPath(c, t));
+          allow update, delete: if canManage(c);
+        }
+
         match /trips/{t} {
           allow read: if canSee(c);
           allow write: if canManage(c);
 
-          // The Player's Guide (content/guide): members read, organizers edit
+          // The Player's Guide (content/guide): members read (drafts: see canSeeTrip), organizers edit
           match /content/{d} {
-            allow read: if canSee(c);
+            allow read: if canSeeTrip(c, t);
             allow write: if canManage(c);
           }
           // The teams and pairings draft (private/draft): organizers only
@@ -236,7 +259,7 @@ service cloud.firestore {
             allow read, write: if canManage(c);
           }
           match /matches/{m} {
-            allow read: if canSee(c);
+            allow read: if canSeeTrip(c, t);
             allow write: if canManage(c);
           }
           // Organizers' notes on how invitees answered; invitees stay hidden from members
@@ -245,27 +268,27 @@ service cloud.firestore {
           }
           // Pre-trip handicap index, entered by the player or an organizer, for people who've joined
           match /handicaps/{p} {
-            allow read: if canSee(c);
+            allow read: if canSeeTrip(c, t);
             allow create, update: if joinedChapter(c, p)
               && request.resource.data.keys().hasOnly(['index', 'updatedBy', 'updatedAt'])
               && request.resource.data.index is number
-              && (canManage(c) || (isSelf(p) && hasJoined(c)));
-            allow delete: if canManage(c) || (isSelf(p) && hasJoined(c));
+              && (canManage(c) || (isSelf(p) && hasJoined(c) && joinedSeesTrip(c, t)));
+            allow delete: if canManage(c) || (isSelf(p) && hasJoined(c) && joinedSeesTrip(c, t));
           }
           match /rsvps/{p} {
-            allow read: if canSee(c);
+            allow read: if canSeeTrip(c, t);
             allow create, update: if joinedChapter(c, p)
               && request.resource.data.keys().hasOnly(['response', 'note', 'updatedAt'])
               && request.resource.data.response in ['invited', 'yes', 'maybe', 'no']
-              && (canManage(c) || (isSelf(p) && hasJoined(c)));
+              && (canManage(c) || (isSelf(p) && hasJoined(c) && joinedSeesTrip(c, t)));
             allow delete: if canManage(c);
           }
           match /fireball/{p} {
-            allow read: if canSee(c);
+            allow read: if canSeeTrip(c, t);
             allow create, update: if joinedChapter(c, p)
               && request.resource.data.keys().hasOnly(['counts', 'updatedAt'])
               && request.resource.data.counts is map
-              && (canManage(c) || (isSelf(p) && hasJoined(c)));
+              && (canManage(c) || (isSelf(p) && hasJoined(c) && joinedSeesTrip(c, t)));
             allow delete: if canManage(c);
           }
         }

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import TripForm from '../../components/TripForm';
 import { useLiveDocs } from '../../data/hooks';
 import { pathsFor } from '../../data/paths';
-import { deleteTrip } from '../../data/writes';
+import type { Trip } from '../../data/types';
+import { createTrip, deleteTrip, publishTrip, updateTrip } from '../../data/writes';
 import { dataEnv } from '../../dataEnv';
 import { db } from '../../firebase';
 import type { Trip as OldTrip } from '../../types';
@@ -36,14 +36,58 @@ const fieldsOf = (t: Omit<OldTrip, 'id'>): TripFields => ({
   nextSelectorId: t.nextSelectorId,
 });
 
+// A trip's record as saved, without what the app adds when it loads one
+const recordOf = (trip: ChapterTrip) => Object.fromEntries(Object.entries(trip).filter(([key]) => key !== 'id' && key !== 'draft')) as unknown as Trip;
+
+// A draft: who can see it, and for organizers, publishing it to the chapter
+function DraftNote({ data, trip, onPublish }: { data: ChapterData; trip: ChapterTrip; onPublish: () => Promise<boolean> }) {
+  const [asking, setAsking] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const selector = trip.selectedById && trip.selectedById !== data.personId ? nameOf(data, trip.selectedById) : null;
+  const who = data.canManage ? `organizers${selector ? ` and ${selector}` : ''}` : 'organizers and you';
+  return (
+    <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 space-y-2">
+      <p>
+        <span className="font-semibold">Draft.</span> Only {who} can see this trip and its guide until it's published.
+      </p>
+      {data.canManage &&
+        (asking ? (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span>Everyone in the chapter will see it. Publish it?</span>
+            <button
+              onClick={async () => {
+                setBusy(true);
+                if (!(await onPublish())) setBusy(false);
+              }}
+              disabled={busy}
+              className="font-semibold text-green-700 hover:underline cursor-pointer disabled:opacity-50"
+            >
+              {busy ? 'Publishing…' : 'Publish'}
+            </button>
+            <button onClick={() => setAsking(false)} disabled={busy} className="font-medium text-amber-800 hover:underline cursor-pointer">
+              Not yet
+            </button>
+          </div>
+        ) : (
+          <button onClick={() => setAsking(true)} className="font-semibold text-green-700 hover:underline cursor-pointer">
+            Publish to the chapter…
+          </button>
+        ))}
+    </div>
+  );
+}
+
 // hasGuide is undefined until it's known, so the card never flashes "+ Add" before a guide loads
-function TripCard({ data, trip, hasGuide, onEdit, onDelete }: { data: ChapterData; trip: ChapterTrip; hasGuide: boolean | undefined; onEdit: () => void; onDelete: () => void }) {
+function TripCard({ data, trip, hasGuide, onEdit, onDelete, onPublish }: { data: ChapterData; trip: ChapterTrip; hasGuide: boolean | undefined; onEdit: () => void; onDelete: () => void; onPublish: () => Promise<boolean> }) {
   const guide = tripGuidePath(data.chapterId, trip.id);
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">{trip.location}</h3>
+          <h3 className="text-lg font-semibold text-gray-800">
+            {trip.location}
+            {trip.draft && <span className="ml-2 align-middle rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">Draft</span>}
+          </h3>
           <p className="text-sm text-gray-500">
             {trip.number ? <span className="font-medium text-gray-700">UGL{trip.number} · </span> : null}
             {tripDate(trip)}
@@ -54,7 +98,7 @@ function TripCard({ data, trip, hasGuide, onEdit, onDelete }: { data: ChapterDat
             <p className="text-gray-500">
               Selected by <span className="font-medium text-gray-700">{nameOf(data, trip.selectedById)}</span>
             </p>
-            {trip.nextSelectorId ? (
+            {trip.draft ? null : trip.nextSelectorId ? (
               <p className="text-green-600 font-medium mt-1">🎯 {nameOf(data, trip.nextSelectorId)} picks next</p>
             ) : (
               <p className="text-amber-500 text-xs mt-1">Draw pending</p>
@@ -86,7 +130,8 @@ function TripCard({ data, trip, hasGuide, onEdit, onDelete }: { data: ChapterDat
           ))}
         </div>
       </div>
-      {isUpcoming(trip, new Date().toLocaleDateString('en-CA')) && <WhosComing data={data} trip={trip} />}
+      {trip.draft && <DraftNote data={data} trip={trip} onPublish={onPublish} />}
+      {!trip.draft && isUpcoming(trip, new Date().toLocaleDateString('en-CA')) && <WhosComing data={data} trip={trip} />}
       {(hasGuide || (hasGuide === false && data.canManage)) && (
         <a
           href={guide}
@@ -98,7 +143,7 @@ function TripCard({ data, trip, hasGuide, onEdit, onDelete }: { data: ChapterDat
           <span aria-hidden="true">→</span>
         </a>
       )}
-      {hasGuide && data.canManage && (
+      {hasGuide && data.canManage && !trip.draft && (
         <a
           href={tripResultsPath(data.chapterId, trip.id)}
           onClick={(e) => followLink(e, tripResultsPath(data.chapterId, trip.id))}
@@ -132,17 +177,18 @@ export default function TripsView({ data }: { data: ChapterData }) {
     }
   };
 
-  const add = async (fields: TripFields) => {
+  const add = async (fields: TripFields, draft: boolean) => {
     const id = newTripId(fields, data.trips.map((t) => t.id));
-    if (await run(setDoc(doc(db, P.trip(data.chapterId, id)), newTrip(fields, data.trips)))) setAdding(false);
+    if (await run(createTrip(db, dataEnv, data.chapterId, id, newTrip(fields, data.trips), draft))) setAdding(false);
   };
   const update = async (trip: ChapterTrip, fields: TripFields) => {
-    if (await run(updateDoc(doc(db, P.trip(data.chapterId, trip.id)), { ...fields }))) setEditingId(null);
+    if (await run(updateTrip(db, dataEnv, data.chapterId, trip.id, trip.draft, { ...fields }))) setEditingId(null);
   };
   const remove = (trip: ChapterTrip) => {
     if (!confirm(`Delete the ${trip.location} (${trip.year}) trip, with its guide, results and everything else in it?`)) return;
-    void run(deleteTrip(db, dataEnv, data.chapterId, trip.id));
+    void run(deleteTrip(db, dataEnv, data.chapterId, trip.id, trip.draft));
   };
+  const publish = (trip: ChapterTrip) => run(publishTrip(db, dataEnv, data.chapterId, trip.id, recordOf(trip)));
 
   return (
     <div className="space-y-6">
@@ -156,7 +202,7 @@ export default function TripsView({ data }: { data: ChapterData }) {
       </div>
       {error && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2">{error}</p>}
       {adding && (
-        <TripForm members={people} trips={oldestFirst.map(forForm)} onSave={(t) => void add(fieldsOf(t))} onCancel={() => setAdding(false)} />
+        <TripForm members={people} trips={oldestFirst.filter((t) => !t.draft).map(forForm)} draftChoice onSave={(t, draft) => void add(fieldsOf(t), draft)} onCancel={() => setAdding(false)} />
       )}
       {data.tripsStatus === 'loading' ? (
         <p className="text-gray-400 text-center py-8">Loading…</p>
@@ -182,6 +228,7 @@ export default function TripsView({ data }: { data: ChapterData }) {
                 hasGuide={P.guide(data.chapterId, trip.id) in guides ? !!guides[P.guide(data.chapterId, trip.id)] : undefined}
                 onEdit={() => setEditingId(trip.id)}
                 onDelete={() => remove(trip)}
+                onPublish={() => publish(trip)}
               />
             ),
           )}

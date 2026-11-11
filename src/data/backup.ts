@@ -16,9 +16,9 @@ export interface ChapterBackup {
   docs: Record<string, unknown>;
 }
 
-// The chapter, its roster (invitees too), each person's record and sign-in emails, and every trip
-// with everything in it (guide, pairings draft, handicaps, RSVPs, invites, Fireball counts, results).
-// Organizers and admins only: members can't read drafts, invitees or emails.
+// The chapter, its roster (invitees too), each person's record and sign-in emails, and every trip,
+// draft trips too, with everything in it (guide, pairings draft, handicaps, RSVPs, invites, Fireball
+// counts, results). Organizers and admins only: members can't read drafts, invitees or emails.
 export async function exportChapter(db: Firestore, env: DataEnv, chapterId: string): Promise<ChapterBackup> {
   const p = pathsFor(env);
   const docs: Record<string, unknown> = {};
@@ -36,7 +36,7 @@ export async function exportChapter(db: Firestore, env: DataEnv, chapterId: stri
   await one(p.chapter(chapterId));
   const personIds = await all(p.roster(chapterId));
   await Promise.all(personIds.flatMap((id) => [one(p.person(id)), one(p.contact(id))]));
-  const tripIds = await all(p.trips(chapterId));
+  const tripIds = [...(await all(p.trips(chapterId))), ...(await all(p.draftTrips(chapterId)))];
   await Promise.all(tripIds.flatMap((t) => TRIP_PARTS.map((part) => all(`${p.trip(chapterId, t)}/${part}`))));
 
   const sorted = Object.fromEntries(Object.keys(docs).sort().map((k) => [k, docs[k]]));

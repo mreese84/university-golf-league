@@ -30,8 +30,10 @@ export default function SelectionView({ data }: { data: ChapterData }) {
   const [shown, setShown] = useState<{ trip: ChapterTrip; winner: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const pending = pendingDraw(data.trips);
-  const { pool, left } = pending ? drawPool(data.trips, pending.id, data.rosterById) : { pool: [], left: [] };
+  // Drafts haven't happened, so they play no part in the draw
+  const trips = data.trips.filter((t) => !t.draft);
+  const pending = pendingDraw(trips);
+  const { pool, left } = pending ? drawPool(trips, pending.id, data.rosterById) : { pool: [], left: [] };
   const total = pool.reduce((sum, p) => sum + p.entries, 0);
 
   const save = async (trip: ChapterTrip, winner: string | null) => {
@@ -70,7 +72,7 @@ export default function SelectionView({ data }: { data: ChapterData }) {
   };
 
   if (data.tripsStatus === 'loading') return <p className="text-gray-400 text-center py-8">Loading…</p>;
-  if (data.trips.length === 0) return <p className="text-gray-400 text-center py-12">Add a trip first, on the Trips tab.</p>;
+  if (trips.length === 0) return <p className="text-gray-400 text-center py-12">Add a trip first, on the Trips tab.</p>;
 
   if (shown) {
     return (
@@ -96,7 +98,7 @@ export default function SelectionView({ data }: { data: ChapterData }) {
   }
 
   if (!pending) {
-    const last = [...data.trips].sort(byDate).at(-1)!;
+    const last = [...trips].sort(byDate).at(-1)!;
     return (
       <div className="space-y-6 text-center py-8">
         <h2 className="text-xl font-semibold text-gray-800">All draws complete</h2>

@@ -6,7 +6,8 @@ import { buildWeightedPool } from '../eligibility';
 import { baseSlug } from '../tripSlugs';
 import type { Trip as OldTrip } from '../types';
 
-export type ChapterTrip = Trip & { id: string };
+// draft: a trip being planned, seen only by organizers and its selector until it's published
+export type ChapterTrip = Trip & { id: string; draft?: boolean };
 
 // Oldest first
 export const byDate = (a: ChapterTrip, b: ChapterTrip) => a.year - b.year || (a.month ?? 0) - (b.month ?? 0) || a.id.localeCompare(b.id);

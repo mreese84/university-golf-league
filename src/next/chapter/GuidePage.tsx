@@ -302,6 +302,12 @@ export default function GuidePage({ data, tripId }: { data: ChapterData; tripId:
   return (
     <div className="space-y-4">
       {back}
+      {trip?.draft && (
+        <p className="text-sm text-amber-900 bg-amber-50 rounded-xl px-4 py-2">
+          <span className="font-semibold">Draft.</span> Only organizers and whoever this trip is selected by can see this guide.
+          {data.canManage ? ' Publish the trip from the Trips tab when it’s ready for everyone.' : ''}
+        </p>
+      )}
       {error && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2">{error}</p>}
       {body}
     </div>
