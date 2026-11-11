@@ -115,15 +115,15 @@ describe('badges', () => {
     expect(ids('adam-cowdin')).toContain('snowman'); // six 8s, one badge
   });
 
-  it('Scorecards: Ace, Tour Pro, Net Pro and Par Train', () => {
-    for (const id of ['ace', 'tour-pro', 'net-pro', 'par-train'] as const) expect(holders(badges, id)).toEqual([]);
+  it('Scorecards: Ace, Tour Pro and Par Train', () => {
+    for (const id of ['ace', 'tour-pro', 'par-train'] as const) expect(holders(badges, id)).toEqual([]);
     // Mark's fourball card made into pars, with a 1 on the first par 3 and a birdie on the 5th
     const ace = par.indexOf(3);
     const gross = par.map((p, h) => (h === ace ? 1 : h === 4 ? p - 1 : p));
     const card = (m: HistoryMatch): HistoryMatch =>
       m.id === 'fourball-3' ? { ...m, scores: m.scores!.map((r) => (r.player === 'mark-reese' ? { ...r, gross } : r)) } : m;
     const after = badgesOf(withMatches(card));
-    expect(ids('mark-reese', after)).toEqual(expect.arrayContaining(['ace', 'tour-pro', 'eagle', 'net-pro', 'par-train']));
+    expect(ids('mark-reese', after)).toEqual(expect.arrayContaining(['ace', 'tour-pro', 'eagle', 'par-train']));
     // Four in a row isn't a Par Train
     const four = par.map((p, h) => (h % 5 === 4 ? p + 1 : p));
     const broken = badgesOf(withMatches((m) => (m.id === 'fourball-3' ? { ...m, scores: m.scores!.map((r) => (r.player === 'mark-reese' ? { ...r, gross: four } : r)) } : m)));

@@ -201,19 +201,6 @@ const LOOKS: Record<BadgeId, Look> = {
       </g>
     ),
   },
-  // A scorecard with a stroke dot and a circled score under par
-  'net-pro': {
-    face: ['#14b8a6', '#134e4a'],
-    icon: (dark) => (
-      <g>
-        <rect x="5" y="2.5" width="14" height="19" rx="1.5" fill={WHITE} />
-        <path d="M5 7 H19 M5 11.5 H19 M5 16 H19 M12 2.5 V21.5" stroke="#99d5cc" strokeWidth="0.8" />
-        <circle cx="17.6" cy="12.7" r="0.85" fill={dark} />
-        <circle cx="15.5" cy="13.9" r="2.6" fill="none" stroke={RED} strokeWidth="1.3" />
-        <path d="M14.4 13.9 H16.6" stroke={RED} strokeWidth="1.2" strokeLinecap="round" />
-      </g>
-    ),
-  },
   // A little locomotive: pars in a row
   'par-train': {
     face: ['#78716c', '#292524'],

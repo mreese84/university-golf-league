@@ -6,7 +6,7 @@
 // A person holds each badge once. Most say how many times it was earned beside it ("×2"); Cup
 // Winner and Fireball King carry the number on the badge itself; Snowman is earned once only.
 
-import { grossTotal, netTotal, parseMargin } from './scoring';
+import { grossTotal, parseMargin } from './scoring';
 import { formatHandicap } from './format';
 import { standings, type PlayerMatch, type PlayerStats } from './stats';
 import type { EventRound, HistoryEvent, HistoryMatch, ScoreRow } from './types';
@@ -24,7 +24,6 @@ export type BadgeId =
   | 'ace'
   | 'tour-pro'
   | 'eagle'
-  | 'net-pro'
   | 'par-train'
   | 'birdie-machine'
   | 'snowman'
@@ -62,7 +61,6 @@ export const BADGES: BadgeDef[] = [
   { id: 'ace', name: 'Ace', how: 'A hole in one.', tier: 'legendary', group: 'scorecards', repeat: 'count' },
   { id: 'tour-pro', name: 'Tour Pro', how: 'Shot a round under par, gross.', tier: 'legendary', group: 'scorecards', repeat: 'count' },
   { id: 'eagle', name: 'Eagle', how: 'A gross eagle or better on a hole.', tier: 'rare', group: 'scorecards', repeat: 'count' },
-  { id: 'net-pro', name: 'Net Pro', how: 'Shot a round under par, net, on a card with your full handicap.', tier: 'rare', group: 'scorecards', repeat: 'count' },
   { id: 'par-train', name: 'Par Train', how: 'Five holes in a row at par or better, gross.', tier: 'rare', group: 'scorecards', repeat: 'count' },
   { id: 'birdie-machine', name: 'Birdie Machine', how: 'Five or more gross birdies at one trip.', tier: 'rare', group: 'scorecards', repeat: 'count' },
   { id: 'snowman', name: 'Snowman', how: 'Carded an 8 or worse on a hole. All in fun, and only once.', tier: 'common', group: 'scorecards', repeat: 'once' },
@@ -121,7 +119,7 @@ export interface BadgeTrip {
 // Each scorecard once: a player's card for a round can sit on more than one match (a singles card is
 // also in that day's team total)
 function cardsOf(events: HistoryEvent[]) {
-  const cards: { event: HistoryEvent; match: HistoryMatch; round: EventRound; row: ScoreRow; full: boolean }[] = [];
+  const cards: { event: HistoryEvent; match: HistoryMatch; round: EventRound; row: ScoreRow }[] = [];
   for (const event of [...events].reverse()) {
     const seen = new Set<string>();
     for (const session of event.sessions) {
@@ -133,7 +131,7 @@ function cardsOf(events: HistoryEvent[]) {
           const key = `${round.id}:${row.player}`;
           if (seen.has(key)) continue;
           seen.add(key);
-          cards.push({ event, match, round, row, full: session.strokes !== 'difference' });
+          cards.push({ event, match, round, row });
         }
       }
     }
@@ -231,7 +229,7 @@ export function earnedBadges({
 
   // Scorecards, gross unless they say net
   const birdies = new Map<string, { event: HistoryEvent; count: number }>();
-  for (const { event, match, round, row, full } of cardsOf(events)) {
+  for (const { event, match, round, row } of cardsOf(events)) {
     const at = { event, match };
     const par = round.par!;
     let streak = 0;
@@ -256,10 +254,6 @@ export function earnedBadges({
 
     const gross = grossTotal(row);
     if (gross !== null && gross < sum(par)) earn(row.player, 'tour-pro', { ...at, note: `${gross} at ${round.course}` });
-    const net = full ? netTotal(row) : null;
-    if (net !== null && net < sum(par)) {
-      earn(row.player, 'net-pro', { ...at, note: `${net} net at ${round.course}` });
-    }
   }
   for (const [key, { event, count }] of birdies) {
     if (count >= BIRDIE_MACHINE_BIRDIES) earn(key.split(':')[1], 'birdie-machine', { event, note: `${label(event)} · ${count} birdies` });
