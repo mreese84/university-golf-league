@@ -1,11 +1,13 @@
 import { useHistory } from '../../history/historyContext';
 import { eventLabel, formatPoints, formatRecord } from '../../history/format';
+import BadgeArt from '../badges/BadgeArt';
+import { badgeDef } from '../../history/badges';
 import { Card } from '../guide/parts';
 import { Link, PlayerAvatar } from './parts';
 
 // Individual records, so no team logos: photo, name and record
 export default function PlayersPage() {
-  const { data, stats, nameOf, links } = useHistory();
+  const { data, stats, badges, nameOf, links } = useHistory();
   const players = data.players
     .map((p) => stats.get(p.id))
     .filter((s) => s !== undefined)
@@ -34,8 +36,11 @@ export default function PlayersPage() {
                 <PlayerAvatar id={s.id} />
                 <span className="flex-1 min-w-0">
                   <span className="block text-sm font-semibold text-gray-800 truncate">{nameOf(s.id)}</span>
-                  <span className="block text-xs text-gray-500 truncate">
-                    {s.events.map((e) => eventLabel(e.event)).join(', ')}
+                  <span className="flex items-center gap-1 text-xs text-gray-500">
+                    <span className="truncate mr-0.5">{s.events.map((e) => eventLabel(e.event)).join(', ')}</span>
+                    {(badges.get(s.id) ?? []).map((b) => (
+                      <BadgeArt key={b.id} id={b.id} className="w-4 h-4" count={b.moments.length} title={badgeDef(b.id).name} />
+                    ))}
                   </span>
                 </span>
                 <span className="w-14 text-right text-sm tabular-nums text-gray-700">{formatRecord(s.record)}</span>

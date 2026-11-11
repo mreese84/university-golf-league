@@ -3,6 +3,7 @@
 // pages build one from the repo's history files (data.ts); a chapter's pages build one from the
 // database (src/data/history.ts). Records belong to one chapter and are never combined.
 
+import type { EarnedBadge } from './badges';
 import { playerStats, superlatives, type PlayerStats, type Superlatives } from './stats';
 import type { HistoryData, HistoryEvent } from './types';
 
@@ -13,12 +14,14 @@ export interface HistoryLinks {
   players: string;
   player: (playerId: string) => string;
   superlatives: string;
+  badges: string;
 }
 
 export interface HistoryModel {
   data: HistoryData;
   stats: Map<string, PlayerStats>;
   awards: Superlatives;
+  badges: Map<string, EarnedBadge[]>; // by person; the chapter adds them (src/history/badges.ts)
   links: HistoryLinks;
   nameOf: (id: string) => string;
   firstName: (id: string) => string;
@@ -37,6 +40,7 @@ export function makeHistoryModel(data: HistoryData, links: HistoryLinks, photoBa
     data,
     stats,
     awards: superlatives(data, stats),
+    badges: new Map(),
     links,
     nameOf,
     firstName: (id) => nameOf(id).split(' ')[0],

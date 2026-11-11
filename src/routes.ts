@@ -9,7 +9,7 @@
 //   /founders/2026-columbia/results   entering a trip's results (organizers)
 //   /founders/history                 the chapter's events; /founders/history/2026-columbia, and
 //                                     /founders/history/2026-columbia/singles-1 for one match
-//   /founders/players, /founders/players/jeff-siarto, /founders/superlatives
+//   /founders/players, /founders/players/jeff-siarto, /founders/superlatives, /founders/badges
 // Addresses from before the switch (Phase 1, step 9) redirect into The Founder's Chapter:
 //   /2026-columbia/guide              → /founders/2026-columbia/guide
 //   /history…, /players…, /superlatives → the same under /founders
@@ -31,7 +31,8 @@ export type HistoryRoute =
   | { page: 'match'; eventId: string; matchId: string }
   | { page: 'players' }
   | { page: 'player'; playerId: string }
-  | { page: 'superlatives' };
+  | { page: 'superlatives' }
+  | { page: 'badges' };
 
 export type ChapterTab = 'trips' | 'selection' | 'members' | 'history';
 const CHAPTER_TABS: ChapterTab[] = ['trips', 'selection', 'members'];
@@ -68,10 +69,11 @@ export function chapterHistoryLinks(chapterId: string) {
     players: `${root}/players`,
     player: (playerId: string) => `${root}/players/${encodeURIComponent(playerId)}`,
     superlatives: `${root}/superlatives`,
+    badges: `${root}/badges`,
   };
 }
 
-// history/…, players/…, superlatives, as a history page
+// history/…, players/…, superlatives, badges, as a history page
 function historyRouteOf(parts: string[]): HistoryRoute | null {
   if (parts[0] === 'history') {
     if (parts.length === 1) return { page: 'history' };
@@ -83,12 +85,16 @@ function historyRouteOf(parts: string[]): HistoryRoute | null {
     if (parts.length === 2) return { page: 'player', playerId: parts[1] };
   }
   if (parts[0] === 'superlatives' && parts.length === 1) return { page: 'superlatives' };
+  if (parts[0] === 'badges' && parts.length === 1) return { page: 'badges' };
   return null;
 }
 
 export const currentRoute = (): Route => parseRoute(window.location.pathname, window.location.hash);
 
 const redirect = (to: string): Route => ({ page: 'redirect', to });
+
+// The history pages the site had before chapters (badges came after, so only under a chapter)
+const OLD_HISTORY = ['history', 'players', 'superlatives'];
 
 export function parseRoute(pathname: string, hash = ''): Route {
   if (/^#\/guide\/./.test(hash)) return redirect(chapterPath(FOUNDERS));
@@ -111,7 +117,7 @@ export function parseRoute(pathname: string, hash = ''): Route {
 
   // Old addresses
   if (path === 'next') return redirect(homePath());
-  if (historyRouteOf(parts)) return redirect(`${BASE}${FOUNDERS}/${path}`);
+  if (OLD_HISTORY.includes(parts[0]) && historyRouteOf(parts)) return redirect(`${BASE}${FOUNDERS}/${path}`);
   if (parts.length === 2 && parts[1] === 'guide' && parts[0] && !isValidChapterId(parts[0])) return redirect(tripGuidePath(FOUNDERS, parts[0]));
 
   // A chapter's pages

@@ -75,7 +75,7 @@ function PlayerSheet({ data, history, personId, view, counts, onClose }: {
   counts: Counts;
   onClose: () => void;
 }) {
-  const { stats, awards, links } = history;
+  const { stats, awards, badges, links } = history;
   const person = data.people[personId];
   const record = stats.get(personId);
   const team = view.teams.find((t) => t.memberIds.includes(personId)) ?? null;
@@ -103,6 +103,7 @@ function PlayerSheet({ data, history, personId, view, counts, onClose }: {
         historyUrl: record && record.matches.length > 0 ? links.player(personId) : null,
         fireball: shots,
         superlatives,
+        badges: { list: badges.get(personId) ?? [], href: links.badges },
         bio: person?.bio ?? null,
         bioLoading: false,
       }}
