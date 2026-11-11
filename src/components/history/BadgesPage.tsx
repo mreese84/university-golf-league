@@ -4,10 +4,10 @@ import BadgeArt from '../badges/BadgeArt';
 import { Card } from '../guide/parts';
 import { Link, PlayerAvatar, SectionTitle } from './parts';
 
-const TIER: Record<BadgeTier, [string, string]> = {
+// Only the harder badges carry a label; common ones go without
+const TIER: Partial<Record<BadgeTier, [string, string]>> = {
   legendary: ['Legendary', 'bg-amber-100 text-amber-800'],
   rare: ['Rare', 'bg-slate-100 text-slate-600'],
-  common: ['Common', 'bg-gray-100 text-gray-500'],
 };
 
 // Where it was earned: a link to the match ("UGL2 · Rd 1 · 2&1 on 17") or the trip ("UGL2 · 6
@@ -30,7 +30,7 @@ function Moment({ moment }: { moment: BadgeMoment }) {
 function BadgeCard({ def }: { def: BadgeDef }) {
   const { badges, nameOf, stats, links } = useHistory();
   const holders = holdersOf(badges, def.id, nameOf);
-  const [tier, tierClass] = TIER[def.tier];
+  const tier = TIER[def.tier];
   return (
     <Card>
       <div className="flex items-center gap-4">
@@ -38,7 +38,7 @@ function BadgeCard({ def }: { def: BadgeDef }) {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h4 className="font-semibold text-gray-800">{def.name}</h4>
-            <span className={`text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ${tierClass}`}>{tier}</span>
+            {tier && <span className={`text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ${tier[1]}`}>{tier[0]}</span>}
           </div>
           <p className="text-sm text-gray-500 mt-0.5">{def.how}</p>
         </div>
