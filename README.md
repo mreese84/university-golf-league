@@ -6,6 +6,12 @@ The league's web app. Each chapter has its trips, the selection draw, its member
 
 The first chapter is The Founder's Chapter, at `/founders`. Addresses from before chapters (`/2026-columbia/guide`, `/history`, `/players`, `/superlatives`) lead to the same pages there. Organizers can download everything in their chapter from **Export chapter** at the bottom of its page.
 
+## On a phone
+
+It installs like an app and works with no signal (whatever it has already loaded):
+- **iPhone:** open it in Safari, tap Share, then **Add to Home Screen**.
+- **Android:** open it in Chrome, tap the menu, then **Install app** (or **Add to Home screen**).
+
 ## Running it locally
 
 ```sh

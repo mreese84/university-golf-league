@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
-import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
+import { connectFirestoreEmulator, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,7 +11,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+// The database keeps a local copy of what this device has read, shared by its open tabs, so pages
+// open with no signal and saves made offline go through when it's back. Signing out clears it
+// (src/auth.tsx). Where the browser can't keep one (some private windows), it works from memory.
+export const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
 
 // VITE_EMULATORS=1 points the app at Firebase's local emulators (sign-in and database), for checking
 // pages end to end without touching the real project. Claude's cloud sessions use it; it needs Java.

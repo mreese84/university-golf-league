@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { isDevData } from '../dataEnv';
 import { adminPath, followLink, mePath, homePath } from '../routes';
 import UserAvatar from '../components/UserAvatar';
@@ -32,11 +32,32 @@ export function Badge({ size }: { size: 'small' | 'large' }) {
   );
 }
 
-// The frame around every Phase 1 page: the dev-data banner, and a header once someone is signed in
+// Whether the device has a connection, kept up to date
+function useOnline() {
+  const [online, setOnline] = useState(() => navigator.onLine);
+  useEffect(() => {
+    const update = () => setOnline(navigator.onLine);
+    window.addEventListener('online', update);
+    window.addEventListener('offline', update);
+    return () => {
+      window.removeEventListener('online', update);
+      window.removeEventListener('offline', update);
+    };
+  }, []);
+  return online;
+}
+
+// The frame around every page: the dev-data and offline banners, and a header once someone is signed in
 export function NextLayout({ children }: { children: ReactNode }) {
   const { user, logOut, isAdmin } = useSession();
+  const online = useOnline();
   return (
     <div className="min-h-screen bg-gray-50">
+      {!online && (
+        <p role="status" className="bg-gray-800 text-white text-xs text-center px-4 py-1.5">
+          <span className="font-semibold">No signal.</span> Showing what this device last loaded; changes save when it's back.
+        </p>
+      )}
       {isDevData && (
         <p className="bg-amber-100 text-amber-900 text-xs text-center px-4 py-1.5">
           <span className="font-semibold">Dev data.</span> Changes here don't affect the live site.
