@@ -67,7 +67,7 @@ export function matchesFor(session: Pick<TripSession, 'scoring' | 'round'>, roun
 // The trip has results, so its teams, rounds, sessions and scoring are what the record is built on.
 // Names, houses, colors, rules and tee time text can still change; nothing can be added or removed.
 export const lockedNote =
-  'This trip has results, so its teams, rounds, sessions and scoring are locked. Names, houses, colors, rules and times can still change.';
+  'This trip has results, so its teams, rounds, sessions and scoring are locked. Names, houses, colors, rules, times and par can still change.';
 
 // ── Teams ────────────────────────────────────────────────────────
 

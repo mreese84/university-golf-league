@@ -102,6 +102,15 @@ describe('rounds and tee times', () => {
     expect(after.draft).toBeNull();
     expect(after.content.rounds).toEqual(ugl2.rounds);
   });
+
+  it('with results, a wrong par can still be fixed (Columbia CC’s 15th is a par 4, not a 5)', () => {
+    const edited = roundsForEditor(ugl2).map((r) => (r.id === 'r2' ? { ...r, par: r.par!.map((p, h) => (h === 14 ? 4 : p)) } : r));
+    const after = applyRounds(ugl2, null, edited, true);
+    const r2 = after.content.rounds.find((r) => r.id === 'r2')!;
+    expect(r2.par![14]).toBe(4);
+    expect(r2.strokeIndex).toEqual(ugl2.rounds.find((r) => r.id === 'r2')!.strokeIndex);
+    expect(after.content.format.sessions).toEqual(ugl2.format.sessions);
+  });
 });
 
 describe('teams', () => {
