@@ -196,8 +196,19 @@ export default function RoundsEditor({
                 <FormField label="Address" hint="For directions; without one, they search the course name">
                   <input value={r.address} onChange={(e) => set(i, { address: e.target.value })} className={inputClass} />
                 </FormField>
-                <FormField label="Par" hint="18 holes, separated by spaces: 4 4 3 5 …" error={holes[i].par.error}>
-                  <input value={r.par} onChange={(e) => set(i, { par: e.target.value })} disabled={locked} inputMode="numeric" className={inputClass} />
+                {/* Par stays open on a trip with results, to fix a scorecard that had it wrong: matches
+                    compare players' net scores with each other, never with par, so no result changes.
+                    Stroke index decides who got strokes where, so it's locked with the rest. */}
+                <FormField
+                  label="Par"
+                  hint={
+                    locked
+                      ? 'Fix a wrong par here: it changes birdies, badges and scores against par, never who won a hole.'
+                      : '18 holes, separated by spaces: 4 4 3 5 …'
+                  }
+                  error={holes[i].par.error}
+                >
+                  <input value={r.par} onChange={(e) => set(i, { par: e.target.value })} inputMode="numeric" className={inputClass} />
                 </FormField>
                 <FormField label="Stroke index" hint="18 holes: which gets the first stroke (1) to the last (18)" error={holes[i].strokeIndex.error}>
                   <input value={r.strokeIndex} onChange={(e) => set(i, { strokeIndex: e.target.value })} disabled={locked} inputMode="numeric" className={inputClass} />
